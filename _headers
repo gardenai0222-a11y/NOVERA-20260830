@@ -1,0 +1,18 @@
+# Netlify Custom Headers for Official MIME Types & Download Integrity
+/*.xlsx
+  Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment; filename="tenders_today.xlsx"; filename*=UTF-8''%E4%BB%8A%E6%97%A5%E6%94%BF%E5%BA%9C%E9%9B%BB%E5%AD%90%E6%8E%A1%E8%B3%BC%E7%B6%B2.xlsx
+  Cache-Control: public, max-age=0, must-revalidate
+
+/tenders_today.xlsx
+  Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment; filename="今日政府電子採購網.xlsx"; filename*=UTF-8''%E4%BB%8A%E6%97%A5%E6%94%BF%E5%BA%9C%E9%9B%BB%E5%AD%90%E6%8E%A1%E8%B3%BC%E7%B6%B2.xlsx
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.doc
+  Content-Type: application/msword
+  Content-Disposition: attachment
+
+/*.png
+  Cache-Control: public, max-age=86400
+

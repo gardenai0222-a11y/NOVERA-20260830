@@ -306,7 +306,7 @@
                             </p>
                         </div>
                         <div>
-                            <a href="tenders_today.xlsx" download="今日政府電子採購網.xlsx" class="btn-twin-action btn-download-excel">
+                            <a href="tenders_today.xlsx" download="今日政府電子採購網.xlsx" onclick="downloadTenderExcel(event)" class="btn-twin-action btn-download-excel">
                                 <i class="fas fa-download"></i> 免費下載標案總表 Excel
                             </a>
                             <div class="twin-sub-note">
@@ -650,6 +650,16 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
+
+        function downloadTenderExcel(e) {
+            // 直接由瀏覽器原生以最佳相容性下載 tenders_today.xlsx
+            const btn = document.querySelector('.btn-download-excel');
+            if (btn) {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> 已開始下載標案總表...';
+                setTimeout(() => { btn.innerHTML = originalHTML; }, 2500);
+            }
+        }
 
         function copyAccount(acc) {
             navigator.clipboard.writeText(acc).then(() => {
