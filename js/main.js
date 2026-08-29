@@ -630,3 +630,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const footerYear = document.getElementById('footer-year');
     if (footerYear) footerYear.textContent = new Date().getFullYear();
 });
+
+/* ==========================================================================
+   NOVERA 智慧財產權與反抄襲防護核心 (IP Protection & Domain Lock)
+   ========================================================================== */
+(function() {
+    // 1. 網域鎖定 (Domain Lock) - 防止整站代碼被偷放至第三方伺服器鏡像
+    const allowedHosts = [
+        'novera-tw.netlify.app',
+        'novera-engineering.netlify.app',
+        'localhost',
+        '127.0.0.1'
+    ];
+    const isLocalFile = (window.location.protocol === 'file:');
+    const isAllowedHost = allowedHosts.some(h => window.location.hostname.endsWith(h));
+    
+    if (!isAllowedHost && !isLocalFile && window.location.hostname !== '') {
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0F172A;color:#fff;font-family:sans-serif;text-align:center;padding:20px;"><div><h1 style="font-size:2rem;color:#EF4444;margin-bottom:12px;">⚠️ 未經授權的鏡像網站</h1><p style="color:#CBD5E1;font-size:1.1rem;margin-bottom:20px;">本系統之所有演算法、S-Curve 模組與資料庫受中華民國《著作權法》保護。<br>正在為您導向至 NOVERA 官方唯一合法網站...</p></div></div>';
+        setTimeout(() => {
+            window.location.href = 'https://novera-tw.netlify.app' + window.location.pathname;
+        }, 1500);
+    }
+
+    // 2. 全站禁用右鍵選單 (輸入框保留正常右鍵以利貼上工程數據)
+    document.addEventListener('contextmenu', function(e) {
+        if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+        e.preventDefault();
+    });
+
+    // 3. 禁用開發者工具與另存原始碼快速鍵 (F12, Ctrl+U, Ctrl+S, Ctrl+Shift+I/J/C)
+    document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C (DevTools)
+        if (e.ctrlKey && e.shiftKey && (['I', 'J', 'C'].includes(e.key.toUpperCase()) || [73, 74, 67].includes(e.keyCode))) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (檢視原始碼)
+        if (e.ctrlKey && (e.key.toUpperCase() === 'U' || e.keyCode === 85)) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+S (另存網頁) - 僅在非輸入狀態下攔截
+        if (e.ctrlKey && (e.key.toUpperCase() === 'S' || e.keyCode === 83)) {
+            if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+            e.preventDefault();
+            return false;
+        }
+    });
+})();
