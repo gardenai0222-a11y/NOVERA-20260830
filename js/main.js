@@ -1,63 +1,79 @@
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * NOVERA 官方跨瀏覽器防 UUID 亂碼下載引擎 (Universal Safe File Downloader)
+ * 徹底解決 Windows / Chrome / Edge 下載 SheetJS Excel、Blob、JSON 時檔名遺失為 GUID 的問題
+ */
+(function() {
+    window.noveraDownloadFile = function(dataOrBlob, filename, mimeType) {
+        try {
+            let blob;
+            if (dataOrBlob instanceof Blob) {
+                blob = dataOrBlob;
+            } else if (typeof dataOrBlob === 'string') {
+                blob = new Blob([dataOrBlob], { type: mimeType || 'text/plain;charset=utf-8' });
+            } else if (dataOrBlob instanceof ArrayBuffer || ArrayBuffer.isView(dataOrBlob)) {
+                blob = new Blob([dataOrBlob], { type: mimeType || 'application/octet-stream' });
+            } else {
+                blob = new Blob([JSON.stringify(dataOrBlob, null, 2)], { type: 'application/json;charset=utf-8' });
+            }
 
+            let fileObj;
+            try {
+                fileObj = new File([blob], filename, { type: blob.type });
+            } catch(e) {
+                fileObj = blob;
+            }
 
-    // Hamburger Menu Toggle
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
+            const url = window.URL.createObjectURL(fileObj);
+            const a = document.createElement('a');
+            a.style.position = 'fixed';
+            a.style.left = '-9999px';
+            a.style.top = '-9999px';
+            a.href = url;
+            a.download = filename;
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            
+            a.click();
 
-    if (hamburger && navLinks) {
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-        
-        // 點擊連結後自動收合選單
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-            });
-        });
+            // 關鍵：延遲 60 秒釋放 URL，絕不可同步 revokeObjectURL，保證瀏覽器下載管理器已完整寫入檔名與副檔名
+            setTimeout(function() {
+                if (a.parentNode) a.parentNode.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 60000);
+        } catch (err) {
+            console.error('noveraDownloadFile 發生錯誤:', err);
+            if (typeof dataOrBlob === 'string' && (dataOrBlob.endsWith('.xlsx') || dataOrBlob.endsWith('.json'))) {
+                window.location.href = dataOrBlob;
+            }
+        }
+    };
+
+    // 徹底攔截並覆蓋 SheetJS 的 XLSX.writeFile，阻斷其觸發 chrome.downloads.download 的 UUID Bug
+    function patchSheetJS() {
+        if (typeof XLSX !== 'undefined' && !XLSX._noveraPatched) {
+            XLSX._noveraPatched = true;
+            const originalWriteFile = XLSX.writeFile;
+            XLSX.writeFile = function(wb, filename, opts) {
+                try {
+                    const defaultMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                    const outType = (opts && opts.bookType === 'csv') ? 'string' : 'array';
+                    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: outType, ...opts });
+                    window.noveraDownloadFile(wbout, filename, defaultMime);
+                } catch(e) {
+                    console.warn('XLSX 自訂下載引擎降級:', e);
+                    if (originalWriteFile) originalWriteFile.call(XLSX, wb, filename, opts);
+                }
+            };
+        }
     }
 
-    // Navbar Scroll Effect
-    const navbar = document.querySelector('.navbar');
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
+    patchSheetJS();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', patchSheetJS);
+    }
+    window.addEventListener('load', patchSheetJS);
+})();
 
-    // Smooth Scrolling for Anchors (including same-page links with filename)
-    document.querySelectorAll('a[href*="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
-            if (href.startsWith('#') || (window.location.pathname.endsWith('tools.html') && href.includes('tools.html#'))) {
-                const hash = href.includes('#') ? href.substring(href.indexOf('#')) : '';
-                if (hash && hash !== '#') {
-                    const target = document.querySelector(hash);
-                    if (target) {
-                        e.preventDefault();
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        history.pushState(null, null, hash);
-                    }
-                }
-            }
-        });
-    });
-
-    // FAQ Accordion
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        if (question) {
-            question.addEventListener('click', () => {
-                // Close other items
-                faqItems.forEach(otherItem => {
                     if (otherItem !== item && otherItem.classList.contains('active')) {
                         otherItem.classList.remove('active');
                     }
@@ -456,7 +472,7 @@ window.evaluateRainDeduction = function() {
     const threshold = parseFloat(threshEl.value);
     const isQualify = rainfall >= threshold;
     
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
     
     if (isQualify) {
         resultBox.style.background = '#ECFDF5';

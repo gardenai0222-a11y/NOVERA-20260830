@@ -13,11 +13,14 @@ import shutil
 import json
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TODAY_STR = datetime.now().strftime('%Y-%m-%d')
-TIME_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
+# 強制指定台灣時區 (Asia/Taipei UTC+8)
+TAIWAN_TZ = timezone(timedelta(hours=8))
+now_tw = datetime.now(TAIWAN_TZ)
+TODAY_STR = now_tw.strftime('%Y-%m-%d')
+TIME_STR = now_tw.strftime('%Y-%m-%d %H:%M')
 
 EXCEL_OUTPUT_PATH = os.path.join(BASE_DIR, "tenders_today.xlsx")
 EXCEL_LATEST_PATH = os.path.join(BASE_DIR, "今日政府電子採購網.xlsx")
