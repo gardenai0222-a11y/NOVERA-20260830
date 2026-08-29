@@ -1146,7 +1146,7 @@
 
             document.getElementById('transaction-form').reset();
             document.getElementById('edit-tx-id').value = '';
-            document.getElementById('form-tx-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('form-tx-date').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
             document.getElementById('transaction-modal-title').innerHTML = '<i class="fas fa-file-invoice-dollar text-emerald-600 mr-2"></i> 新增工料與估驗紀錄';
             updateAccountCategoryOptions();
 
@@ -1430,7 +1430,7 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
             const a = document.createElement('a');
             a.setAttribute("href", dataStr);
-            a.setAttribute("download", `NOVERA_工程專案財務備份_${new Date().toISOString().slice(0,10)}.json`);
+            a.setAttribute("download", `NOVERA_工程專案財務備份_${new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,10)}.json`);
             document.body.appendChild(a);
             a.click();
             a.remove();

@@ -804,12 +804,12 @@
                 const qDate = document.getElementById('rain-single-date').value;
                 const rVal = document.getElementById('rain-val-input').value || '0';
                 const isPass = parseFloat(rVal) >= threshold;
-                msg = `【降雨免計工期判定速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 查詢日期：${qDate}\n🌧️ 實測累積雨量：${rVal} mm (門檻 ≥ ${threshold} mm)\n⚖️ 判定結果：${isPass ? '✅ 符合免計工期 1 日！' : '❌ 未達契約門檻'}\n\n🔍 全國氣象免計工期查詢系統：https://novera-engineering.netlify.app/rain.html`;
+                msg = `【降雨免計工期判定速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 查詢日期：${qDate}\n🌧️ 實測累積雨量：${rVal} mm (門檻 ≥ ${threshold} mm)\n⚖️ 判定結果：${isPass ? '✅ 符合免計工期 1 日！' : '❌ 未達契約門檻'}\n\n🔍 全國氣象免計工期查詢系統：https://novera-tw.netlify.app/rain.html`;
             } else {
                 const sDate = document.getElementById('rain-range-start').value;
                 const eDate = document.getElementById('rain-range-end').value;
                 let passCount = currentRangeData.filter(x => x.pass).length;
-                msg = `【歷史停工區間雨量彙總速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 停工區間：${sDate} 至 ${eDate}\n🌧️ 契約門檻：日雨量 ≥ ${threshold} mm\n⚖️ 彙整結論：總計可申請免計工期 ${passCount} 天！\n\n🔍 全國氣象免計工期核算系統：https://novera-engineering.netlify.app/rain.html`;
+                msg = `【歷史停工區間雨量彙總速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 停工區間：${sDate} 至 ${eDate}\n🌧️ 契約門檻：日雨量 ≥ ${threshold} mm\n⚖️ 彙整結論：總計可申請免計工期 ${passCount} 天！\n\n🔍 全國氣象免計工期核算系統：https://novera-tw.netlify.app/rain.html`;
             }
             window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
         };
@@ -912,7 +912,7 @@
             const inputEl = document.getElementById('rain-val-input');
             inputEl.placeholder = '連線中...';
 
-            const queryDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+            const queryDate = document.getElementById('rain-single-date').value || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
             try {
                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${item.lat}&longitude=${item.lon}&past_days=92&forecast_days=1&daily=precipitation_sum&timezone=Asia%2FTaipei`;
@@ -1167,7 +1167,7 @@
             }
             html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `NOVERA工程降雨免計工期彙整圖卡_${new Date().toISOString().split('T')[0]}.png`;
+                link.download = `NOVERA工程降雨免計工期彙整圖卡_${new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
@@ -1175,7 +1175,7 @@
 
         window.manualRainOverride = function() {
             const val = parseFloat(document.getElementById('rain-val-input').value) || 0;
-            const queryDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+            const queryDate = document.getElementById('rain-single-date').value || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
             renderSingleResult(val, queryDate);
         };
 
@@ -1190,7 +1190,7 @@
 
             if (currentRainMode === 'single') {
                 const rainfall = document.getElementById('rain-val-input').value || '0';
-                const claimDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+                const claimDate = document.getElementById('rain-single-date').value || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
                 const isPass = parseFloat(rainfall) >= parseFloat(threshold);
                 return {
                     mode: 'single',
@@ -1318,7 +1318,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const singleDateInput = document.getElementById('rain-single-date');
-            if (singleDateInput) singleDateInput.value = new Date().toISOString().split('T')[0];
+            if (singleDateInput) singleDateInput.value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
             const startInput = document.getElementById('rain-range-start');
             const endInput = document.getElementById('rain-range-end');
             if (startInput) startInput.value = '2026-08-01';

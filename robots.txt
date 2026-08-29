@@ -9,4 +9,4 @@ Disallow: /exam.html
 # 後端程式碼不應被索引
 Disallow: /run_crawler.py
 
-Sitemap: https://novera-engineering.netlify.app/sitemap.xml
+Sitemap: https://novera-tw.netlify.app/sitemap.xml

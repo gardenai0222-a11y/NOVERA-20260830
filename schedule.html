@@ -534,7 +534,7 @@
             const dur = document.getElementById('sch-duration').value || '180';
             const endText = document.getElementById('sch-out-enddate').innerText.trim();
             const remain = document.getElementById('sch-out-remain').innerText.trim();
-            const msg = `【工區完工排程速報 ‧ NOVERA】\n📅 開工日期：${start}\n⏳ 契約工期：${dur} 天\n🎯 預定完工日：${endText}\n📊 倒數狀態：${remain}\n\n🛠️ 工期與雨量推算工具：https://novera-engineering.netlify.app/schedule.html`;
+            const msg = `【工區完工排程速報 ‧ NOVERA】\n📅 開工日期：${start}\n⏳ 契約工期：${dur} 天\n🎯 預定完工日：${endText}\n📊 倒數狀態：${remain}\n\n🛠️ 工期與雨量推算工具：https://novera-tw.netlify.app/schedule.html`;
             window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
         };
 
@@ -624,7 +624,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const schStartInput = document.getElementById('sch-start-date');
-            if (schStartInput) schStartInput.value = new Date().toISOString().split('T')[0];
+            if (schStartInput) schStartInput.value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
             runScheduleCalc();
         });
     </script>
