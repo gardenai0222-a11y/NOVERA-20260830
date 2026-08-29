@@ -5,33 +5,31 @@ on:
     - cron: '30 23 * * *'
     # 每天台灣時間中午 12:30 執行 (UTC 04:30)
     - cron: '30 4 * * *'
-  workflow_dispatch: # 支援在網頁上手動點擊按鈕「立即執行」
+  workflow_dispatch: # 支援在網頁上手動點擊「立即執行」
 permissions:
-  actions: write
   contents: write
 jobs:
   crawl-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: 檢出最新專案原始碼
+      - name: 檢出專案原始碼
         uses: actions/checkout@v4
-      - name: 設定 Python 3.11 環境
+      - name: 設定 Python 環境
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: 安裝必要依賴庫 (openpyxl)
+      - name: 安裝依賴庫
         run: |
           pip install openpyxl
-      - name: 執行政府電子採購網 (PCC) 爬蟲
+      - name: 執行政府採購網爬蟲
         run: |
           python run_crawler.py
-      - name: 提交更新數據並觸發 Netlify 自動發布
+      - name: 提交更新數據並觸發 Netlify 發布 (內建永久防休眠)
         run: |
           git config --global user.name "NOVERA Radar Bot"
           git config --global user.email "bot@novera.tw"
-          git add tenders_data.js tenders_today.xlsx 今日政府電子採購網.xlsx
-          git diff --staged --quiet || (git commit -m "🤖 [自動排程] 即時更新標案雷達資料庫與 Excel" && git push)
-      - name: 🛡️ 永久防止 GitHub Actions 60天休眠機制 (Keepalive)
-        uses: gautamkrishnar/keepalive-workflow@v1
-        with:
-          use_api: true
+          date -u +"%Y-%m-%d %H:%M:%S UTC" > .keepalive
+          git add tenders_data.js tenders_today.xlsx 今日政府電子採購網.xlsx .keepalive
+          git commit -m "🤖 [自動排程] 即時更新標案雷達資料庫與防休眠活躍度" || echo "無變更"
+          git push
+
