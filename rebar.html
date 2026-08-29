@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鋼筋規範 ＆ 伸展搭接長度速查手冊 ｜ 內政部結構混凝土設計規範 ‧ #3~#11 ｜ NOVERA</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問：鋼筋規範與伸展搭接長度速查系統。依據內政部結構混凝土設計規範，支援 SD420W/SD280W 鋼筋與 210~420 kgf/cm² 混凝土強度，單號數與全號數大表切換，90/135/180度標準耐震彎鉤速查。">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        .tools-container-clean {
+            max-width: 1060px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .tool-card-modern {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            border: 1px solid #E2E8F0;
+            padding: 32px;
+        }
+        .calc-input-modern {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0F172A;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-input-modern:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .btn-line-share {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #06C755;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-line-share:hover {
+            background: #05B04B;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" style="font-weight: 700; color: #334155;">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    
+    <!-- 頂部工程圖框 Banner (徹底消除 Navbar 遮擋重疊) -->
+    <section class="page-hero-eng">
+        <div class="container">
+            <span class="sub-heading">STRUCTURAL REBAR SCHEDULE</span>
+            <h1>鋼筋規範 ＆ 伸展搭接長度速查手冊</h1>
+            <p>依據內政部國土署《結構混凝土設計規範》與工程會施工規範第 03210 章。支援 SD420W/SD280W 鋼筋與 210~420 kgf/cm² 混凝土強度，耐震彎鉤與全號數速查。</p>
+        </div>
+    </section>
+
+    <main class="page-layout-wrapper" style="padding: 40px 20px 80px; background: #EDF2F7;">
+        <div class="tools-container-clean">
+
+                <!-- 使用說明 Guide Box -->
+                <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 16px 20px; margin-bottom: 22px;">
+                    <div style="color: #1E40AF; font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-book-open" style="color: #2563EB;"></i> 鋼筋速查 ‧ 操作指引與規範說明：
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; font-size: 0.86rem; color: #1E3A8A; line-height: 1.6;">
+                        <div><strong style="color: #1D4ED8;">1. 強度參數：</strong> 選擇設計圖說規定之鋼筋等級（SD420W/SD280W）及混凝土設計強度 $f'_c$。</div>
+                        <div><strong style="color: #1D4ED8;">2. 號數速查：</strong> 點選 #3 至 #11 任意號數，即時展開斷面積、單位重、甲/乙級受拉搭接與頂層筋搭接。</div>
+                        <div><strong style="color: #1D4ED8;">3. 耐震彎鉤：</strong> 自動推算 90°、135° 耐震繫條與 180° 半圓形標準彎鉤延伸平直長度。</div>
+                        <div><strong style="color: #1D4ED8;">4. 全號數大表：</strong> 切換「全號數對照大表」模式，支援工程師一覽全案鋼筋規格或截圖列印。</div>
+                    </div>
+                </div>
+
+                <!-- 選擇控制列 -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">鋼筋材質等級 (Grade)</label>
+                            <select id="rebar-grade-sel" onchange="runRebarLookup()" class="calc-input-modern">
+                                <option value="SD420W" selected>SD420W (高強度可銲 / 主筋常用)</option>
+                                <option value="SD280W">SD280W (中強度可銲 / 箍筋常用)</option>
+                                <option value="SD420">SD420 (一般竹節高拉力筋)</option>
+                                <option value="SD280">SD280 (一般竹節中拉力筋)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">混凝土設計強度 f'c</label>
+                            <select id="rebar-fc-sel" onchange="runRebarLookup()" class="calc-input-modern">
+                                <option value="210">210 kgf/cm² (約 20.6 MPa / 3000 psi)</option>
+                                <option value="245">245 kgf/cm² (約 24.0 MPa / 3500 psi)</option>
+                                <option value="280" selected>280 kgf/cm² (約 27.5 MPa / 4000 psi)</option>
+                                <option value="350">350 kgf/cm² (約 34.3 MPa / 5000 psi)</option>
+                                <option value="420">420 kgf/cm² (約 41.2 MPa / 6000 psi)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">速查呈現視圖</label>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="btn-rebar-view-single" onclick="setRebarView('single')" style="flex:1; padding: 10px; border-radius: 8px; font-weight: 800; border: none; background: #2563EB; color: #fff; cursor: pointer;">單號數極速卡</button>
+                                <button id="btn-rebar-view-matrix" onclick="setRebarView('matrix')" style="flex:1; padding: 10px; border-radius: 8px; font-weight: 800; border: 1px solid #CBD5E1; background: #fff; color: #475569; cursor: pointer;">全號數對照大表</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 鋼筋號數選取按鈕群 -->
+                    <div id="rebar-num-selector" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding-top: 14px; border-top: 1px dashed #CBD5E1;">
+                        <span style="font-size: 0.9rem; font-weight: 800; color: #1E293B; margin-right: 8px;">選擇鋼筋號數：</span>
+                        <button onclick="selectRebarNum('D10')" class="rebar-num-chip active" data-num="D10">#3 (D10)</button>
+                        <button onclick="selectRebarNum('D13')" class="rebar-num-chip" data-num="D13">#4 (D13)</button>
+                        <button onclick="selectRebarNum('D16')" class="rebar-num-chip" data-num="D16">#5 (D16)</button>
+                        <button onclick="selectRebarNum('D19')" class="rebar-num-chip" data-num="D19">#6 (D19)</button>
+                        <button onclick="selectRebarNum('D22')" class="rebar-num-chip" data-num="D22">#7 (D22)</button>
+                        <button onclick="selectRebarNum('D25')" class="rebar-num-chip" data-num="D25">#8 (D25)</button>
+                        <button onclick="selectRebarNum('D29')" class="rebar-num-chip" data-num="D29">#9 (D29)</button>
+                        <button onclick="selectRebarNum('D32')" class="rebar-num-chip" data-num="D32">#10 (D32)</button>
+                        <button onclick="selectRebarNum('D36')" class="rebar-num-chip" data-num="D36">#11 (D36)</button>
+                    </div>
+                </div>
+
+                <!-- 單號數極速結果展示區 -->
+                <div id="rebar-single-card" style="display: block;">
+                    <!-- 物理幾何 + 伸展搭接 3 欄卡片 -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        
+                        <!-- 卡片 1：斷面幾何物理特性 -->
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-circle-notch" style="color: #2563EB;"></i> 幾何尺寸與單位重
+                                </h4>
+                                <span id="rebar-badge-size" style="background: #2563EB; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">#6 (D19)</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem;">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #64748B;">公稱直徑 (db)：</span>
+                                    <strong id="rb-out-db" style="color: #0F172A;">19.1 mm (1.91 cm)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #64748B;">公稱斷面積 (Ab)：</span>
+                                    <strong id="rb-out-area" style="color: #0F172A;">2.865 cm²</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #64748B;">單位重量：</span>
+                                    <strong id="rb-out-weight" style="color: #0F172A;">2.25 kg/m</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748B;">公稱周長：</span>
+                                    <strong id="rb-out-perim" style="color: #0F172A;">6.0 cm</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 卡片 2：受拉伸展與搭接長度 (標準受拉) -->
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 12px; padding: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1E40AF; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-arrows-alt-h" style="color: #2563EB;"></i> 基本伸展與搭接長度
+                                </h4>
+                                <span style="background: #3B82F6; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">一般位置(下層筋)</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem;">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #DBEAFE; padding-bottom: 6px;">
+                                    <span style="color: #1E40AF;">基本受拉伸展長度 (ld)：</span>
+                                    <strong id="rb-out-ld" style="color: #1E3A8A; font-size: 1.05rem;">85 cm</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #DBEAFE; padding-bottom: 6px;">
+                                    <span style="color: #1E40AF;">甲級搭接長度 (1.0 ld)：</span>
+                                    <strong id="rb-out-lap-a" style="color: #1E3A8A; font-size: 1.05rem;">85 cm (≥30cm)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #DBEAFE; padding-bottom: 6px;">
+                                    <span style="color: #1E40AF; font-weight: bold;">乙級搭接長度 (1.3 ld / 常用)：</span>
+                                    <strong id="rb-out-lap-b" style="color: #2563EB; font-size: 1.15rem; font-weight: 900;">111 cm</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #1E40AF;">受壓搭接長度：</span>
+                                    <strong id="rb-out-lap-c" style="color: #1E3A8A;">55 cm (≥30cm)</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 卡片 3：頂層筋搭接 ＆ 彎鉤長度 (耐震專用) -->
+                        <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 12px; padding: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-shield-alt" style="color: #0E1B2E;"></i> 頂層筋 ＆ 標準耐震彎鉤
+                                </h4>
+                                <span style="background: #334155; color: #fff; font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">頂層/耐震</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem;">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #1E293B;">頂層筋乙級搭接 (1.3×1.3)：</span>
+                                    <strong id="rb-out-lap-top" style="color: #0E1B2E; font-size: 1.15rem; font-weight: 900;">144 cm</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #1E293B;">90° 標準彎鉤延伸平直長：</span>
+                                    <strong id="rb-out-hook-90" style="color: #1E293B;">23 cm (12 db)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                                    <span style="color: #1E293B;">135° 耐震繫條彎鉤延伸長：</span>
+                                    <strong id="rb-out-hook-135" style="color: #1E293B;">15 cm (≥6db/7.5cm)</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #1E293B;">180° 半圓彎鉤延伸平直長：</span>
+                                    <strong id="rb-out-hook-180" style="color: #1E293B;">10 cm (4 db / ≥6.5cm)</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 全號數對照大表區 (隱藏/切換) -->
+                <div id="rebar-matrix-table" style="display: none; overflow-x: auto; margin-top: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; border: 1px solid #CBD5E1;">
+                        <thead>
+                            <tr style="background: #1E293B; color: #fff;">
+                                <th style="padding: 10px; border: 1px solid #334155;">號數 (美規/公制)</th>
+                                <th style="padding: 10px; border: 1px solid #334155;">直徑 (db)</th>
+                                <th style="padding: 10px; border: 1px solid #334155;">斷面積 (Ab)</th>
+                                <th style="padding: 10px; border: 1px solid #334155;">單位重</th>
+                                <th style="padding: 10px; border: 1px solid #334155; background: #2563EB;">乙級搭接 (一般)</th>
+                                <th style="padding: 10px; border: 1px solid #334155; background: #7C3AED;">乙級搭接 (頂層筋)</th>
+                                <th style="padding: 10px; border: 1px solid #334155;">90° 彎鉤</th>
+                                <th style="padding: 10px; border: 1px solid #334155;">135° 耐震鉤</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rebar-matrix-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- 其他工具導覽快捷卡 -->
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 12px;">探索更多 NOVERA 工程實用工具：</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="schedule.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #8B5CF6; border: 1px solid #DDD6FE; text-decoration: none;"><i class="fas fa-calendar-check"></i> 工程完工日推算器</a>
+                    <a href="rain.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #0284C7; border: 1px solid #BAE6FD; text-decoration: none;"><i class="fas fa-cloud-showers-heavy"></i> 全國降雨免計工期判定</a>
+                    <a href="templates.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #059669; border: 1px solid #BBF7D0; text-decoration: none;"><i class="fas fa-file-word"></i> 公文與品管範本庫</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .rebar-num-chip {
+            background: #fff;
+            border: 1px solid #CBD5E1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .rebar-num-chip:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+        .rebar-num-chip.active {
+            background: #2563EB;
+            border-color: #2563EB;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+    </style>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+
+        const REBAR_SPECS = {
+            'D10': { us: '#3', db: 9.53, area: 0.7133, weight: 0.560, perim: 3.0 },
+            'D13': { us: '#4', db: 12.7, area: 1.267, weight: 0.994, perim: 4.0 },
+            'D16': { us: '#5', db: 15.9, area: 1.986, weight: 1.56, perim: 5.0 },
+            'D19': { us: '#6', db: 19.1, area: 2.865, weight: 2.25, perim: 6.0 },
+            'D22': { us: '#7', db: 22.2, area: 3.871, weight: 3.04, perim: 7.0 },
+            'D25': { us: '#8', db: 25.4, area: 5.067, weight: 3.98, perim: 8.0 },
+            'D29': { us: '#9', db: 28.7, area: 6.469, weight: 5.08, perim: 9.0 },
+            'D32': { us: '#10', db: 32.2, area: 8.143, weight: 6.39, perim: 10.1 },
+            'D36': { us: '#11', db: 35.8, area: 10.07, weight: 7.90, perim: 11.3 }
+        };
+
+        let currentRebarKey = 'D19';
+        let currentRebarView = 'single';
+
+        window.shareRebarToLine = function() {
+            const spec = REBAR_SPECS[currentRebarKey];
+            const grade = document.getElementById('rebar-grade-sel').value;
+            const fc = document.getElementById('rebar-fc-sel').value;
+            const lapB = document.getElementById('rb-out-lap-b').innerText.trim();
+            const topB = document.getElementById('rb-out-lap-top').innerText.trim();
+            const hook90 = document.getElementById('rb-out-hook-90').innerText.trim();
+            const msg = `【鋼筋規範搭接速報 ‧ NOVERA】\n📐 號數：${spec.us} (${currentRebarKey})\n⚙️ 材質/混凝土：${grade} ｜ f'c = ${fc} kgf/cm²\n📏 乙級搭接(一般)：${lapB}\n📏 乙級搭接(頂層筋)：${topB}\n📐 90°標準彎鉤：${hook90}\n\n🔍 鋼筋規範速查手冊：https://novera-engineering.netlify.app/rebar.html`;
+            window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
+        };
+
+        window.selectRebarNum = function(key) {
+            currentRebarKey = key;
+            document.querySelectorAll('.rebar-num-chip').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-num') === key);
+            });
+            runRebarLookup();
+        };
+
+        window.setRebarView = function(view) {
+            currentRebarView = view;
+            const btnSingle = document.getElementById('btn-rebar-view-single');
+            const btnMatrix = document.getElementById('btn-rebar-view-matrix');
+            const singleCard = document.getElementById('rebar-single-card');
+            const matrixTable = document.getElementById('rebar-matrix-table');
+            const selector = document.getElementById('rebar-num-selector');
+
+            if (view === 'single') {
+                btnSingle.style.background = '#2563EB';
+                btnSingle.style.color = '#fff';
+                btnMatrix.style.background = '#fff';
+                btnMatrix.style.color = '#475569';
+                singleCard.style.display = 'block';
+                matrixTable.style.display = 'none';
+                selector.style.display = 'flex';
+            } else {
+                btnSingle.style.background = '#fff';
+                btnSingle.style.color = '#475569';
+                btnMatrix.style.background = '#2563EB';
+                btnMatrix.style.color = '#fff';
+                singleCard.style.display = 'none';
+                matrixTable.style.display = 'block';
+                selector.style.display = 'none';
+            }
+            runRebarLookup();
+        };
+
+        function calcRebarMetrics(key, grade, fcVal) {
+            const spec = REBAR_SPECS[key];
+            const db_cm = spec.db / 10.0;
+            let fy = (grade.includes('420')) ? 4200 : 2800;
+            let fc = fcVal;
+
+            let coeff = (db_cm <= 1.91) ? 0.04 : 0.05;
+            let ld = (coeff * fy * db_cm) / Math.sqrt(fc);
+            if (ld < 30.0) ld = 30.0;
+            if (ld < (24 * db_cm)) ld = 24 * db_cm;
+
+            let lapA = Math.max(30.0, Math.ceil(ld));
+            let lapB = Math.max(30.0, Math.ceil(1.3 * ld));
+            let topLapB = Math.max(30.0, Math.ceil(1.3 * 1.3 * ld));
+
+            let compLap = Math.max(30.0, Math.ceil(0.0073 * fy * db_cm));
+            if (compLap < (20 * db_cm)) compLap = Math.ceil(20 * db_cm);
+
+            let hook90 = Math.max(7.5, Math.ceil(12 * db_cm));
+            let hook135 = Math.max(7.5, Math.ceil(6 * db_cm));
+            let hook180 = Math.max(6.5, Math.ceil(4 * db_cm));
+
+            return {
+                spec,
+                db_mm: spec.db,
+                db_cm: db_cm,
+                ld: Math.ceil(ld),
+                lapA: lapA,
+                lapB: lapB,
+                topLapB: topLapB,
+                compLap: compLap,
+                hook90: hook90,
+                hook135: hook135,
+                hook180: hook180
+            };
+        }
+
+        window.runRebarLookup = function() {
+            const grade = document.getElementById('rebar-grade-sel').value;
+            const fcVal = parseFloat(document.getElementById('rebar-fc-sel').value) || 280;
+
+            const res = calcRebarMetrics(currentRebarKey, grade, fcVal);
+
+            document.getElementById('rebar-badge-size').innerText = `${res.spec.us} (${currentRebarKey})`;
+            document.getElementById('rb-out-db').innerText = `${res.db_mm.toFixed(1)} mm (${res.db_cm.toFixed(2)} cm)`;
+            document.getElementById('rb-out-area').innerText = `${res.spec.area.toFixed(3)} cm²`;
+            document.getElementById('rb-out-weight').innerText = `${res.spec.weight.toFixed(2)} kg/m`;
+            document.getElementById('rb-out-perim').innerText = `${res.spec.perim.toFixed(1)} cm`;
+
+            document.getElementById('rb-out-ld').innerText = `${res.ld} cm`;
+            document.getElementById('rb-out-lap-a').innerText = `${res.lapA} cm (≥30cm)`;
+            document.getElementById('rb-out-lap-b').innerText = `${res.lapB} cm`;
+            document.getElementById('rb-out-lap-c').innerText = `${res.compLap} cm (≥30cm)`;
+
+            document.getElementById('rb-out-lap-top').innerText = `${res.topLapB} cm`;
+            document.getElementById('rb-out-hook-90').innerText = `${res.hook90} cm (12 db)`;
+            document.getElementById('rb-out-hook-135').innerText = `${res.hook135} cm (≥6db/7.5cm)`;
+            document.getElementById('rb-out-hook-180').innerText = `${res.hook180} cm (4 db/≥6.5cm)`;
+
+            let matrixRows = '';
+            Object.keys(REBAR_SPECS).forEach(k => {
+                const m = calcRebarMetrics(k, grade, fcVal);
+                matrixRows += `
+                    <tr style="border-bottom: 1px solid #E2E8F0;">
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #E2E8F0;">${m.spec.us} (${k})</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">${m.db_mm.toFixed(1)} mm</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">${m.spec.area.toFixed(3)} cm²</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">${m.spec.weight.toFixed(2)} kg/m</td>
+                        <td style="padding: 10px; font-weight: 900; color: #2563EB; border: 1px solid #E2E8F0; background: #EFF6FF;">${m.lapB} cm</td>
+                        <td style="padding: 10px; font-weight: 900; color: #7C3AED; border: 1px solid #E2E8F0; background: #F5F3FF;">${m.topLapB} cm</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">${m.hook90} cm</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">${m.hook135} cm</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('rebar-matrix-body').innerHTML = matrixRows;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runRebarLookup();
+        });
+    </script>
+</body>
+</html>

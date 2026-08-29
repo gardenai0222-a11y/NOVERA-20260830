@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程專案進度核算 ＆ S 曲線 (S-Curve) 分析系統 ｜ 權重計算法 ‧ 甘特圖 ‧ Excel匯出 ｜ NOVERA 諾維拉</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問：工程專案進度核算與 S 曲線分析系統。依公共工程標準工項金額權重加權法，即時推算預定進度、實際進度、超前/落後差值，自動繪製 S-Curve 與甘特圖，支援 Excel 報告與高解析圖表一鍵匯出。">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- 支援 PWA Web App 模式 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NOVERA進度">
+
+    <!-- 引入 Tailwind CSS (用於彈性排版) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-navy': '#0E1B2E',
+                        'secondary-navy': '#1A2B42',
+                        'accent-gold': '#C27803',
+                        'accent-gold-light': '#D97706',
+                        'tech-blue': '#1E3A8A'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 引入 Chart.js 函式庫與外掛 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <!-- 引入 SheetJS (XLSX) 高階 Excel 函式庫 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- 引入 xlsx-populate 函式庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-populate@1.21.0/browser/xlsx-populate.min.js"></script>
+
+    <style>
+        /* NOVERA 工程顧問嚴謹質感樣式 */
+        .progress-app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+        .eng-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 4px 16px rgba(14, 27, 46, 0.06);
+            transition: all 0.25s ease;
+        }
+        .eng-card:hover {
+            box-shadow: 0 8px 24px rgba(14, 27, 46, 0.12);
+        }
+        .input-eng {
+            background-color: #FFFFFF;
+            border: 1.5px solid #CBD5E1;
+            color: #0F172A;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .input-eng:focus {
+            outline: none;
+            border-color: #C27803;
+            box-shadow: 0 0 0 3px rgba(194, 120, 3, 0.15);
+        }
+        .btn-eng-navy {
+            background: linear-gradient(135deg, #0E1B2E 0%, #1A2B42 100%);
+            color: #FFFFFF;
+            border: 1px solid #1E3A8A;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-eng-navy:hover {
+            background: linear-gradient(135deg, #1A2B42 0%, #243B5A 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 27, 46, 0.2);
+        }
+        .btn-eng-gold {
+            background: linear-gradient(135deg, #C27803 0%, #D97706 100%);
+            color: #FFFFFF;
+            border-radius: 6px;
+            font-weight: 700;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-eng-gold:hover {
+            background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(194, 120, 3, 0.3);
+        }
+        .data-matrix-header {
+            cursor: pointer;
+            background-color: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            transition: background 0.2s;
+        }
+        .data-matrix-header:hover {
+            background-color: #F1F5F9;
+        }
+        .participant-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+        }
+        .participant-info div {
+            padding: 8px 12px;
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #C27803;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .participant-info .label {
+            font-weight: 700;
+            color: #0E1B2E;
+            margin-right: 6px;
+        }
+        .chart-box {
+            background-color: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            position: relative;
+        }
+        .chart-download-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 10;
+            background-color: #F1F5F9;
+            border: 1px solid #CBD5E1;
+            color: #334155;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .chart-download-btn:hover {
+            background-color: #0E1B2E;
+            color: #FFFFFF;
+        }
+        .tab-button {
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            font-weight: 700;
+            color: #64748B;
+        }
+        .tab-button.active {
+            color: #C27803;
+            border-bottom-color: #C27803;
+            background-color: #FEF3C7;
+        }
+        .task-table thead th {
+            background: #F1F5F9;
+            color: #1E293B;
+            font-weight: 700;
+            border-bottom: 2px solid #CBD5E1;
+        }
+        .task-table tbody tr:nth-child(even) {
+            background-color: #F8FAFC;
+        }
+        .modal-base {
+            transition: opacity 0.25s ease-in-out;
+        }
+        .modal-base.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-content {
+            background-color: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 20px 50px rgba(14, 27, 46, 0.25);
+            transition: transform 0.25s ease-in-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body style="background-color: #EDF2F7;">
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" class="active" style="color: #FBBF24; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" style="font-weight: 700; color: #2563EB;">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-layout-wrapper">
+        <!-- 頁首 Banner -->
+        <div class="page-hero-eng" data-aos="fade-down">
+            <span class="sub-heading">EARNED VALUE & S-CURVE MANAGEMENT SYSTEM</span>
+            <h1>工程專案進度核算 ＆ S 曲線分析系統</h1>
+            <p>完全遵循公共工程標準「工項金額權重加權法」‧ 自動生成預定/實際 S-Curve 折線圖、甘特圖 ‧ Excel 報表一鍵匯出</p>
+        </div>
+
+        <div class="progress-app-container">
+
+            <!-- 操作中心 -->
+            <div class="eng-card p-6 mb-8 border-t-4 border-accent-gold" data-aos="fade-up">
+                <div id="management-center">
+                    <div class="flex justify-between items-center flex-wrap gap-4 mb-4 border-b border-gray-200 pb-3">
+                        <h3 class="text-xl font-bold text-primary-navy flex items-center gap-2">
+                            <i class="fas fa-sliders-h text-accent-gold"></i> 工程進度控制台
+                        </h3>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-semibold">
+                            <i class="fas fa-shield-alt text-green-600"></i> 純前端本地安全儲存 ‧ 資料不外洩
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON()">
+                            <button onclick="document.getElementById('jsonFileInput').click()" class="btn-eng-navy w-full py-3 px-4 flex items-center justify-center gap-2">
+                                <i class="fas fa-file-upload text-accent-gold"></i> JSON 專案數據匯入
+                            </button>
+                        </div>
+                        <div>
+                            <button onclick="exportJSON()" class="btn-eng-navy w-full py-3 px-4 flex items-center justify-center gap-2">
+                                <i class="fas fa-file-download text-accent-gold"></i> JSON 數據備份匯出
+                            </button>
+                        </div>
+                        <div>
+                            <button onclick="toggleCreationForm()" class="btn-eng-gold w-full py-3 px-4 flex items-center justify-center gap-2">
+                                <i class="fas fa-plus-circle"></i> 建立新工程專案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 建立專案表單 -->
+                <div id="project-creation-form" class="hidden pt-4">
+                    <h3 class="text-xl font-bold mb-4 text-primary-navy border-b-2 border-accent-gold pb-2 flex items-center gap-2">
+                        <i class="fas fa-folder-plus text-accent-gold"></i> 建立新工程專案
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch pt-2">
+                        <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200">
+                            <label class="block text-sm font-bold text-primary-navy mb-1">工程標案名稱 *</label>
+                            <input type="text" id="newProjectName" placeholder="如：八掌溪斷面疏濬工程" class="w-full p-2 input-eng mb-4">
+                            <label class="block text-sm font-bold text-primary-navy mb-1">契約總金額 (NT$) *</label>
+                            <input type="number" id="newContractSum" min="1" placeholder="如：52000000" class="w-full p-2 input-eng">
+                        </div>
+                        <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200 grid grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-bold text-gray-700 mb-1">甲方 (業主) *</label><input type="text" id="newClient" placeholder="主辦機關全銜" class="w-full p-2 input-eng"></div>
+                            <div><label class="block text-xs font-bold text-gray-700 mb-1">設計單位</label><input type="text" id="newDesigner" placeholder="顧問公司全銜" class="w-full p-2 input-eng"></div>
+                            <div><label class="block text-xs font-bold text-gray-700 mb-1">監造單位</label><input type="text" id="newSupervisor" placeholder="監造顧問全銜" class="w-full p-2 input-eng"></div>
+                            <div><label class="block text-xs font-bold text-gray-700 mb-1">施工單位</label><input type="text" id="newConstructionUnit" placeholder="承攬營造廠全銜" class="w-full p-2 input-eng"></div>
+                        </div>
+                        <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200">
+                            <label class="block text-sm font-bold text-primary-navy mb-1">核定開工日期 *</label>
+                            <input type="date" id="newStartDate" onchange="updateProjectDates('start', 'new')" class="w-full p-2 input-eng mb-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="block text-xs font-bold text-gray-700 mb-1">契約工期 (天) *</label><input type="number" id="newContractDuration" placeholder="如：180" oninput="updateProjectDates('duration', 'new')" class="w-full p-2 input-eng"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 mb-1">預定完工日 *</label><input type="date" id="newPlannedCompletionDate" onchange="updateProjectDates('completionDate', 'new')" class="w-full p-2 input-eng"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end items-center gap-4">
+                        <button onclick="toggleCreationForm()" class="px-6 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
+                        <button onclick="createProject()" class="btn-eng-gold px-8 py-3 rounded-md font-bold text-base"><i class="fas fa-check"></i> 確認建立專案</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訊息提示盒 -->
+            <div id="message-box" class="fixed top-20 right-5 z-[99999] w-full max-w-sm"></div>
+
+            <!-- 專案清單主容器 -->
+            <div id="project-list-container"></div>
+        </div>
+    </main>
+
+    <!-- Modals (圖表儀表板 / 修改專案 / 修改分項工程 / 確認彈窗) -->
+    <div id="chart-modal" class="modal-base fixed inset-0 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm z-50" onclick="if(event.target.id === 'chart-modal') hideChartModal()">
+        <div class="modal-content w-full max-w-7xl rounded-xl p-6 md:p-8 relative z-50 flex flex-col">
+            <button onclick="hideChartModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-3xl font-bold transition">&times;</button>
+            <h3 class="text-2xl font-bold text-primary-navy flex items-center gap-2">
+                <i class="fas fa-chart-area text-accent-gold"></i> 工程進度分析儀表板 ─ <span id="modal-project-title" class="text-accent-gold-light"></span>
+            </h3>
+            <div class="border-b border-gray-200 mt-3 mb-4">
+                <nav class="-mb-px flex space-x-4">
+                    <button id="tab-btn-comparison" data-tab="comparison" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base active"><i class="fas fa-balance-scale"></i> 預計 vs. 實際 S 曲線 (推薦)</button>
+                    <button id="tab-btn-planned" data-tab="planned" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-tasks"></i> 預定進度與甘特圖</button>
+                    <button id="tab-btn-actual" data-tab="actual" onclick="switchChartTab(this)" class="tab-button py-2.5 px-4 font-bold text-base"><i class="fas fa-history"></i> 實際累積進度 S 曲線</button>
+                </nav>
+            </div>
+            
+            <div id="tab-content-comparison" class="flex-grow min-h-0 overflow-y-auto">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-box rounded-xl flex flex-col">
+                        <button data-action="download-single-chart" data-canvas-id="comparisonSCurveCanvas" class="chart-download-btn">
+                            <i class="fas fa-download"></i> 下載高解析圖檔
+                        </button>
+                        <div class="relative flex-grow min-h-[440px]"><canvas id="comparisonSCurveCanvas"></canvas></div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="flex justify-end space-x-3">
+                        <button data-tab="comparison" onclick="exportProjectToExcel(this)" class="btn-eng-navy py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-file-excel text-green-400"></i> 匯出 S 曲線進度分析 (Excel)</button>
+                        <button data-tab="comparison" onclick="downloadChartsAsPNG(this)" class="btn-eng-gold py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-image"></i> 下載本頁圖表 (PNG)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-planned" class="hidden flex-grow min-h-0 overflow-y-auto">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-box rounded-xl flex flex-col">
+                        <button data-action="download-single-chart" data-canvas-id="plannedCombinedCanvas" class="chart-download-btn">
+                            <i class="fas fa-download"></i> 下載圖檔
+                        </button>
+                        <div class="relative flex-grow min-h-[380px]"><canvas id="plannedCombinedCanvas"></canvas></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="chart-box rounded-xl flex flex-col">
+                            <button data-action="download-single-chart" data-canvas-id="plannedSCurveCanvas" class="chart-download-btn">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <div class="relative flex-grow min-h-[340px]"><canvas id="plannedSCurveCanvas"></canvas></div>
+                        </div>
+                        <div class="chart-box rounded-xl flex flex-col">
+                            <button data-action="download-single-chart" data-canvas-id="plannedGanttCanvas" class="chart-download-btn">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <div class="relative flex-grow min-h-[340px]"><canvas id="plannedGanttCanvas"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="flex justify-end space-x-3">
+                        <button data-tab="planned" onclick="exportProjectToExcel(this)" class="btn-eng-navy py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-file-excel text-green-400"></i> 匯出預定進度報告 (Excel)</button>
+                        <button data-tab="planned" onclick="downloadChartsAsPNG(this)" class="btn-eng-gold py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-image"></i> 下載本頁圖表 (PNG)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-actual" class="hidden flex-grow min-h-0 overflow-y-auto">
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-box rounded-xl flex flex-col">
+                        <button data-action="download-single-chart" data-canvas-id="actualSCurveCanvas" class="chart-download-btn">
+                            <i class="fas fa-download"></i> 下載高解析圖檔
+                        </button>
+                        <div class="relative flex-grow min-h-[440px]"><canvas id="actualSCurveCanvas"></canvas></div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <div class="flex justify-end space-x-3">
+                        <button data-tab="actual" onclick="exportProjectToExcel(this)" class="btn-eng-navy py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-file-excel text-green-400"></i> 匯出實際進度報告 (Excel)</button>
+                        <button data-tab="actual" onclick="downloadChartsAsPNG(this)" class="btn-eng-gold py-2 px-5 font-bold rounded-lg text-sm"><i class="fas fa-image"></i> 下載實際進度圖表 (PNG)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end mt-4 border-t border-gray-200 pt-3">
+                <button onclick="hideChartModal()" class="py-2 px-6 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition">關閉視窗</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯專案 Modal -->
+    <div id="edit-project-modal" class="modal-base fixed inset-0 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm z-50" onclick="if(event.target.id === 'edit-project-modal') hideEditModal()">
+        <div class="modal-content w-full max-w-4xl rounded-xl p-6 md:p-8 relative z-50 flex flex-col">
+            <button onclick="hideEditModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-3xl font-bold transition">&times;</button>
+            <h3 class="text-xl font-bold mb-4 text-primary-navy border-b-2 border-accent-gold pb-2">修改工程案件資訊</h3>
+            <input type="hidden" id="editProjectId">
+            <div class="grid grid-cols-1 lg:grid-cols-6 gap-6 items-stretch pt-2">
+                <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200">
+                    <label class="block text-sm font-bold text-primary-navy mb-1">工程標案名稱 *</label>
+                    <input type="text" id="editProjectName" class="w-full p-2 input-eng mb-4">
+                    <label class="block text-sm font-bold text-primary-navy mb-1">契約總金額 (NT$) *</label>
+                    <input type="number" id="editContractSum" min="1" class="w-full p-2 input-eng">
+                </div>
+                <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200 grid grid-cols-2 gap-3">
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">甲方 (業主)</label><input type="text" id="editClient" class="w-full p-2 input-eng"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">設計單位</label><input type="text" id="editDesigner" class="w-full p-2 input-eng"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">監造單位</label><input type="text" id="editSupervisor" class="w-full p-2 input-eng"></div>
+                    <div><label class="block text-xs font-bold text-gray-700 mb-1">施工單位</label><input type="text" id="editConstructionUnit" class="w-full p-2 input-eng"></div>
+                </div>
+                <div class="lg:col-span-2 p-4 rounded-lg bg-slate-50 border border-gray-200">
+                    <label class="block text-sm font-bold text-primary-navy mb-1">開工日期 *</label>
+                    <input type="date" id="editStartDate" onchange="updateProjectDates('start', 'edit')" class="w-full p-2 input-eng mb-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">約定工期 (天)</label><input type="number" id="editContractDuration" oninput="updateProjectDates('duration', 'edit')" class="w-full p-2 input-eng"></div>
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">預定完工日</label><input type="date" id="editPlannedCompletionDate" onchange="updateProjectDates('completionDate', 'edit')" class="w-full p-2 input-eng"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end items-center gap-4">
+                <button onclick="hideEditModal()" class="px-6 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
+                <button onclick="updateProject()" class="btn-eng-gold px-8 py-3 rounded-md font-bold text-base"><i class="fas fa-save"></i> 儲存變更</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 編輯分項工項 Modal -->
+    <div id="edit-task-modal" class="modal-base fixed inset-0 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm z-50" onclick="if(event.target.id === 'edit-task-modal') hideEditTaskModal()">
+        <div class="modal-content w-full max-w-lg rounded-xl p-6 md:p-8 relative z-50">
+            <button onclick="hideEditTaskModal()" class="absolute top-4 right-5 text-gray-400 hover:text-gray-700 text-3xl font-bold transition">&times;</button>
+            <h3 class="text-xl font-bold mb-4 text-primary-navy border-b-2 border-accent-gold pb-2">修改分項工程工項</h3>
+            <input type="hidden" id="editTaskProjectId">
+            <input type="hidden" id="editTaskId">
+            <div class="space-y-4">
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">分項工程名稱 *</label><input type="text" id="editTaskName" class="w-full p-2 input-eng"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">工項金額 (NT$) *</label><input type="number" id="editTaskCost" class="w-full p-2 input-eng"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">預計開始日期 *</label><input type="date" id="editTaskStartDate" class="w-full p-2 input-eng"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">預計完成日期 *</label><input type="date" id="editTaskEndDate" class="w-full p-2 input-eng"></div>
+            </div>
+            <div class="mt-6 flex justify-end items-center gap-3">
+                <button onclick="hideEditTaskModal()" class="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 font-semibold">取消</button>
+                <button onclick="updateTask()" class="btn-eng-gold py-2 px-6 font-bold rounded-md">儲存工項</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 確認刪除 Modal -->
+    <div id="confirm-modal" class="modal-base fixed inset-0 hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm z-50">
+        <div class="modal-content w-full max-w-md rounded-xl p-6 md:p-8 relative z-50 text-center">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-3">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2 text-primary-navy">操作確認</h3>
+            <p id="confirm-modal-message" class="mb-6 text-gray-600 text-sm leading-relaxed">您確定要執行此操作嗎？</p>
+            <div class="flex justify-center items-center gap-3">
+                <button id="confirm-modal-cancel" class="py-2 px-6 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 w-1/2">取消</button>
+                <button id="confirm-modal-confirm" class="py-2 px-6 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 w-1/2">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心運算與圖表腳本 (100% 保留核心演算法) -->
+    <script>
+        let projects = []; 
+        let isCreationFormVisible = false;
+        const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+        const formatDate = (date) => {
+            if (!date) return '';
+            if (typeof date === 'string' || typeof date === 'number') date = new Date(date);
+            if (isNaN(date.getTime())) return '';
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        const formatCurrency = (number) => number ? Math.round(number).toLocaleString('zh-TW') : '0';
+        const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2); 
+
+        function updateProjectDates(source, prefix = 'new') {
+            const startDateInput = document.getElementById(`${prefix}StartDate`);
+            const durationInput = document.getElementById(`${prefix}ContractDuration`);
+            const completionDateInput = document.getElementById(`${prefix}PlannedCompletionDate`);
+
+            if (!startDateInput.value) return;
+            const startDate = new Date(startDateInput.value);
+
+            if (source === 'duration' && durationInput.value) {
+                const duration = parseInt(durationInput.value);
+                if (duration > 0) {
+                    const completionDate = new Date(startDate.getTime());
+                    completionDate.setDate(completionDate.getDate() + duration - 1);
+                    completionDateInput.value = formatDate(completionDate);
+                }
+            } else if (source === 'completionDate' && completionDateInput.value) {
+                const completionDate = new Date(completionDateInput.value);
+                if (completionDate >= startDate) {
+                    const diffTime = completionDate.getTime() - startDate.getTime();
+                    const duration = Math.ceil(diffTime / MS_PER_DAY) + 1;
+                    durationInput.value = duration;
+                }
+            }
+        }
+        
+        function getDurationDays(startStr, endStr) {
+            if (!startStr || !endStr) return 0;
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
+            return Math.floor((end - start) / MS_PER_DAY) + 1;
+        }
+        
+        function toggleCreationForm() {
+            isCreationFormVisible = !isCreationFormVisible;
+            document.getElementById('project-creation-form').classList.toggle('hidden', !isCreationFormVisible);
+            document.getElementById('management-center').classList.toggle('hidden', isCreationFormVisible);
+        }
+
+        function createProject() {
+            const newProject = {
+                id: generateId(),
+                name: document.getElementById('newProjectName').value.trim(),
+                contractSum: parseFloat(document.getElementById('newContractSum').value),
+                client: document.getElementById('newClient').value.trim(),
+                designer: document.getElementById('newDesigner').value.trim(),
+                supervisor: document.getElementById('newSupervisor').value.trim(),
+                constructionUnit: document.getElementById('newConstructionUnit').value.trim(),
+                startDate: document.getElementById('newStartDate').value,
+                contractDuration: parseInt(document.getElementById('newContractDuration').value),
+                plannedCompletionDate: document.getElementById('newPlannedCompletionDate').value,
+                isCollapsed: false,
+                tasks: []
+            };
+
+            if (!newProject.name || !newProject.client || !newProject.startDate || !newProject.plannedCompletionDate || isNaN(newProject.contractSum)) {
+                showMessage('錯誤：請填寫所有必填欄位 (案名、甲方、開工日期、預定完工日、契約總額)。', 'danger');
+                return;
+            }
+            
+            projects.push(newProject);
+            ['newProjectName', 'newContractSum', 'newClient', 'newDesigner', 'newSupervisor', 'newConstructionUnit', 'newStartDate', 'newContractDuration', 'newPlannedCompletionDate'].forEach(id => document.getElementById(id).value = '');
+            
+            saveToLocalStorage();
+            renderProjects();
+            showMessage(`✅ 工程案件「${newProject.name}」已成功建立。`, 'success');
+            toggleCreationForm();
+        }
+
+        function deleteProject(projectId) {
+             const project = projects.find(p => p.id === projectId);
+             if (!project) return;
+             showConfirmModal(`您確定要永久刪除工程案件「${project.name}」嗎？所有相關工項與進度紀錄將無法復原。`, () => {
+                 projects = projects.filter(p => p.id !== projectId);
+                 saveToLocalStorage();
+                 renderProjects();
+                 showMessage('工程案件已刪除。', 'warning');
+             });
+        }
+
+        function showEditModal(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            document.getElementById('editProjectId').value = project.id;
+            document.getElementById('editProjectName').value = project.name;
+            document.getElementById('editContractSum').value = project.contractSum;
+            document.getElementById('editClient').value = project.client;
+            document.getElementById('editDesigner').value = project.designer;
+            document.getElementById('editSupervisor').value = project.supervisor;
+            document.getElementById('editConstructionUnit').value = project.constructionUnit;
+            document.getElementById('editStartDate').value = project.startDate;
+            document.getElementById('editContractDuration').value = project.contractDuration;
+            document.getElementById('editPlannedCompletionDate').value = project.plannedCompletionDate;
+            
+            document.getElementById('edit-project-modal').classList.remove('hidden');
+        }
+
+        function hideEditModal() {
+            document.getElementById('edit-project-modal').classList.add('hidden');
+        }
+
+        function updateProject() {
+            const projectId = document.getElementById('editProjectId').value;
+            const projectIndex = projects.findIndex(p => p.id === projectId);
+            if (projectIndex === -1) return;
+            
+            projects[projectIndex] = {
+                ...projects[projectIndex],
+                name: document.getElementById('editProjectName').value.trim(),
+                contractSum: parseFloat(document.getElementById('editContractSum').value),
+                client: document.getElementById('editClient').value.trim(),
+                designer: document.getElementById('editDesigner').value.trim(),
+                supervisor: document.getElementById('editSupervisor').value.trim(),
+                constructionUnit: document.getElementById('editConstructionUnit').value.trim(),
+                startDate: document.getElementById('editStartDate').value,
+                contractDuration: parseInt(document.getElementById('editContractDuration').value),
+                plannedCompletionDate: document.getElementById('editPlannedCompletionDate').value
+            };
+
+            saveToLocalStorage();
+            renderProjects();
+            hideEditModal();
+            showMessage(`✅ 工程案件「${projects[projectIndex].name}」資訊已更新。`, 'success');
+        }
+        
+        function toggleCollapse(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.isCollapsed = !project.isCollapsed;
+                renderProjects();
+            }
+        }
+        
+        function getTaskProgressAsOf(task, asOfDateStr) {
+            if (!task || !task.progressHistory || task.progressHistory.length === 0 || !asOfDateStr) {
+                return 0;
+            }
+            const sortedHistory = [...task.progressHistory].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const asOfDate = new Date(asOfDateStr);
+            let prevUpdate = null;
+            let nextUpdate = null;
+            for (const update of sortedHistory) {
+                const updateDate = new Date(update.date);
+                if (updateDate <= asOfDate) {
+                    prevUpdate = update;
+                } else {
+                    nextUpdate = update;
+                    break;
+                }
+            }
+            if (!prevUpdate) return 0;
+            if (!nextUpdate || new Date(prevUpdate.date).getTime() === asOfDate.getTime()) return prevUpdate.progress;
+            
+            const prevDate = new Date(prevUpdate.date);
+            const nextDate = new Date(nextUpdate.date);
+            const totalDuration = (nextDate - prevDate) / MS_PER_DAY;
+            const elapsedDuration = (asOfDate - prevDate) / MS_PER_DAY;
+            if (totalDuration <= 0) return prevUpdate.progress;
+            const progressDiff = nextUpdate.progress - prevUpdate.progress;
+            const interpolatedProgress = prevUpdate.progress + (progressDiff * (elapsedDuration / totalDuration));
+            return Math.max(0, Math.min(100, interpolatedProgress));
+        }
+        
+        function getTaskPlannedProgress(task, asOfDateStr) {
+            if (!task || !task.plannedStartDate || !task.plannedEndDate || !asOfDateStr) return 0;
+            const today = new Date(asOfDateStr);
+            const start = new Date(task.plannedStartDate);
+            const end = new Date(task.plannedEndDate);
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+            if (today < start) return 0;
+            if (today >= end) return 100;
+            const totalDuration = getDurationDays(task.plannedStartDate, task.plannedEndDate);
+            const elapsedDuration = getDurationDays(task.plannedStartDate, asOfDateStr);
+            return totalDuration > 0 ? Math.min(100, (elapsedDuration / totalDuration) * 100) : 0;
+        }
+
+        function getOverallPlannedProgressByTasks(project, asOfDateStr) {
+            const { tasks } = project;
+            if (!tasks || tasks.length === 0) return 0;
+            let totalWeightedPlannedProgress = 0;
+            const totalCost = tasks.reduce((sum, task) => sum + (task.taskCost || 0), 0);
+            if (totalCost <= 0) return 0;
+            tasks.forEach(task => {
+                const weight = (task.taskCost || 0) / totalCost;
+                const taskPlannedProgress = getTaskPlannedProgress(task, asOfDateStr);
+                totalWeightedPlannedProgress += (taskPlannedProgress / 100) * weight;
+            });
+            return totalWeightedPlannedProgress * 100;
+        }
+
+        function getStatus(actualProgress, plannedProgress) {
+            const diff = actualProgress - plannedProgress;
+            if (actualProgress >= 99.9) return { text: "已完工", color: "text-emerald-700 bg-emerald-100 border-emerald-500", diff };
+            if (diff >= 5) return { text: `大幅超前`, color: "text-blue-700 bg-blue-100 border-blue-500", diff };
+            if (diff >= -5) return { text: "進度正常", color: "text-amber-700 bg-amber-100 border-amber-500", diff };
+            return { text: `進度落後`, color: "text-red-700 bg-red-100 border-red-500", diff };
+        }
+
+        function calculateProjectSummary(project, asOfDate) {
+            const { tasks } = project;
+            if (tasks.length === 0) {
+                return { totalTaskCost: 0, overallProgress: 0, plannedProgress: 0, lastTaskEndDate: project.startDate };
+            }
+            let totalWeightedProgress = 0;
+            const totalCost = tasks.reduce((sum, task) => sum + (task.taskCost || 0), 0);
+            tasks.forEach(task => {
+                const weight = totalCost > 0 ? ((task.taskCost || 0) / totalCost) * 100 : 0;
+                task.weight = weight;
+                const currentProgress = getTaskProgressAsOf(task, asOfDate);
+                totalWeightedProgress += (currentProgress / 100) * (weight / 100);
+            });
+            let nextStartDate = project.startDate;
+            if (tasks.length > 0) {
+                const sortedTasks = [...tasks].sort((a,b) => new Date(a.plannedEndDate) - new Date(b.plannedEndDate));
+                const lastTask = sortedTasks[sortedTasks.length - 1];
+                if (lastTask && lastTask.plannedEndDate) {
+                    const tempDate = new Date(lastTask.plannedEndDate);
+                    tempDate.setDate(tempDate.getDate() + 1);
+                    nextStartDate = formatDate(tempDate);
+                }
+            }
+            return {
+                totalTaskCost: totalCost,
+                overallProgress: totalWeightedProgress * 100,
+                plannedProgress: getOverallPlannedProgressByTasks(project, asOfDate),
+                lastTaskEndDate: nextStartDate
+            };
+        }
+
+        function exportJSON() {
+            const dataStr = JSON.stringify(projects, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `NOVERA_進度管考備份_${formatDate(new Date())}.json`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showMessage('✅ 所有工程專案數據已成功匯出為 JSON 備份檔。', 'success');
+        }
+        
+        function importJSON() {
+            const fileInput = document.getElementById('jsonFileInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                 showMessage('錯誤：未選擇任何備份檔案。', 'danger');
+                 return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        projects = importedData;
+                        saveToLocalStorage();
+                        renderProjects();
+                        showMessage(`✅ 成功匯入 ${projects.length} 個工程案件！`, 'success');
+                        if(isCreationFormVisible) toggleCreationForm();
+                    } else { throw new Error('Invalid format'); }
+                } catch (error) { showMessage('錯誤：JSON 檔案格式無效。', 'danger'); }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+        
+        function addTask(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            
+            const taskName = document.getElementById(`taskName-${projectId}`).value.trim();
+            const taskCost = parseFloat(document.getElementById(`taskCost-${projectId}`).value); 
+            const plannedStartDate = document.getElementById(`taskStartDate-${projectId}`).value;
+            const duration = parseInt(document.getElementById(`taskDuration-${projectId}`).value);
+            
+            if (!taskName || isNaN(taskCost) || !plannedStartDate || isNaN(duration) || duration <= 0) {
+                showMessage('錯誤：請確保分項工程所有欄位皆已正確填寫 (名稱、金額、開始日期、工期)。', 'danger');
+                return;
+            }
+            
+            const startDate = new Date(plannedStartDate);
+            const endDate = new Date(startDate.getTime());
+            endDate.setDate(endDate.getDate() + duration - 1);
+            const plannedEndDate = formatDate(endDate);
+
+            project.tasks.push({ 
+                id: generateId(), taskName, taskCost, plannedStartDate, plannedEndDate, duration,
+                weight: 0, progressHistory: [] 
+            });
+            saveToLocalStorage();
+            renderProjects();
+            showMessage(`✅ 分項工程「${taskName}」已新增。`, 'success');
+        }
+        
+        function saveAllTaskProgress(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            const asOfDate = document.getElementById(`progressDate-${projectId}`).value;
+            if (!project || !asOfDate) {
+                showMessage('錯誤：請選擇一個有效的進度回報日期。', 'danger');
+                return;
+            }
+
+            let updatedCount = 0;
+            project.tasks.forEach((task) => {
+                if (!task.progressHistory) task.progressHistory = [];
+                const progressInput = document.getElementById(`task-progress-${task.id}`);
+                if (progressInput && progressInput.value !== '') {
+                    const progress = Math.max(0, Math.min(100, parseFloat(progressInput.value)));
+                    const existingUpdateIndex = task.progressHistory.findIndex(h => h.date === asOfDate);
+                    if (existingUpdateIndex > -1) {
+                        task.progressHistory[existingUpdateIndex].progress = progress;
+                    } else {
+                        task.progressHistory.push({ date: asOfDate, progress: progress });
+                    }
+                    updatedCount++;
+                }
+            });
+            project.ui_selectedProgressDate = asOfDate;
+            saveToLocalStorage();
+            renderProjects();
+            showMessage(`✅ 已於 ${asOfDate} 儲存 ${updatedCount} 個工項進度！`, 'success');
+        }
+
+        function loadProgressForDate(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            const asOfDate = document.getElementById(`progressDate-${projectId}`).value;
+            if (!project || !asOfDate) return;
+            
+            project.ui_selectedProgressDate = asOfDate;
+            
+            project.tasks.forEach(task => {
+                const progressInput = document.getElementById(`task-progress-${task.id}`);
+                const totalProgressCell = document.getElementById(`task-total-progress-${task.id}`);
+                const plannedProgressCell = document.getElementById(`task-planned-progress-${task.id}`);
+
+                if (progressInput && totalProgressCell && plannedProgressCell) {
+                    const historyEntry = task.progressHistory?.find(h => h.date === asOfDate);
+                    progressInput.value = historyEntry ? historyEntry.progress : '';
+                    progressInput.placeholder = historyEntry ? '編輯現有進度' : '輸入進度 %';
+                    
+                    totalProgressCell.textContent = `${getTaskProgressAsOf(task, asOfDate).toFixed(2)}%`;
+                    plannedProgressCell.textContent = `${getTaskPlannedProgress(task, asOfDate).toFixed(2)}%`;
+                }
+            });
+        }
+
+        function clearProgressInputs(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            project.tasks.forEach(task => {
+                const progressInput = document.getElementById(`task-progress-${task.id}`);
+                if (progressInput) progressInput.value = '';
+            });
+        }
+
+        function deleteTask(projectId, taskId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const task = project.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            showConfirmModal(`您確定要永久刪除分項工程「${task.taskName}」嗎？此操作無法復原。`, () => {
+                project.tasks = project.tasks.filter(t => t.id !== taskId);
+                saveToLocalStorage();
+                renderProjects();
+                showMessage('分項工程已刪除。', 'warning');
+            });
+        }
+        
+        function showEditTaskModal(projectId, taskId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const task = project.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            document.getElementById('editTaskProjectId').value = projectId;
+            document.getElementById('editTaskId').value = taskId;
+            document.getElementById('editTaskName').value = task.taskName;
+            document.getElementById('editTaskCost').value = task.taskCost;
+            document.getElementById('editTaskStartDate').value = task.plannedStartDate;
+            document.getElementById('editTaskEndDate').value = task.plannedEndDate;
+            
+            document.getElementById('edit-task-modal').classList.remove('hidden');
+        }
+
+        function hideEditTaskModal() {
+            document.getElementById('edit-task-modal').classList.add('hidden');
+        }
+
+        function updateTask() {
+            const projectId = document.getElementById('editTaskProjectId').value;
+            const taskId = document.getElementById('editTaskId').value;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            const task = project.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            task.taskName = document.getElementById('editTaskName').value;
+            task.taskCost = parseFloat(document.getElementById('editTaskCost').value);
+            task.plannedStartDate = document.getElementById('editTaskStartDate').value;
+            task.plannedEndDate = document.getElementById('editTaskEndDate').value;
+            task.duration = getDurationDays(task.plannedStartDate, task.plannedEndDate);
+
+            saveToLocalStorage();
+            renderProjects();
+            hideEditTaskModal();
+            showMessage('分項工程資訊已更新。', 'success');
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('novera_engineering_projects', JSON.stringify(projects));
+            } catch (e) {}
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const data = localStorage.getItem('novera_engineering_projects');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        projects = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {}
+            
+            // 若無資料，預先載入一個專業公共工程展示案例
+            projects = [{
+                id: 'demo-sample-01',
+                name: '台南市安南區雨水下水道第 2 期推進工程',
+                contractSum: 48500000,
+                client: '臺南市政府水利局',
+                designer: '台灣世曦工程顧問',
+                supervisor: '中興工程顧問股份有限公司',
+                constructionUnit: 'NOVERA 統包營造團隊',
+                startDate: '2026-03-01',
+                contractDuration: 240,
+                plannedCompletionDate: '2026-10-26',
+                isCollapsed: false,
+                tasks: [
+                    { id: 't1', taskName: '施工前置準備與交通維持設施', taskCost: 2800000, plannedStartDate: '2026-03-01', plannedEndDate: '2026-03-25', duration: 25, weight: 5.77, progressHistory: [{ date: '2026-03-20', progress: 85 }, { date: '2026-03-25', progress: 100 }] },
+                    { id: 't2', taskName: '工作井與沉箱開挖支撐工程', taskCost: 11500000, plannedStartDate: '2026-03-20', plannedEndDate: '2026-05-15', duration: 57, weight: 23.71, progressHistory: [{ date: '2026-04-15', progress: 50 }, { date: '2026-05-15', progress: 95 }] },
+                    { id: 't3', taskName: 'RCP 鋼筋混凝土管推進 (Φ1500mm)', taskCost: 21800000, plannedStartDate: '2026-05-10', plannedEndDate: '2026-08-30', duration: 113, weight: 44.95, progressHistory: [{ date: '2026-06-30', progress: 40 }] },
+                    { id: 't4', taskName: '人孔井體澆置與管線銜接', taskCost: 7600000, plannedStartDate: '2026-08-15', plannedEndDate: '2026-09-30', duration: 47, weight: 15.67, progressHistory: [] },
+                    { id: 't5', taskName: '路面瀝青刨鋪與全線閉水試驗', taskCost: 4800000, plannedStartDate: '2026-09-20', plannedEndDate: '2026-10-26', duration: 37, weight: 9.90, progressHistory: [] }
+                ]
+            }];
+        }
+
+        function renderProjects() {
+            const today = formatDate(new Date());
+            const projectListContainer = document.getElementById('project-list-container');
+            projectListContainer.innerHTML = '';
+            
+            if (projects.length === 0) {
+                 projectListContainer.innerHTML = `<div class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 rounded-xl bg-white"><p class="text-xl font-bold mb-2 text-primary-navy">💡 系統目前無工程案件資料</p><p class="text-sm">請於上方控制台點擊「建立新工程專案」，或使用「JSON 數據匯入」載入歷史備份。</p></div>`;
+                return;
+            }
+
+            projects.forEach(project => {
+                const summary = calculateProjectSummary(project, today);
+                const status = getStatus(summary.overallProgress, summary.plannedProgress);
+                const isCollapsed = project.isCollapsed;
+                const progressColor = status.color.includes('emerald') ? 'border-emerald-500' : status.color.includes('amber') ? 'border-amber-500' : status.color.includes('red') ? 'border-red-500' : 'border-blue-500';
+                const progressDisplayDate = project.ui_selectedProgressDate || today;
+
+                const projectHtml = `
+                    <div class="mb-8 eng-card overflow-hidden ${progressColor} border-l-8">
+                        <div class="data-matrix-header flex flex-col items-start p-4 md:p-6" data-action="toggle-collapse" data-project-id="${project.id}">
+                            <div class="w-full flex justify-between items-center mb-4 flex-wrap gap-2">
+                                <h4 class="text-xl md:text-2xl font-black text-primary-navy flex items-center gap-2">
+                                    <i class="fas fa-chevron-right text-accent-gold transition-transform ${isCollapsed ? 'rotate-0' : 'rotate-90'}"></i>
+                                    ${project.name}
+                                </h4>
+                                <div class="flex items-center space-x-2">
+                                    <button data-action="edit-project" data-project-id="${project.id}" class="text-xs font-bold px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 transition"><i class="fas fa-pen"></i> 編輯案件</button>
+                                    <button data-action="delete-project" data-project-id="${project.id}" class="text-xs font-bold px-3 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition"><i class="fas fa-trash"></i> 刪除</button>
+                                </div>
+                            </div>
+                            <div class="w-full participant-info text-gray-700 mb-4">
+                                <div><span class="label">業主(甲方):</span> ${project.client || 'N/A'}</div>
+                                <div><span class="label">承攬單位:</span> ${project.constructionUnit || 'N/A'}</div>
+                                <div><span class="label">開工日期:</span> ${project.startDate}</div>
+                                <div><span class="label">預定完工日:</span> ${project.plannedCompletionDate}</div>
+                            </div>
+                            <div class="w-full grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">契約總額</p><p class="text-lg md:text-xl font-black text-primary-navy font-mono">NT$ ${formatCurrency(project.contractSum)}</p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">實際累積進度</p><p class="text-xl md:text-2xl font-black text-blue-700 font-mono">${summary.overallProgress.toFixed(2)}%</p></div>
+                                <div class="p-3 bg-white rounded-lg border border-gray-200"><p class="text-xs font-bold text-gray-500">預定累積進度</p><p class="text-xl md:text-2xl font-black text-amber-600 font-mono">${summary.plannedProgress.toFixed(2)}%</p></div>
+                                <div class="p-3 rounded-lg border ${status.color}"><p class="text-xs font-bold">進度管考判定</p><p class="text-xl md:text-2xl font-black font-mono">${status.text} (${status.diff >= 0 ? '+' : ''}${status.diff.toFixed(2)}%)</p></div>
+                            </div>
+                        </div>
+                        <div class="transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-h-0' : 'max-h-[9999px]'}">
+                            <div class="bg-gray-50 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                ${renderTaskPlanningSection(project, summary.lastTaskEndDate)}
+                                ${renderProgressUpdateSection(project, progressDisplayDate)}
+                            </div>
+                            <div class="bg-white p-4 flex justify-center border-t border-gray-200">
+                                 <button data-action="show-chart-modal" data-project-id="${project.id}" class="btn-eng-gold py-3 px-8 text-base font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                    <i class="fas fa-chart-line"></i> 開啟 S-Curve 分析儀表板與甘特圖
+                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                projectListContainer.insertAdjacentHTML('beforeend', projectHtml);
+            });
+        }
+
+        function renderTaskPlanningSection(project, nextStartDate) {
+            const taskRows = project.tasks.map((task) => `
+                <tr class="group hover:bg-amber-50/50">
+                    <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
+                    <td class="p-2.5 text-right font-mono font-semibold text-gray-700">NT$ ${formatCurrency(task.taskCost)}</td>
+                    <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedStartDate || '---'}</td>
+                    <td class="p-2.5 text-center text-xs font-mono text-gray-600">${task.plannedEndDate || '---'}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-primary-navy">${task.duration || '---'} 天</td>
+                    <td class="p-2.5 text-center">
+                        <div class="flex justify-center items-center space-x-1.5">
+                            <button data-action="edit-task" data-project-id="${project.id}" data-task-id="${task.id}" title="修改工項" class="p-1.5 rounded bg-gray-200 hover:bg-amber-500 hover:text-white text-gray-700 transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button data-action="delete-task" data-project-id="${project.id}" data-task-id="${task.id}" title="刪除工項" class="p-1.5 rounded bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700 transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+
+            return `
+                <div class="border border-gray-200 p-4 rounded-xl bg-white shadow-sm">
+                    <h3 class="text-lg font-bold mb-3 text-primary-navy border-b border-gray-200 pb-2 flex items-center justify-between">
+                        <span><i class="fas fa-list-ol text-accent-gold"></i> I. 預定工項規劃 (Planning)</span>
+                        <span class="text-xs font-normal text-gray-500">共 ${project.tasks.length} 項分項工程</span>
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 mb-4 max-h-[300px] overflow-y-auto">
+                        <table class="min-w-full text-sm task-table">
+                            <thead>
+                                <tr><th class="p-2 text-left">分項工程</th><th class="p-2 text-right">金額</th><th class="p-2">預定開始</th><th class="p-2">預定完成</th><th class="p-2">工期</th><th class="p-2">操作</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="6" class="p-4 text-center text-gray-400">尚未新增任何分項工程</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <input type="text" id="taskName-${project.id}" placeholder="分項工程名稱 (如: 基礎灌漿)" class="input-eng p-2">
+                        <input type="number" id="taskCost-${project.id}" placeholder="金額 (NT$)" class="input-eng p-2">
+                        <input type="date" id="taskStartDate-${project.id}" value="${nextStartDate}" class="input-eng p-2">
+                        <input type="number" id="taskDuration-${project.id}" placeholder="工期 (天)" class="input-eng p-2">
+                        <div class="md:col-span-2">
+                           <button onclick="addTask('${project.id}')" class="w-full btn-eng-navy py-2 rounded-lg font-bold text-sm"><i class="fas fa-plus"></i> 新增分項工程</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function renderProgressUpdateSection(project, asOfDate) {
+            let taskRows = project.tasks.map((task) => {
+                const progressForDate = task.progressHistory?.find(h => h.date === asOfDate)?.progress ?? '';
+                const placeholderText = progressForDate !== '' ? '修改進度' : '填入 %';
+                return `
+                <tr class="group hover:bg-blue-50/50">
+                    <td class="p-2.5 font-bold text-gray-800">${task.taskName}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-amber-600" id="task-planned-progress-${task.id}">${getTaskPlannedProgress(task, asOfDate).toFixed(1)}%</td>
+                    <td id="task-total-progress-${task.id}" class="p-2.5 text-center font-mono font-bold text-blue-700">${getTaskProgressAsOf(task, asOfDate).toFixed(1)}%</td>
+                    <td class="p-2.5 text-center"><input type="number" id="task-progress-${task.id}" value="${progressForDate}" min="0" max="100" class="w-24 p-1 text-center font-mono font-bold input-eng" placeholder="${placeholderText}"></td>
+                </tr>`;
+            }).join('');
+
+            return `
+                <div class="border border-gray-200 p-4 rounded-xl bg-white shadow-sm">
+                    <h3 class="text-lg font-bold mb-3 text-primary-navy border-b border-gray-200 pb-2 flex items-center justify-between">
+                        <span><i class="fas fa-calendar-check text-blue-600"></i> II. 實際進度回報 (Tracking)</span>
+                        <span class="text-xs font-normal text-gray-500">歷史紀錄自動儲存</span>
+                    </h3>
+                    <div class="flex items-center flex-wrap gap-3 mb-3 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+                        <label for="progressDate-${project.id}" class="text-xs font-bold text-gray-700">回報/修改基準日:</label>
+                        <input type="date" id="progressDate-${project.id}" value="${asOfDate}" onchange="loadProgressForDate('${project.id}')" class="p-1.5 input-eng text-xs">
+                        <button onclick="saveAllTaskProgress('${project.id}')" class="btn-eng-gold px-4 py-1.5 rounded font-bold text-xs"><i class="fas fa-save"></i> 儲存進度</button>
+                        <button onclick="clearProgressInputs('${project.id}')" class="text-gray-400 hover:text-gray-600 text-xs">清除輸入</button>
+                    </div>
+                    <div class="overflow-x-auto rounded-lg border border-gray-200 max-h-[300px] overflow-y-auto">
+                        <table class="min-w-full text-sm task-table">
+                            <thead><tr><th class="p-2 text-left">分項工程</th><th class="p-2">預定進度</th><th class="p-2">累計實際進度</th><th class="p-2">本日回報 %</th></tr></thead>
+                            <tbody class="divide-y divide-gray-200">${taskRows || '<tr><td colspan="4" class="p-4 text-center text-gray-400">請先於左側新增分項工程</td></tr>'}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+        
+        let currentModalProjectId = null;
+
+        function showChartModal(projectId) {
+            currentModalProjectId = projectId;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+            document.getElementById('modal-project-title').textContent = project.name;
+            document.getElementById('chart-modal').classList.remove('hidden');
+            document.querySelectorAll('#chart-modal button').forEach(btn => btn.dataset.projectId = projectId);
+            const activeTabButton = document.querySelector('.tab-button.active') || document.getElementById('tab-btn-comparison');
+            switchChartTab(activeTabButton);
+        }
+
+        function hideChartModal() {
+            ['plannedSCurveCanvas', 'plannedGanttCanvas', 'plannedCombinedCanvas', 'actualSCurveCanvas', 'comparisonSCurveCanvas'].forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) chart.destroy();
+                }
+            });
+            document.getElementById('chart-modal').classList.add('hidden');
+        }
+        
+        function switchChartTab(button) {
+            const tabName = button.dataset.tab;
+            const projectId = button.dataset.projectId;
+            ['planned', 'actual', 'comparison'].forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).classList.remove('active');
+            });
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            button.classList.add('active');
+            setTimeout(() => drawChartsForTab(tabName, projectId), 50);
+        }
+
+        function drawEmptyChartMessage(canvasId, message) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const chart = Chart.getChart(canvas);
+            if (chart) chart.destroy();
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#64748B';
+            ctx.font = '16px "Noto Sans TC"';
+            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+            ctx.restore();
+        }
+
+        function drawChartsForTab(tabName, projectId) {
+            const project = projects.find(p => p.id === projectId);
+            const asOfDate = formatDate(new Date());
+            const chartCanvasIds = ['plannedSCurveCanvas', 'plannedGanttCanvas', 'plannedCombinedCanvas', 'actualSCurveCanvas', 'comparisonSCurveCanvas'];
+
+            if (!project || !project.startDate || !project.plannedCompletionDate || isNaN(new Date(project.startDate)) || isNaN(new Date(project.plannedCompletionDate))) {
+                const errorMessage = "專案日期範圍無效，無法繪製圖表。";
+                chartCanvasIds.forEach(id => { if(document.getElementById(id)) drawEmptyChartMessage(id, errorMessage) });
+                return;
+            }
+            
+            if (!project.tasks || project.tasks.length === 0) {
+                const emptyMessage = "尚無分項工程數據可供繪製圖表";
+                chartCanvasIds.forEach(id => { if(document.getElementById(id)) drawEmptyChartMessage(id, emptyMessage) });
+                return;
+            }
+
+            try {
+                if (tabName === 'planned') drawPlannedCharts(project);
+                else if (tabName === 'actual') drawActualCharts(project, asOfDate);
+                else if (tabName === 'comparison') drawComparisonCharts(project, asOfDate);
+            } catch(e) {
+                console.error("Chart drawing failed:", e);
+                showMessage("繪製圖表時發生錯誤，請檢查主控台紀錄。", "danger");
+            }
+        }
+
+        const whiteBackgroundPlugin = {
+            id: 'whiteBackground',
+            beforeDraw: (chart) => {
+                const { ctx } = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+        
+        const todayLinePlugin = {
+            id: 'todayLine',
+            afterDatasetsDraw(chart) {
+                const { ctx, chartArea: { top, bottom, left, right }, scales: { x } } = chart;
+                if (x.type !== 'time' || !x.min || !x.max) return;
+                const today = new Date().setHours(0,0,0,0);
+                if (today < x.min || today > x.max) return;
+
+                const xValue = x.getPixelForValue(today);
+                if (xValue >= left && xValue <= right) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(xValue, top);
+                    ctx.lineTo(xValue, bottom);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#DC2626';
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.fillStyle = '#DC2626';
+                    ctx.font = 'bold 12px "Noto Sans TC"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('今日', xValue, top - 8);
+                    ctx.restore();
+                }
+            }
+        };
+        
+        Chart.register(whiteBackgroundPlugin, todayLinePlugin, ChartDataLabels);
+        Chart.defaults.plugins.datalabels.color = '#334155';
+        
+        const chartDefaultOptions = (title, minDate, maxDate) => ({
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#1E293B', font: { size: 13, weight: 'bold' } } },
+                title: { display: true, text: title, color: '#0E1B2E', font: { size: 16, weight: 'bold' } },
+                tooltip: {
+                    mode: 'index', intersect: false,
+                    backgroundColor: 'rgba(14, 27, 46, 0.95)', titleFont: { size: 14 }, bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (context.dataset.type === 'bar' || context.dataset.backgroundColor) { 
+                                const raw = context.raw;
+                                let start, end;
+                                if (typeof raw === 'object' && raw.x) { [start, end] = raw.x; } 
+                                else if (Array.isArray(context.raw)) { [start, end] = context.raw; }
+                                if (start && end) {
+                                    const duration = getDurationDays(start, end);
+                                    return `${label}: ${formatDate(start)} ~ ${formatDate(end)} (${duration}天)`;
+                                }
+                            }
+                            if(context.parsed.y !== null) { return `${label}: ${context.parsed.y.toFixed(2)}%`; }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'time', time: { unit: 'day', tooltipFormat: 'yyyy-MM-dd' },
+                    grid: { color: '#E2E8F0' }, ticks: { color: '#475569' },
+                    min: minDate, max: maxDate,
+                    title: { display: true, text: '日期', color: '#1E293B' }
+                },
+                y: {
+                    grid: { color: '#E2E8F0' }, ticks: { color: '#475569' },
+                    title: { display: true, text: '分項工程', color: '#1E293B' },
+                    stacked: false
+                }
+            }
+        });
+
+        function createOrUpdateChart(canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+            return new Chart(canvas.getContext('2d'), config);
+        }
+
+        function drawPlannedCharts(project) {
+            const dateLabels = [], plannedData = [];
+            for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
+                const dateStr = formatDate(d);
+                dateLabels.push(dateStr);
+                plannedData.push(getOverallPlannedProgressByTasks(project, dateStr));
+            }
+
+            createOrUpdateChart('plannedSCurveCanvas', {
+                type: 'line', data: { labels: dateLabels, datasets: [{ label: '預定累積進度', data: plannedData, borderColor: '#D97706', tension: 0.4, pointRadius: 0, borderWidth: 2.5 }] },
+                options: { ...chartDefaultOptions('預定 S-Curve 曲線', project.startDate, project.plannedCompletionDate), layout: { padding: { right: 60 } }, scales: { ...chartDefaultOptions().scales, y: { min: 0, max: 100, title: {display: true, text: '累積進度 (%)', color: '#1E293B'}, ticks: { callback: v => v + '%' } } }, plugins: { ...chartDefaultOptions().plugins, datalabels: { align: 'top', anchor: 'end', color: '#B45309', backgroundColor: 'rgba(254,243,199,0.8)', borderRadius: 4, font: { weight: 'bold', size: 11 }, formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null } } }
+            });
+
+            createOrUpdateChart('plannedGanttCanvas', {
+                type: 'bar', data: { labels: project.tasks.map(t => t.taskName), datasets: [{ label: '預定工期', data: project.tasks.map(t => [t.plannedStartDate, t.plannedEndDate]), backgroundColor: '#3B82F6' }] },
+                options: { ...chartDefaultOptions('預定甘特圖 (Gantt Chart)', project.startDate, project.plannedCompletionDate), indexAxis: 'y', layout: { padding: { right: 60 } }, plugins: { ...chartDefaultOptions().plugins, datalabels: { align: 'end', anchor: 'end', color: '#FFFFFF', backgroundColor: 'rgba(14,27,46,0.8)', borderRadius: 4, padding: 3, font: { size: 10, weight: 'bold' }, formatter: (v) => v && v[1] ? formatDate(v[1]) : null } } }
+            });
+            
+            createOrUpdateChart('plannedCombinedCanvas', {
+                type: 'bar',
+                data: {
+                    labels: dateLabels,
+                    datasets: [ { type: 'line', label: '預定累積進度 (%)', data: plannedData, borderColor: '#D97706', tension: 0.4, pointRadius: 0, borderWidth: 3, yAxisID: 'ySCurve', datalabels: { display: false } } ]
+                },
+                options: {
+                    ...chartDefaultOptions('預定進度複合圖 (甘特圖 + S-Curve)', project.startDate, project.plannedCompletionDate),
+                    scales: { 
+                        x: { ...chartDefaultOptions().scales.x, stacked: true }, 
+                        yGantt: { type: 'category', labels: project.tasks.map(t => t.taskName), offset: true, position: 'left', stacked: true, grid: { drawOnChartArea: false }, ticks: { color: '#1E293B', font: { weight: 'bold' } }, title: { display: true, text: '分項工程', color: '#1E3A8A' } }, 
+                        ySCurve: { type: 'linear', position: 'right', min: 0, max: 100, grid: { color: '#E2E8F0' }, title: { display: true, text: '累積進度 (%)', color: '#D97706'}, ticks: { color: '#D97706', callback: v => v + '%' } } 
+                    },
+                    plugins: { ...chartDefaultOptions().plugins, tooltip: { ...chartDefaultOptions().plugins.tooltip, mode: 'index', intersect: false }, datalabels: { display: false } }
+                },
+                plugins: [{
+                    id: 'ganttBackground',
+                    beforeDatasetsDraw: (chart) => {
+                        const { ctx, scales: { x, yGantt } } = chart;
+                        ctx.save();
+                        const barHeight = yGantt.getPixelForTick(0) - yGantt.getPixelForTick(1);
+                        project.tasks.forEach((task, index) => {
+                            const y = yGantt.getPixelForTick(index);
+                            const startPixel = x.getPixelForValue(new Date(task.plannedStartDate));
+                            const endPixel = x.getPixelForValue(new Date(task.plannedEndDate));
+                            ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+                            ctx.fillRect(startPixel, y - barHeight * 0.4, endPixel - startPixel, barHeight * 0.8);
+                        });
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        function drawActualCharts(project, asOfDate) {
+            const dateLabels = [], actualData = [];
+            for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
+                const dateStr = formatDate(d);
+                dateLabels.push(dateStr);
+                let actualOverall = project.tasks.length > 0 ? project.tasks.reduce((sum, task) => {
+                    const totalCost = project.tasks.reduce((s, t) => s + (t.taskCost || 0), 0);
+                    if (totalCost === 0) return sum;
+                    const weight = (task.taskCost || 0) / totalCost;
+                    return sum + (getTaskProgressAsOf(task, dateStr) / 100) * weight;
+                }, 0) * 100 : 0;
+                actualData.push(actualOverall);
+            }
+            createOrUpdateChart('actualSCurveCanvas', {
+                type: 'line',
+                data: {
+                    labels: dateLabels,
+                    datasets: [{
+                        label: '實際累積進度',
+                        data: actualData,
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37,99,235,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    ...chartDefaultOptions('實際進度 S-Curve 曲線', project.startDate, project.plannedCompletionDate),
+                    layout: { padding: { right: 60 } },
+                    scales: {
+                        ...chartDefaultOptions().scales,
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: '累積進度 (%)', color: '#1E293B' },
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        ...chartDefaultOptions().plugins,
+                        datalabels: {
+                            align: 'top',
+                            anchor: 'end',
+                            color: '#1E40AF',
+                            backgroundColor: 'rgba(219,234,254,0.8)',
+                            borderRadius: 4,
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawComparisonCharts(project, asOfDate) {
+            const dateLabels = [], plannedData = [], actualData = [];
+            for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
+                const dateStr = formatDate(d);
+                dateLabels.push(dateStr);
+                plannedData.push(getOverallPlannedProgressByTasks(project, dateStr));
+                let actualOverall = project.tasks.length > 0 ? project.tasks.reduce((sum, task) => {
+                    const totalCost = project.tasks.reduce((s, t) => s + (t.taskCost || 0), 0);
+                    if (totalCost === 0) return sum;
+                    const weight = (task.taskCost || 0) / totalCost;
+                    return sum + (getTaskProgressAsOf(task, dateStr) / 100) * weight;
+                }, 0) * 100 : 0;
+                actualData.push(actualOverall);
+            }
+            createOrUpdateChart('comparisonSCurveCanvas', {
+                type: 'line',
+                data: {
+                    labels: dateLabels,
+                    datasets: [
+                        { label: '預定累積進度', data: plannedData, borderColor: '#D97706', borderWidth: 2.5, fill: false, tension: 0.4, pointRadius: 0, datalabels: { color: '#B45309' } },
+                        { label: '實際累積進度', data: actualData, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.08)', borderWidth: 3.5, fill: true, tension: 0.4, pointRadius: 0, datalabels: { color: '#1E40AF' } }
+                    ]
+                },
+                options: {
+                    ...chartDefaultOptions('預定進度 vs. 實際進度 S-Curve 比較圖', project.startDate, project.plannedCompletionDate),
+                    layout: { padding: { right: 60 } },
+                    scales: {
+                        ...chartDefaultOptions().scales,
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: '累積進度 (%)', color: '#1E293B' },
+                            ticks: { callback: v => v + '%' }
+                        }
+                    },
+                    plugins: {
+                        ...chartDefaultOptions().plugins,
+                        datalabels: {
+                            align: 'top',
+                            anchor: 'end',
+                            backgroundColor: (ctx) => ctx.datasetIndex === 0 ? 'rgba(254,243,199,0.85)' : 'rgba(219,234,254,0.85)',
+                            borderRadius: 4,
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (v, ctx) => (ctx.dataIndex === ctx.dataset.data.length - 1 || Math.floor(v / 15) > Math.floor((ctx.dataset.data[ctx.dataIndex - 1] || 0) / 15)) ? v.toFixed(1) + '%' : null
+                        }
+                    }
+                }
+            });
+        }
+        function downloadChartsAsPNG(button) {
+            const projectId = (button && button.dataset && button.dataset.projectId) || currentModalProjectId;
+            const tabName = (button && button.dataset && button.dataset.tab) || 'comparison';
+            const project = projects.find(p => p.id === projectId);
+            if (!project) {
+                showMessage("找不到專案資訊，無法下載圖檔。", "danger");
+                return;
+            }
+            
+            let canvasesToDownload = [];
+            if (tabName === 'planned') {
+                canvasesToDownload = ['plannedCombinedCanvas', 'plannedSCurveCanvas', 'plannedGanttCanvas'];
+            } else if (tabName === 'actual') {
+                canvasesToDownload = ['actualSCurveCanvas'];
+            } else {
+                canvasesToDownload = ['comparisonSCurveCanvas'];
+            }
+            
+            const canvasElements = canvasesToDownload.map(id => document.getElementById(id)).filter(Boolean);
+            if (canvasElements.length === 0) {
+                showMessage("尚無可下載的圖表畫布。", "warning");
+                return;
+            }
+
+            const padding = 60;
+            const titleHeight = 80;
+            
+            const totalWidth = Math.max(...canvasElements.map(c => c.width || 800)) + padding * 2;
+            const totalHeight = canvasElements.reduce((sum, canvas) => sum + (canvas.height || 400), 0) + (padding * (canvasElements.length + 1)) + titleHeight;
+
+            const combinedCanvas = document.createElement('canvas');
+            combinedCanvas.width = totalWidth;
+            combinedCanvas.height = totalHeight;
+            const ctx = combinedCanvas.getContext('2d');
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+            
+            // Navy Top Header Bar
+            ctx.fillStyle = '#0E1B2E';
+            ctx.fillRect(0, 0, combinedCanvas.width, 10);
+            
+            ctx.font = 'bold 26px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#0E1B2E';
+            ctx.textAlign = 'center';
+            ctx.fillText(`【NOVERA 諾維拉工程顧問】${project.name} ─ S-Curve 工程進度分析圖`, combinedCanvas.width / 2, 45);
+
+            ctx.font = '14px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#64748B';
+            ctx.fillText(`製圖日期：${formatDate(new Date())} ｜ 契約總價：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, combinedCanvas.width / 2, 70);
+
+            let currentY = padding + titleHeight;
+            canvasElements.forEach(canvas => {
+                ctx.drawImage(canvas, padding, currentY);
+                currentY += canvas.height + padding;
+            });
+            
+            const a = document.createElement('a');
+            a.href = combinedCanvas.toDataURL('image/png');
+            a.download = `NOVERA_${project.name}_${tabName}_進度分析圖_${formatDate(new Date())}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showMessage('✅ 進度圖表已成功下載為高解析 PNG 圖檔。', 'success');
+        }
+        
+        function downloadSingleChartAsPNG(canvasId, projectId) {
+            const targetProjectId = projectId || currentModalProjectId;
+            const project = projects.find(p => p.id === targetProjectId);
+            const sourceCanvas = document.getElementById(canvasId);
+            if (!project || !sourceCanvas) {
+                showMessage("找不到對應的圖表畫布。", "danger");
+                return;
+            }
+
+            const landscapeCanvas = document.createElement('canvas');
+            landscapeCanvas.width = 1920;
+            landscapeCanvas.height = 1080;
+            const ctx = landscapeCanvas.getContext('2d');
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 1920, 1080);
+            
+            const chart = Chart.getChart(sourceCanvas);
+            const title = (chart && chart.options && chart.options.plugins && chart.options.plugins.title && chart.options.plugins.title.text) || '工程進度圖表';
+            
+            ctx.font = 'bold 30px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#0E1B2E';
+            ctx.textAlign = 'center';
+            ctx.fillText(`NOVERA 諾維拉 ｜ ${project.name} - ${title}`, 1920 / 2, 60);
+
+            ctx.font = '16px "Noto Sans TC", sans-serif';
+            ctx.fillStyle = '#64748B';
+            ctx.fillText(`製圖日期：${formatDate(new Date())} ｜ 契約總價：NT$ ${(project.contractSum || 0).toLocaleString()} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`, 1920 / 2, 90);
+
+            const padding = 60;
+            const targetWidth = 1920 - (padding * 2);
+            const targetHeight = 1080 - 110 - padding;
+            const ratio = Math.min(targetWidth / (sourceCanvas.width || 800), targetHeight / (sourceCanvas.height || 400));
+            const newWidth = (sourceCanvas.width || 800) * ratio;
+            const newHeight = (sourceCanvas.height || 400) * ratio;
+            const x = (1920 - newWidth) / 2;
+            const y = 110 + (targetHeight - newHeight) / 2;
+
+            ctx.drawImage(sourceCanvas, x, y, newWidth, newHeight);
+
+            const a = document.createElement('a');
+            a.href = landscapeCanvas.toDataURL('image/png');
+            a.download = `NOVERA_${project.name}_${title.replace(/\s+/g, '_')}_${formatDate(new Date())}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showMessage(`✅ 圖表「${title}」已成功下載為 1080P 高解析圖檔。`, 'success');
+        }
+        
+        function exportProjectToExcel(button) {
+            const projectId = (button && button.dataset && button.dataset.projectId) || currentModalProjectId;
+            const project = projects.find(p => p.id === projectId);
+            if (!project) {
+                showMessage("找不到專案資訊，無法匯出 Excel。", "danger");
+                return;
+            }
+
+            showMessage('⏳ 正在生成會計審計級 Excel 進度報告...', 'info');
+
+            try {
+                const today = formatDate(new Date());
+                const totalCost = project.tasks.reduce((sum, t) => sum + (t.taskCost || 0), 0);
+                const plannedOverallToday = getOverallPlannedProgressByTasks(project, today);
+                let actualOverallToday = 0;
+                if (project.tasks.length > 0 && totalCost > 0) {
+                    actualOverallToday = project.tasks.reduce((sum, t) => sum + (getTaskProgressAsOf(t, today) / 100) * ((t.taskCost || 0) / totalCost), 0) * 100;
+                }
+                const diff = actualOverallToday - plannedOverallToday;
+
+                // ==========================================
+                // 工作表 1：工程進度管考總表
+                // ==========================================
+                const wsOverviewData = [
+                    ['【NOVERA 諾維拉工程顧問】工程專案 S 曲線進度分析與管考總體報告'],
+                    [`標案名稱：${project.name} ｜ 製表日期：${today} ｜ 幣別：新台幣 (TWD)`],
+                    [''],
+                    ['管考項目', '數值 / 內容', '說明與計算基準'],
+                    ['工程標案名稱', project.name, '主辦機關核定工程名稱'],
+                    ['契約總金額 (NT$)', project.contractSum || 0, '工程發包契約含稅總金額'],
+                    ['分項工程總成本 (NT$)', totalCost, '所有工項金額累計總額'],
+                    ['主辦機關 (甲方/業主)', project.client || '未指定', '-'],
+                    ['設計單位', project.designer || '未指定', '-'],
+                    ['監造單位', project.supervisor || '未指定', '-'],
+                    ['開工日期', project.startDate || '-', '依監造開工通知書'],
+                    ['預定完工日期', project.plannedCompletionDate || '-', '契約工期截止日'],
+                    ['工期總天數', getDurationDays(project.startDate, project.plannedCompletionDate) + ' 天', '日曆天 / 工作天'],
+                    ['本日管考基準日', today, '進度計算截算日'],
+                    ['本日預定累積進度', plannedOverallToday.toFixed(2) + '%', '依工項金額權重公式加權計算'],
+                    ['本日實際累積進度', actualOverallToday.toFixed(2) + '%', '依工地現場日誌回報加權計算'],
+                    ['進度超前 / 落後差值', (diff >= 0 ? '+' : '') + diff.toFixed(2) + '%', diff >= 0 ? '正常超前' : (diff > -5 ? '些微落後' : '嚴重落後 (需提送趕工計畫)')],
+                    ['管考綜合評語', diff >= 0 ? '進度順利，無工期違約風險' : '請加派工班或調整關鍵要徑，避免工期罰款', '']
+                ];
+
+                const wsOverview = XLSX.utils.aoa_to_sheet(wsOverviewData);
+                wsOverview['!cols'] = [
+                    { wch: 25 },
+                    { wch: 30 },
+                    { wch: 45 }
+                ];
+
+                // ==========================================
+                // 工作表 2：分項工程進度與權重明細表
+                // ==========================================
+                const wsTasksData = [
+                    ['【NOVERA 諾維拉工程顧問】各分項工程金額權重與進度達成明細表'],
+                    [`工程標案：${project.name} ｜ 管考基準日：${today}`],
+                    [''],
+                    ['序號', '分項工程名稱', '工項金額 (NT$)', '金額權重 (%)', '預計開始日期', '預計完成日期', '工期(天)', '今日預定進度(%)', '今日實際進度(%)', '加權預定貢獻(%)', '加權實際貢獻(%)']
+                ];
+
+                let sumWeight = 0;
+                let sumPlannedContrib = 0;
+                let sumActualContrib = 0;
+
+                project.tasks.forEach((task, i) => {
+                    const weight = totalCost > 0 ? ((task.taskCost || 0) / totalCost) * 100 : 0;
+                    const pProg = getTaskPlannedProgress(task, today);
+                    const aProg = getTaskProgressAsOf(task, today);
+                    const pContrib = (pProg * weight) / 100;
+                    const aContrib = (aProg * weight) / 100;
+
+                    sumWeight += weight;
+                    sumPlannedContrib += pContrib;
+                    sumActualContrib += aContrib;
+
+                    wsTasksData.push([
+                        i + 1,
+                        task.taskName,
+                        task.taskCost || 0,
+                        parseFloat(weight.toFixed(2)),
+                        task.plannedStartDate,
+                        task.plannedEndDate,
+                        task.duration || getDurationDays(task.plannedStartDate, task.plannedEndDate),
+                        parseFloat(pProg.toFixed(2)),
+                        parseFloat(aProg.toFixed(2)),
+                        parseFloat(pContrib.toFixed(2)),
+                        parseFloat(aContrib.toFixed(2))
+                    ]);
+                });
+
+                // 合計列
+                wsTasksData.push([
+                    '【總計】',
+                    `共 ${project.tasks.length} 個分項工程`,
+                    totalCost,
+                    parseFloat(sumWeight.toFixed(2)),
+                    project.startDate,
+                    project.plannedCompletionDate,
+                    getDurationDays(project.startDate, project.plannedCompletionDate),
+                    parseFloat(plannedOverallToday.toFixed(2)),
+                    parseFloat(actualOverallToday.toFixed(2)),
+                    parseFloat(sumPlannedContrib.toFixed(2)),
+                    parseFloat(sumActualContrib.toFixed(2))
+                ]);
+
+                const wsTasks = XLSX.utils.aoa_to_sheet(wsTasksData);
+                wsTasks['!cols'] = [
+                    { wch: 8 },  // 序號
+                    { wch: 35 }, // 分項工程名稱
+                    { wch: 18 }, // 金額
+                    { wch: 15 }, // 權重%
+                    { wch: 15 }, // 開始
+                    { wch: 15 }, // 完成
+                    { wch: 12 }, // 工期
+                    { wch: 18 }, // 預定%
+                    { wch: 18 }, // 實際%
+                    { wch: 18 }, // 加權預定%
+                    { wch: 18 }  // 加權實際%
+                ];
+
+                // ==========================================
+                // 工作表 3：每日累積 S 曲線推算數據庫
+                // ==========================================
+                const wsDailyData = [
+                    ['【NOVERA 諾維拉工程顧問】每日預定 vs. 實際 S 曲線累積進度推算數據庫'],
+                    [`工程標案：${project.name} ｜ 工期：${project.startDate} ~ ${project.plannedCompletionDate}`],
+                    [''],
+                    ['序號', '工程日期 (Date)', '預定累積進度 (%)', '實際累積進度 (%)', '超前 / 落後差值 (%)', '管考判定']
+                ];
+
+                let dayIndex = 1;
+                for (let d = new Date(project.startDate); d <= new Date(project.plannedCompletionDate); d.setDate(d.getDate() + 1)) {
+                    const dateStr = formatDate(d);
+                    const pVal = getOverallPlannedProgressByTasks(project, dateStr);
+                    let aVal = 0;
+                    if (project.tasks.length > 0 && totalCost > 0) {
+                        aVal = project.tasks.reduce((sum, task) => sum + (getTaskProgressAsOf(task, dateStr) / 100) * ((task.taskCost || 0) / totalCost), 0) * 100;
+                    }
+                    const dDiff = aVal - pVal;
+
+                    wsDailyData.push([
+                        dayIndex++,
+                        dateStr,
+                        parseFloat(pVal.toFixed(2)),
+                        parseFloat(aVal.toFixed(2)),
+                        parseFloat(dDiff.toFixed(2)),
+                        dDiff >= 0 ? '超前' : '落後'
+                    ]);
+                }
+
+                const wsDaily = XLSX.utils.aoa_to_sheet(wsDailyData);
+                wsDaily['!cols'] = [
+                    { wch: 8 },
+                    { wch: 16 },
+                    { wch: 20 },
+                    { wch: 20 },
+                    { wch: 22 },
+                    { wch: 14 }
+                ];
+
+                // 組裝活頁簿並匯出
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, wsOverview, "1.工程進度管考總表");
+                XLSX.utils.book_append_sheet(wb, wsTasks, "2.分項工程權重明細");
+                XLSX.utils.book_append_sheet(wb, wsDaily, "3.每日S曲線數據庫");
+
+                XLSX.writeFile(wb, `NOVERA_${project.name}_S曲線進度分析報告_${today}.xlsx`);
+                showMessage('✅ 專業多活頁簿 Excel 進度報告已成功匯出！', 'success');
+
+            } catch (err) {
+                console.error("Excel export failed: ", err);
+                showMessage('❌ 匯出 Excel 報告失敗：' + err.message, 'danger');
+            }
+        }
+
+        function showMessage(text, type = 'success') {
+            const box = document.getElementById('message-box');
+            const colors = {
+                success: 'bg-emerald-600 border-emerald-800 text-white',
+                danger: 'bg-red-600 border-red-800 text-white',
+                warning: 'bg-amber-500 border-amber-700 text-white',
+                info: 'bg-blue-600 border-blue-800 text-white'
+            };
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `p-4 mb-3 rounded-lg shadow-xl border-l-4 ${colors[type]} transition-all duration-300 transform translate-x-full opacity-0 font-bold text-sm`;
+            alertDiv.textContent = text;
+            box.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.classList.remove('translate-x-full', 'opacity-0');
+                alertDiv.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+            
+            setTimeout(() => {
+                alertDiv.classList.add('opacity-0');
+                setTimeout(() => {
+                    if (alertDiv.parentNode) alertDiv.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        let confirmCallback = null;
+        function showConfirmModal(message, onConfirm) {
+            document.getElementById('confirm-modal-message').textContent = message;
+            confirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+        
+        function hideConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+
+            const eventHandler = (event) => {
+                const button = event.target.closest('button[data-action]');
+                const header = event.target.closest('div[data-action="toggle-collapse"]');
+                try {
+                    if (button) {
+                        event.stopPropagation();
+                        const { action, projectId, taskId, canvasId } = button.dataset; 
+                        switch(action) {
+                            case 'edit-project': showEditModal(projectId); break;
+                            case 'delete-project': deleteProject(projectId); break;
+                            case 'edit-task': showEditTaskModal(projectId, taskId); break;
+                            case 'delete-task': deleteTask(projectId, taskId); break;
+                            case 'show-chart-modal': showChartModal(projectId); break;
+                            case 'download-single-chart': downloadSingleChartAsPNG(canvasId, projectId); break; 
+                        }
+                    } else if (header) {
+                        const { projectId } = header.dataset;
+                        toggleCollapse(projectId);
+                    }
+                } catch (e) {
+                    console.error("操作失敗:", e);
+                    showMessage("操作發生錯誤，請檢查主控台紀錄。", "danger");
+                }
+            };
+            
+            document.getElementById('project-list-container').addEventListener('click', eventHandler);
+            document.getElementById('chart-modal').addEventListener('click', eventHandler);
+
+            document.getElementById('confirm-modal-confirm').addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') confirmCallback();
+                hideConfirmModal();
+            });
+            document.getElementById('confirm-modal-cancel').addEventListener('click', hideConfirmModal);
+            
+            document.getElementById('management-center').classList.remove('hidden');
+            document.getElementById('project-creation-form').classList.add('hidden');
+            renderProjects(); 
+
+            // 動態更新 Footer 版權年份
+            const footerYear = document.getElementById('footer-year');
+            if (footerYear) footerYear.textContent = new Date().getFullYear();
+        });
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# 已停用的管理/會員頁面
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /exam.html
+
+# 後端程式碼不應被索引
+Disallow: /run_crawler.py
+
+Sitemap: https://novera-engineering.netlify.app/sitemap.xml

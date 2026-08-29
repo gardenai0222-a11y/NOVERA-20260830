@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>實用工程速查工具箱 ｜ 標案雷達 ‧ 數量核算 ‧ 完工排程 ‧ 降雨免計 ‧ 鋼筋速查 ‧ 公文範本 ｜ NOVERA</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問：專為台灣土木水利、建築與營造工程團隊打造之全方位高階工程工具箱。涵蓋全國標案即時雷達、數量核算、工期推算、降雨免計工期、鋼筋搭接手冊、公文範本庫與 9 大工地現場即時速算小算盤。">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        .tools-container-clean {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 22px;
+        }
+        .hub-card {
+            background: #FFFFFF;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(14, 27, 46, 0.05);
+            border: 1px solid #CBD5E1;
+            border-top: 4px solid #0E1B2E;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+        .hub-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(14, 27, 46, 0.12);
+            border-top-color: #C27803;
+        }
+        .hub-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .hub-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background: #0E1B2E;
+            color: #C27803;
+            border: 1px solid #1E2D42;
+        }
+        .mod-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #C27803;
+            background: #FEF3C7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #FDE68A;
+        }
+        .spec-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #475569;
+            background: #F1F5F9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+        }
+        .hub-action-btn {
+            background: #0E1B2E;
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #1E2D42;
+            transition: all 0.2s ease;
+        }
+        .hub-action-btn:hover {
+            background: #1E3A8A;
+            border-color: #1E3A8A;
+            color: #FFFFFF;
+        }
+        .hub-action-btn i {
+            color: #C27803;
+            transition: transform 0.2s ease;
+        }
+        .hub-action-btn:hover i {
+            transform: translateX(3px);
+            color: #FBBF24;
+        }
+
+        .mini-calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 18px;
+        }
+        .mini-calc-card {
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        .mini-calc-card:hover {
+            border-color: #94A3B8;
+            box-shadow: 0 4px 14px rgba(14, 27, 46, 0.08);
+        }
+        .calc-input-modern {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #CBD5E1;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #0F172A;
+            background: #FFFFFF;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-input-modern:focus {
+            border-color: #1E3A8A;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+        }
+        .mini-badge-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #0E1B2E;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    
+    <!-- 頂部工程圖框 Banner -->
+    <section class="page-hero-eng">
+        <div class="container">
+            <span class="sub-heading">CIVIL & STRUCTURAL ENGINEERING PORTAL</span>
+            <h1>實用工程速查工具箱 ‧ 旗艦門戶</h1>
+            <p>專為台灣土木水利、建築與營造工程團隊打造之 8 大獨立旗艦專頁 ＆ 9 大工地現場即時速算小算盤。免註冊、無廣告、隨開即用。</p>
+        </div>
+    </section>
+
+    <main class="page-layout-wrapper" style="padding: 30px 20px 80px; background: #EDF2F7;">
+        <div class="tools-container-clean">
+            
+            <!-- 🌟 極顯眼！營造同業贊助支持 ‧ 銀行匯款與無償營運專區 (解決贊助按鈕不明顯的痛點) -->
+            <div class="sponsor-hero-banner" style="background: linear-gradient(135deg, #0E1B2E 0%, #172538 100%); border: 2px solid #C27803; border-radius: 8px; padding: 22px 26px; box-shadow: 0 6px 20px rgba(14,27,46,0.18);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: #C27803; color: #FFFFFF; font-weight: 900; font-size: 0.82rem; padding: 4px 12px; border-radius: 4px; letter-spacing: 0.5px;">
+                            <i class="fas fa-coffee"></i> 營造同業贊助交流 ‧ 網站持續維運
+                        </span>
+                        <span style="color: #94A3B8; font-size: 0.82rem;">100% 免註冊 ‧ 無廣告 ‧ 零外部 API 斷線風險</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <a href="index.html#contact" class="btn-outline" style="padding: 7px 14px; border-radius: 4px; font-weight: 800; font-size: 0.85rem; border: 1px solid #CBD5E1; color: #E2E8F0; background: rgba(255,255,255,0.08); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fab fa-line" style="color: #34D399;"></i> 技師顧問委託
+                        </a>
+                    </div>
+                </div>
+                
+                <h3 style="color: #FFFFFF; font-size: 1.25rem; font-weight: 900; margin: 0 0 6px;">
+                    支持 NOVERA 諾維拉 8 大工程工具持續維護與運營
+                </h3>
+                <p style="color: #CBD5E1; font-size: 0.88rem; margin: 0 0 14px; line-height: 1.6;">
+                    本站所有結構算料、進度 S 曲線、契約財務管考、標案情報與氣象工期系統目前由團隊自主開發營運。若本工具幫您節省了繁瑣的算料與加班時間，歡迎同業先進自由小額贊助請工程師喝杯咖啡！
+                </p>
+
+                <!-- 直接展示銀行帳號框 (一鍵複製) -->
+                <div style="background: rgba(255,255,255,0.06); border: 1px dashed rgba(194,120,3,0.7); border-radius: 6px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap;">
+                        <div style="color: #E2E8F0; font-size: 0.9rem;">
+                            <span style="color: #94A3B8; font-size: 0.78rem; display: block;">收款銀行</span>
+                            <strong style="color: #FFFFFF;">國泰世華銀行 (013)</strong>
+                        </div>
+                        <div style="color: #E2E8F0; font-size: 0.9rem;">
+                            <span style="color: #94A3B8; font-size: 0.78rem; display: block;">戶名</span>
+                            <strong style="color: #FFFFFF;">胡女士</strong>
+                        </div>
+                        <div style="color: #E2E8F0; font-size: 0.9rem;">
+                            <span style="color: #94A3B8; font-size: 0.78rem; display: block;">匯款帳號 (點擊一鍵複製)</span>
+                            <span class="font-mono" style="color: #FCD34D; font-size: 1.2rem; font-weight: 900; letter-spacing: 1px;">007506098097</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！');" class="btn-primary" style="background: #C27803; color: #FFFFFF; border: none; padding: 9px 18px; border-radius: 4px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(194,120,3,0.3);">
+                            <i class="fas fa-copy"></i> 複製帳號
+                        </button>
+                        <button onclick="document.getElementById('bankModal').style.display='flex'" class="btn-primary" style="background: #FFFFFF; color: #0E1B2E; border: none; padding: 9px 18px; border-radius: 4px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-hand-holding-usd text-amber-600"></i> 開啟贊助詳情
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8 大獨立旗艦工具卡片門戶 (正統 CAD 工程藍圖規格) -->
+            <div class="hub-grid" data-aos="fade-up">
+                
+                <!-- 卡片 1: 標案雷達 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-satellite-dish"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-01 // RADAR</span>
+                                <span class="spec-tag">DAILY SYNC</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">全國標案即時情報雷達</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            匯整政府電子採購網每日最新招標公告，支援關鍵字即時檢索、高精度篩選，並提供「雙活頁簿高階 Excel 表」一鍵免費下載。
+                        </p>
+                    </div>
+                    <a href="radar.html" target="_blank" class="hub-action-btn">
+                        <span>開啟標案雷達系統</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 2: 專案進度核算與 S-Curve -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-02 // S-CURVE</span>
+                                <span class="spec-tag">WBS & CPM</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">專案進度核算 ＆ S 曲線系統</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            依工程會工項金額權重加權法，推算預定 vs 實際累積進度與超前/落後差值，自動繪製 S 曲線與甘特圖，支援 Excel/PNG 報告一鍵匯出。
+                        </p>
+                    </div>
+                    <a href="progress.html" target="_blank" class="hub-action-btn">
+                        <span>啟動 S-Curve 進度系統</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 3: 專案財務與案件收益分析系統 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-03 // FINANCE</span>
+                                <span class="spec-tag">LOCAL STORAGE</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">專案財務 ＆ 案件利潤分析系統</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            管理各在建工程契約追加減、各期估驗款、5%保留款、工料支出流水帳與專案毛利率。內建現金流 S-Curve，數據 100% 本地存檔保密。
+                        </p>
+                    </div>
+                    <a href="finance.html" target="_blank" class="hub-action-btn">
+                        <span>進入專案財務管考專頁</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 4: 數量核算系統 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-04 // BOM V3.2</span>
+                                <span class="spec-tag">CNS 560 / ACI</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">結構數量核算系統 v3.2</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            柱/樑/版/牆/擋土牆/連續壁/鑽掘樁 全結構算料神器。即時推算混凝土體積、模板面積、鋼筋用量與損耗，支援一鍵匯出工程明細表。
+                        </p>
+                    </div>
+                    <a href="novera-calculator.html" target="_blank" class="hub-action-btn">
+                        <span>啟動結構數量核算系統</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 5: 預定完工日推算 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-05 // SCHEDULE</span>
+                                <span class="spec-tag">2025~2036 CALENDAR</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">工程工作天/日曆天 完工日推算</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            內建行政院人事行政總處 2025~2036 國定假日。自動扣除週休二日與紀念日，支援雨天展延順延，產出完工日、倒數期程與進度條。
+                        </p>
+                    </div>
+                    <a href="schedule.html" target="_blank" class="hub-action-btn">
+                        <span>進入完工推算專頁</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 6: 降雨免計工期判定 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-cloud-showers-heavy"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-06 // WEATHER</span>
+                                <span class="spec-tag">CWA STATIONS</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">全國降雨免計工期判定系統</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            依工程採購契約第17條（天候不可抗力），連線氣象署開放資料，支援單日查驗與多日區間歷史雨量統計，可匯出 PNG 圖卡與 Word 佐證表。
+                        </p>
+                    </div>
+                    <a href="rain.html" target="_blank" class="hub-action-btn">
+                        <span>進入降雨判定專頁</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 7: 鋼筋規範速查手冊 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-ruler-combined"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-07 // REBAR</span>
+                                <span class="spec-tag">#3 ~ #11 FULL SPECS</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">鋼筋規範 ＆ 搭接長度速查手冊</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            依內政部結構混凝土設計規範，支援 SD420W/SD280W 鋼筋與 210~420 kgf/cm² 混凝土強度，單號數與全號數大表切換，耐震彎鉤速查。
+                        </p>
+                    </div>
+                    <a href="rebar.html" target="_blank" class="hub-action-btn">
+                        <span>進入鋼筋速查專頁</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- 卡片 8: 公文與品管範本庫 -->
+                <div class="hub-card">
+                    <div>
+                        <div class="hub-card-top">
+                            <div class="hub-icon-wrap">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span class="mod-tag">MOD-08 // DOCS</span>
+                                <span class="spec-tag">WORD DOWNLOAD</span>
+                            </div>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 900; color: #0E1B2E; margin: 0 0 8px;">公共工程 10 大標準公文範本庫</h3>
+                        <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin: 0 0 20px;">
+                            展延函、開工報告、停復工、估驗計價、竣工報驗、施工日誌、材料送審管制表與自主檢查表等 10 大標準 Word (.doc) 檔免費一鍵下載。
+                        </p>
+                    </div>
+                    <a href="templates.html" target="_blank" class="hub-action-btn">
+                        <span>進入範本庫下載專頁</span> <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- 9 大工地現場即時速算小算盤 (全面升級擴充) -->
+            <div class="tool-card-modern" data-aos="fade-up" style="background: #fff; border-radius: 6px; border: 1px solid #CBD5E1; border-top: 4px solid #0E1B2E; padding: 28px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; border-bottom: 2px solid #F1F5F9; padding-bottom: 14px;">
+                    <div>
+                        <h2 style="color: var(--primary-color); font-size: 1.35rem; font-weight: 900; margin: 0 0 4px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-calculator" style="color: #C27803;"></i> 工地現場常用基礎快速計算小算盤 (9大速算神器)
+                        </h2>
+                        <p style="margin: 0; color: #64748B; font-size: 0.88rem;">
+                            針對工地主任、監造人員、工務與估算師高頻率計算需求，即時推算方量、土方鬆散、車次、坡度、鋼筋重與建材配比。
+                        </p>
+                    </div>
+                    <span style="background: #FEF3C7; color: #92400E; font-weight: 800; font-size: 0.82rem; padding: 4px 12px; border-radius: 4px; border: 1px solid #FDE68A; font-family: 'JetBrains Mono', monospace;">
+                        ⚡ REAL-TIME CALC
+                    </span>
+                </div>
+
+                <div class="mini-calc-grid">
+                    
+                    <!-- 1. 矩形混凝土體積與叫料車次 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-cube" style="color: #0284C7; font-size: 1.2rem;"></i> 1. 矩形混凝土體積 ＆ 車次
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">長度 L (m)</label><input type="number" id="c1-l" value="10" step="0.1" oninput="runMiniCalc1()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">寬度 W (m)</label><input type="number" id="c1-w" value="5" step="0.1" oninput="runMiniCalc1()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">厚/深 H (m)</label><input type="number" id="c1-h" value="0.2" step="0.05" oninput="runMiniCalc1()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">損耗率 (%)</label><input type="number" id="c1-loss" value="5" step="1" oninput="runMiniCalc1()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #1E40AF;">建議叫料總量 (含損耗)：</div>
+                            <div id="c1-out" style="font-size: 1.25rem; font-weight: 900; color: #1D4ED8;">10.50 m³ (約 2 車)</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 圓柱/鑽掘樁/基樁混凝土體積 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-circle-notch" style="color: #8B5CF6; font-size: 1.2rem;"></i> 2. 圓柱/基樁混凝土體積
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">樁徑 D (m)</label><input type="number" id="c2-d" value="0.8" step="0.1" oninput="runMiniCalc2()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">深度/長度 (m)</label><input type="number" id="c2-h" value="15" step="0.5" oninput="runMiniCalc2()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">樁數/支數 (支)</label><input type="number" id="c2-n" value="4" step="1" oninput="runMiniCalc2()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">充填損耗 (%)</label><input type="number" id="c2-loss" value="10" step="1" oninput="runMiniCalc2()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #6B21A8;">總灌注需求方量：</div>
+                            <div id="c2-out" style="font-size: 1.25rem; font-weight: 900; color: #7C3AED;">33.18 m³ (約 6 車)</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 土方開挖/鬆方/運棄車次計算 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-truck-moving" style="color: #D97706; font-size: 1.2rem;"></i> 3. 土方開挖 ＆ 運棄車次
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">開挖實方 (m³)</label><input type="number" id="c3-v" value="500" step="10" oninput="runMiniCalc3()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">土質膨脹係數 L</label><input type="number" id="c3-l" value="1.25" step="0.05" oninput="runMiniCalc3()" class="calc-input-modern"></div>
+                            <div style="grid-column: span 2;"><label style="font-size:0.75rem; font-weight:700; color:#64748B;">砂石車容量規格</label>
+                                <select id="c3-truck" onchange="runMiniCalc3()" class="calc-input-modern">
+                                    <option value="12">大卡車 (約 12 m³ / 車)</option>
+                                    <option value="10" selected>十輪砂石車 (約 10 m³ / 車)</option>
+                                    <option value="6">六輪傾卸車 (約 6 m³ / 車)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #92400E;">鬆方量 ＆ 預估載運：</div>
+                            <div id="c3-out" style="font-size: 1.25rem; font-weight: 900; color: #B45309;">625 m³ (約 63 車次)</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. 水準測量視線高與測點高程 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-crosshairs" style="color: #10B981; font-size: 1.2rem;"></i> 4. 水準測量儀高與測點高程
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">基準點高程 BM (m)</label><input type="number" id="c4-bm" value="100.000" step="0.001" oninput="runMiniCalc4()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">後視讀數 BS (m)</label><input type="number" id="c4-bs" value="1.520" step="0.001" oninput="runMiniCalc4()" class="calc-input-modern"></div>
+                            <div style="grid-column: span 2;"><label style="font-size:0.75rem; font-weight:700; color:#64748B;">前視讀數 FS (m)</label><input type="number" id="c4-fs" value="0.850" step="0.001" oninput="runMiniCalc4()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #065F46;">測點高程 (Elev)：</div>
+                            <div id="c4-out" style="font-size: 1.25rem; font-weight: 900; color: #047857;">100.670 m (HI 101.52m)</div>
+                        </div>
+                    </div>
+
+                    <!-- 5. 坡度百分比與洩水高低差推算 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-ruler-combined" style="color: #EC4899; font-size: 1.2rem;"></i> 5. 洩水坡度 ＆ 高低差推算
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">水平距離 L (m)</label><input type="number" id="c5-l" value="25" step="0.5" oninput="runMiniCalc5()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">設計坡度</label>
+                                <select id="c5-slope-mode" onchange="runMiniCalc5()" class="calc-input-modern">
+                                    <option value="0.01">1% (1/100 排水坡)</option>
+                                    <option value="0.02" selected>2% (1/50 地面坡)</option>
+                                    <option value="0.05">5% (1/20 道路坡)</option>
+                                    <option value="0.0833">1:12 (無障礙坡道)</option>
+                                    <option value="0.5">1:2 (邊坡放坡)</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: span 2;"><label style="font-size:0.75rem; font-weight:700; color:#64748B;">起點設計高程 (m)</label><input type="number" id="c5-start-elev" value="50.000" step="0.001" oninput="runMiniCalc5()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #FDF2F8; border: 1px solid #FBCFE8; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #9D174D;">高低落差 ＆ 終點高程：</div>
+                            <div id="c5-out" style="font-size: 1.25rem; font-weight: 900; color: #BE185D;">落差 50.0 cm (終點 49.50m)</div>
+                        </div>
+                    </div>
+
+                    <!-- 6. 鋼筋定尺總重與噸數速算 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-bars" style="color: #2563EB; font-size: 1.2rem;"></i> 6. 鋼筋支數 ＆ 總重量速算
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">鋼筋號數</label>
+                                <select id="c6-num" onchange="runMiniCalc6()" class="calc-input-modern">
+                                    <option value="0.560">#3 (D10, 0.56kg/m)</option>
+                                    <option value="0.994">#4 (D13, 0.99kg/m)</option>
+                                    <option value="1.560">#5 (D16, 1.56kg/m)</option>
+                                    <option value="2.250" selected>#6 (D19, 2.25kg/m)</option>
+                                    <option value="3.040">#7 (D22, 3.04kg/m)</option>
+                                    <option value="3.980">#8 (D25, 3.98kg/m)</option>
+                                    <option value="5.080">#9 (D29, 5.08kg/m)</option>
+                                    <option value="6.390">#10 (D32, 6.39kg/m)</option>
+                                </select>
+                            </div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">定尺長度 (m)</label>
+                                <select id="c6-len" onchange="runMiniCalc6()" class="calc-input-modern">
+                                    <option value="9">9.0 m (常用定尺)</option>
+                                    <option value="12" selected>12.0 m (大定尺)</option>
+                                    <option value="14">14.0 m</option>
+                                    <option value="15">15.0 m</option>
+                                </select>
+                            </div>
+                            <div style="grid-column: span 2;"><label style="font-size:0.75rem; font-weight:700; color:#64748B;">鋼筋總支數 (支)</label><input type="number" id="c6-count" value="100" step="10" oninput="runMiniCalc6()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #1E40AF;">鋼筋總重量估算：</div>
+                            <div id="c6-out" style="font-size: 1.25rem; font-weight: 900; color: #1D4ED8;">2,700 kg (2.70 公噸)</div>
+                        </div>
+                    </div>
+
+                    <!-- 7. 泥作粉刷水泥砂包數速算 -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-brush" style="color: #059669; font-size: 1.2rem;"></i> 7. 泥作粉刷水泥砂包數
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">粉刷面積 (m²)</label><input type="number" id="c7-area" value="100" step="10" oninput="runMiniCalc7()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">粉刷厚度 (cm)</label><input type="number" id="c7-thick" value="1.5" step="0.5" oninput="runMiniCalc7()" class="calc-input-modern"></div>
+                            <div style="grid-column: span 2;"><label style="font-size:0.75rem; font-weight:700; color:#64748B;">砂漿配比 (標準 1:3)</label>
+                                <select id="c7-ratio" onchange="runMiniCalc7()" class="calc-input-modern">
+                                    <option value="1_3" selected>1:3 水泥砂漿 (粉刷底層/打底)</option>
+                                    <option value="1_2">1:2 水泥砂漿 (防水粉刷/粉光)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #166534;">水泥 ＆ 砂預估用量：</div>
+                            <div id="c7-out" style="font-size: 1.25rem; font-weight: 900; color: #15803D;">水泥 12 包 ｜ 砂 1.6 m³</div>
+                        </div>
+                    </div>
+
+                    <!-- 8. 瀝青混凝土鋪面噸數速算 (AC Pavement) -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-road" style="color: #475569; font-size: 1.2rem;"></i> 8. 瀝青混凝土 (AC) 鋪面噸數
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">路段長度 L (m)</label><input type="number" id="c8-l" value="50" step="5" oninput="runMiniCalc8()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">路面寬度 W (m)</label><input type="number" id="c8-w" value="6" step="0.5" oninput="runMiniCalc8()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">壓實厚度 (cm)</label><input type="number" id="c8-t" value="5" step="1" oninput="runMiniCalc8()" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">壓實密度 (t/m³)</label><input type="number" id="c8-dens" value="2.35" step="0.05" oninput="runMiniCalc8()" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.78rem; color: #334155;">AC 叫料總噸數估算：</div>
+                            <div id="c8-out" style="font-size: 1.25rem; font-weight: 900; color: #0F172A;">35.25 公噸 (約 2 車)</div>
+                        </div>
+                    </div>
+
+                    <!-- 9. 土地與建坪面積雙向換算 (四合一換算) -->
+                    <div class="mini-calc-card">
+                        <div class="mini-badge-title">
+                            <i class="fas fa-vector-square" style="color: #7C3AED; font-size: 1.2rem;"></i> 9. 土地/建坪 面積四向換算
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">平方公尺 (m²)</label><input type="number" id="c9-m2" value="330.58" step="10" oninput="runMiniCalc9('m2')" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">台灣坪數 (坪)</label><input type="number" id="c9-ping" value="100.00" step="1" oninput="runMiniCalc9('ping')" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">台灣甲 (甲)</label><input type="number" id="c9-jia" value="0.034" step="0.01" oninput="runMiniCalc9('jia')" class="calc-input-modern"></div>
+                            <div><label style="font-size:0.75rem; font-weight:700; color:#64748B;">公頃 (ha)</label><input type="number" id="c9-ha" value="0.033" step="0.01" oninput="runMiniCalc9('ha')" class="calc-input-modern"></div>
+                        </div>
+                        <div style="background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 8px; padding: 10px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: #6B21A8; font-weight: bold;">
+                                1 坪 = 3.30578 m² ｜ 1 甲 = 2,934 坪 = 0.9699 公頃
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    
+    <!-- 銀行匯款贊助彈窗 -->
+    <div class="modal-overlay" id="bankModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.8); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:14px; padding:32px; max-width:440px; width:90%; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+            <button onclick="document.getElementById('bankModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.2rem; color:var(--text-muted); cursor:pointer;"><i class="fas fa-times"></i></button>
+            <h3 style="font-size:1.25rem; margin-bottom:6px; display:flex; align-items:center; gap:8px; color:var(--primary-color);">
+                <i class="fas fa-university" style="color:#D97706;"></i> 銀行轉帳支持諾維拉
+            </h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">感謝您支持 NOVERA 維護全台工程實用工具箱與標案情報總表！</p>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#F8FAFC; border-radius:8px; margin-bottom:10px; border: 1px solid #E2E8F0;">
+                <span style="font-size:0.85rem; color:#64748B;">收款銀行</span>
+                <span style="font-size:1rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:#0F172A;">國泰世華銀行 (013)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#F8FAFC; border-radius:8px; margin-bottom:10px; border: 1px solid #E2E8F0;">
+                <span style="font-size:0.85rem; color:#64748B;">戶名</span>
+                <span style="font-size:1rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:#0F172A;">胡女士</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#EFF6FF; border-radius:8px; margin-bottom:10px; border: 1px solid #BFDBFE;">
+                <span style="font-size:0.85rem; color:#1E40AF;">帳號（點擊複製）</span>
+                <span style="font-size:1.05rem; font-weight:900; font-family:'JetBrains Mono', monospace; color:#2563EB; cursor:pointer;" onclick="copyAccount('007506098097')">007506098097 <i class="fas fa-copy" style="font-size:0.85rem;"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+        window.copyAccount = function(acc) {
+            navigator.clipboard.writeText(acc).then(() => {
+                alert('國泰世華銀行帳號已複製至剪貼簿！感謝您的支持！');
+            });
+        };
+
+
+        // 1. 矩形混凝土
+        window.runMiniCalc1 = function() {
+            const l = parseFloat(document.getElementById('c1-l').value) || 0;
+            const w = parseFloat(document.getElementById('c1-w').value) || 0;
+            const h = parseFloat(document.getElementById('c1-h').value) || 0;
+            const loss = parseFloat(document.getElementById('c1-loss').value) || 0;
+            const net = l * w * h;
+            const total = net * (1 + loss / 100);
+            const trucks = Math.ceil(total / 6);
+            document.getElementById('c1-out').innerText = `${total.toFixed(2)} m³ (約 ${trucks} 車, 淨量 ${net.toFixed(2)}m³)`;
+        };
+
+        // 2. 圓柱/基樁
+        window.runMiniCalc2 = function() {
+            const d = parseFloat(document.getElementById('c2-d').value) || 0;
+            const h = parseFloat(document.getElementById('c2-h').value) || 0;
+            const n = parseFloat(document.getElementById('c2-n').value) || 1;
+            const loss = parseFloat(document.getElementById('c2-loss').value) || 0;
+            const area = Math.PI * Math.pow(d / 2, 2);
+            const net = area * h * n;
+            const total = net * (1 + loss / 100);
+            const trucks = Math.ceil(total / 6);
+            document.getElementById('c2-out').innerText = `${total.toFixed(2)} m³ (約 ${trucks} 車, 單支 ${(net/n).toFixed(2)}m³)`;
+        };
+
+        // 3. 土方開挖
+        window.runMiniCalc3 = function() {
+            const v = parseFloat(document.getElementById('c3-v').value) || 0;
+            const l = parseFloat(document.getElementById('c3-l').value) || 1.25;
+            const truckCap = parseFloat(document.getElementById('c3-truck').value) || 10;
+            const looseV = v * l;
+            const trucks = Math.ceil(looseV / truckCap);
+            document.getElementById('c3-out').innerText = `${looseV.toFixed(1)} m³ (約 ${trucks} 車次)`;
+        };
+
+        // 4. 水準測量
+        window.runMiniCalc4 = function() {
+            const bm = parseFloat(document.getElementById('c4-bm').value) || 0;
+            const bs = parseFloat(document.getElementById('c4-bs').value) || 0;
+            const fs = parseFloat(document.getElementById('c4-fs').value) || 0;
+            const hi = bm + bs;
+            const elev = hi - fs;
+            document.getElementById('c4-out').innerText = `${elev.toFixed(3)} m (視線高 ${hi.toFixed(3)}m)`;
+        };
+
+        // 5. 洩水坡度
+        window.runMiniCalc5 = function() {
+            const l = parseFloat(document.getElementById('c5-l').value) || 0;
+            const slope = parseFloat(document.getElementById('c5-slope-mode').value) || 0.02;
+            const startElev = parseFloat(document.getElementById('c5-start-elev').value) || 0;
+            const drop = l * slope; // in meters
+            const dropCm = drop * 100;
+            const endElev = startElev - drop;
+            document.getElementById('c5-out').innerText = `落差 ${dropCm.toFixed(1)} cm (終點 ${endElev.toFixed(3)}m)`;
+        };
+
+        // 6. 鋼筋重量
+        window.runMiniCalc6 = function() {
+            const unitW = parseFloat(document.getElementById('c6-num').value) || 2.25;
+            const len = parseFloat(document.getElementById('c6-len').value) || 12;
+            const count = parseFloat(document.getElementById('c6-count').value) || 0;
+            const totalKg = unitW * len * count;
+            const totalTon = totalKg / 1000;
+            document.getElementById('c6-out').innerText = `${Math.round(totalKg).toLocaleString()} kg (${totalTon.toFixed(2)} 公噸)`;
+        };
+
+        // 7. 泥作粉刷
+        window.runMiniCalc7 = function() {
+            const area = parseFloat(document.getElementById('c7-area').value) || 0;
+            const thickCm = parseFloat(document.getElementById('c7-thick').value) || 1.5;
+            const ratio = document.getElementById('c7-ratio').value;
+            const vol = area * (thickCm / 100); // m3
+            let bags = 0, sand = 0;
+            if (ratio === '1_3') {
+                bags = Math.ceil(vol * 8.5);
+                sand = (vol * 1.1).toFixed(2);
+            } else {
+                bags = Math.ceil(vol * 11.5);
+                sand = (vol * 1.0).toFixed(2);
+            }
+            document.getElementById('c7-out').innerText = `水泥約 ${bags} 包 ｜ 砂約 ${sand} m³`;
+        };
+
+        // 8. 瀝青混凝土
+        window.runMiniCalc8 = function() {
+            const l = parseFloat(document.getElementById('c8-l').value) || 0;
+            const w = parseFloat(document.getElementById('c8-w').value) || 0;
+            const tCm = parseFloat(document.getElementById('c8-t').value) || 0;
+            const dens = parseFloat(document.getElementById('c8-dens').value) || 2.35;
+            const vol = l * w * (tCm / 100);
+            const tons = vol * dens;
+            const trucks = Math.ceil(tons / 18);
+            document.getElementById('c8-out').innerText = `${tons.toFixed(2)} 公噸 (約 ${trucks} 輛18T車)`;
+        };
+
+        // 9. 面積換算
+        window.runMiniCalc9 = function(source) {
+            let m2 = 0;
+            if (source === 'm2') {
+                m2 = parseFloat(document.getElementById('c9-m2').value) || 0;
+            } else if (source === 'ping') {
+                const ping = parseFloat(document.getElementById('c9-ping').value) || 0;
+                m2 = ping * 3.30578;
+            } else if (source === 'jia') {
+                const jia = parseFloat(document.getElementById('c9-jia').value) || 0;
+                m2 = jia * 9699.17;
+            } else if (source === 'ha') {
+                const ha = parseFloat(document.getElementById('c9-ha').value) || 0;
+                m2 = ha * 10000;
+            }
+
+            if (source !== 'm2') document.getElementById('c9-m2').value = m2.toFixed(2);
+            if (source !== 'ping') document.getElementById('c9-ping').value = (m2 * 0.3025).toFixed(2);
+            if (source !== 'jia') document.getElementById('c9-jia').value = (m2 / 9699.17).toFixed(4);
+            if (source !== 'ha') document.getElementById('c9-ha').value = (m2 / 10000).toFixed(4);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runMiniCalc1();
+            runMiniCalc2();
+            runMiniCalc3();
+            runMiniCalc4();
+            runMiniCalc5();
+            runMiniCalc6();
+            runMiniCalc7();
+            runMiniCalc8();
+        });
+    </script>
+</body>
+</html>

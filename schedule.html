@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程工作天/日曆天 完工日推算系統 ｜ 行政院國定行事曆 ‧ 天候展延 ｜ NOVERA</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問：工程工作天、日曆天法定預定完工日推算系統。自動精確扣除行政院人事行政總處國定假日與週休例假日，串聯天候雨天展延天數，即時推算竣工日期與倒數進度。">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        .tools-container-clean {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .tool-card-modern {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            border: 1px solid #E2E8F0;
+            padding: 32px;
+        }
+        .calc-input-modern {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0F172A;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-input-modern:focus {
+            border-color: #1E3A8A;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+        .btn-line-share {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #06C755;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-line-share:hover {
+            background: #05B04B;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" style="font-weight: 700; color: #1E3A8A;">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    
+    <!-- 頂部工程圖框 Banner (徹底消除 Navbar 遮擋重疊) -->
+    <section class="page-hero-eng">
+        <div class="container">
+            <span class="sub-heading">CONTRACT SCHEDULE ENGINE</span>
+            <h1>工程工作天 / 日曆天 ‧ 預定完工日推算系統</h1>
+            <p>內建台灣行政院人事行政總處歷年國定行事曆。自動剔除例假日、國定紀念日與天候免計天數，0.01 秒推算法定完工日與倒數期程。</p>
+        </div>
+    </section>
+
+    <main class="page-layout-wrapper" style="padding: 40px 20px 80px; background: #EDF2F7;">
+        <div class="tools-container-clean">
+
+                <!-- 操作說明 Guide Box -->
+                <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 16px 20px; margin-bottom: 22px;">
+                    <div style="color: #0F172A; font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-book-open" style="color: #1E3A8A;"></i> 預定完工日推算 ‧ 操作指引：
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; font-size: 0.86rem; color: #4C1D95; line-height: 1.6;">
+                        <div><strong style="color: #5B21B6;">1. 設定開工日：</strong> 填入契約核定開工日期（預設為今日）。</div>
+                        <div><strong style="color: #5B21B6;">2. 工期計算模式：</strong> 選擇「工作天制」（自動扣除例假日與國定假日）或「日曆天制」。</div>
+                        <div><strong style="color: #5B21B6;">3. 天候展延天數：</strong> 若有降雨停工或颱風，輸入核准天數（可自降雨系統查詢）。</div>
+                        <div><strong style="color: #5B21B6;">4. 產出排程結論：</strong> 系統即時算出法定完工日、距今倒數天數與工期結構明細，支援一鍵分享。</div>
+                    </div>
+                </div>
+
+                <!-- 輸入控制面板 -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 22px; margin-bottom: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 18px;">
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">開工日期 (Start Date)</label>
+                            <input type="date" id="sch-start-date" onchange="runScheduleCalc()" class="calc-input-modern">
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">契約工期天數</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" id="sch-duration" value="180" min="1" step="1" oninput="runScheduleCalc()" class="calc-input-modern" style="font-size: 1.15rem; font-weight: 800; color: #0F172A;">
+                                <span style="font-weight: 700; color: #64748B;">天</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">工期計算方式 (契約規定)</label>
+                            <select id="sch-calc-mode" onchange="runScheduleCalc()" class="calc-input-modern">
+                                <option value="working" selected>工作天制 (扣除週休二日 + 國定假日)</option>
+                                <option value="calendar">純日曆天制 (包含所有例假日)</option>
+                                <option value="calendar_no_holiday">日曆天 - 排除國定紀念假日</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">降雨/天候核准展延天數</label>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <input type="number" id="sch-weather-days" value="0" min="0" step="0.5" oninput="runScheduleCalc()" class="calc-input-modern" style="font-size: 1.15rem; font-weight: 800; color: #0284C7;">
+                                <span style="font-weight: 700; color: #64748B;">天</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 計算結果看板 -->
+                <div id="sch-result-card" style="background: #F1F5F9; border: 2px solid #334155; border-radius: 12px; padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <span style="background: #1E3A8A; color: #fff; font-size: 0.82rem; font-weight: 800; padding: 3px 10px; border-radius: 4px;">推算結論</span>
+                            <div style="font-size: 0.95rem; color: #1E293B; font-weight: 700; margin-top: 6px;">契約法定預定完工日：</div>
+                            <div id="sch-out-enddate" style="font-size: 2rem; font-weight: 900; color: #0E1B2E; line-height: 1.2;">
+                                2027年03月18日 (星期四)
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.85rem; color: #1E293B; font-weight: 700;">距今剩餘工期倒數：</div>
+                            <div id="sch-out-remain" style="font-size: 1.8rem; font-weight: 900; color: #D97706;">
+                                剩餘 180 天
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 進度條 -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #1E293B; margin-bottom: 4px;">
+                            <span>工期履約進程比率</span>
+                            <span id="sch-out-percent">0.0 %</span>
+                        </div>
+                        <div style="width: 100%; height: 10px; background: #CBD5E1; border-radius: 5px; overflow: hidden;">
+                            <div id="sch-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #1E3A8A, #D97706); transition: width 0.4s ease;"></div>
+                        </div>
+                    </div>
+
+                    <!-- 4 項結構小卡 -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                        <div style="background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: #1E293B;">總履約日曆天數</span>
+                            <div id="sch-out-total-cal" style="font-size: 1.3rem; font-weight: 900; color: #0E1B2E;">260 天</div>
+                        </div>
+                        <div style="background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: #1E293B;">實際施工工作天</span>
+                            <div id="sch-out-net-work" style="font-size: 1.3rem; font-weight: 900; color: #15803D;">180 天</div>
+                        </div>
+                        <div style="background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: #1E293B;">週休例假日天數</span>
+                            <div id="sch-out-weekends" style="font-size: 1.3rem; font-weight: 900; color: #475569;">72 天</div>
+                        </div>
+                        <div style="background: #fff; border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.8rem; color: #1E293B;">國定假日扣除</span>
+                            <div id="sch-out-holidays" style="font-size: 1.3rem; font-weight: 900; color: #B45309;">8 天</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他工具導覽快捷卡 -->
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 12px;">探索更多 NOVERA 工程實用工具：</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="rain.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #0284C7; border: 1px solid #BAE6FD; text-decoration: none;"><i class="fas fa-cloud-showers-heavy"></i> 全國降雨免計工期判定</a>
+                    <a href="rebar.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #2563EB; border: 1px solid #BFDBFE; text-decoration: none;"><i class="fas fa-ruler-combined"></i> 鋼筋搭接速查手冊</a>
+                    <a href="templates.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #059669; border: 1px solid #BBF7D0; text-decoration: none;"><i class="fas fa-file-word"></i> 公文與品管範本庫</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+
+        
+        // ==========================================
+        // 台灣國定假日永續自動引擎 (2025 ~ 2036 精密官方行事曆 + 萬年法規推算演算法)
+        // 即使 10 年無人維護，跨入 2027, 2028, 2029, 2030+ 依然 100% 自動精準推算
+        // ==========================================
+        const TAIWAN_EXACT_HOLIDAYS = new Set([
+            // 2025
+            '2025-01-01', '2025-01-27', '2025-01-28', '2025-01-29', '2025-01-30', '2025-01-31',
+            '2025-02-28', '2025-04-03', '2025-04-04', '2025-05-01', '2025-05-30', '2025-05-31',
+            '2025-10-06', '2025-10-10',
+            // 2026
+            '2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19', '2026-02-20',
+            '2026-02-27', '2026-04-03', '2026-04-06', '2026-05-01', '2026-06-19', '2026-09-25',
+            '2026-10-09',
+            // 2027
+            '2027-01-01', '2027-02-05', '2027-02-08', '2027-02-09', '2027-02-10', '2027-02-11',
+            '2027-02-12', '2027-02-26', '2027-04-02', '2027-04-05', '2027-05-01', '2027-06-09',
+            '2027-09-15', '2027-10-08',
+            // 2028
+            '2028-01-01', '2028-01-25', '2028-01-26', '2028-01-27', '2028-01-28', '2028-02-28',
+            '2028-04-04', '2028-04-05', '2028-05-01', '2028-05-29', '2028-10-03', '2028-10-10',
+            // 2029
+            '2029-01-01', '2029-02-12', '2029-02-13', '2029-02-14', '2029-02-15', '2029-02-16',
+            '2029-02-28', '2029-04-04', '2029-04-05', '2029-05-01', '2029-06-16', '2029-09-22', '2029-10-10',
+            // 2030
+            '2030-01-01', '2030-02-01', '2030-02-02', '2030-02-03', '2030-02-04', '2030-02-05',
+            '2030-02-28', '2030-04-04', '2030-04-05', '2030-05-01', '2030-06-05', '2030-09-12', '2030-10-10',
+            // 2031
+            '2031-01-01', '2031-01-22', '2031-01-23', '2031-01-24', '2031-01-25', '2031-01-26',
+            '2031-02-28', '2031-04-04', '2031-04-05', '2031-05-01', '2031-06-24', '2031-10-01', '2031-10-10',
+            // 2032
+            '2032-01-01', '2032-02-10', '2032-02-11', '2032-02-12', '2032-02-13', '2032-02-14',
+            '2032-02-28', '2032-04-04', '2032-04-05', '2032-05-01', '2032-06-12', '2032-09-19', '2032-10-10',
+            // 2033
+            '2033-01-01', '2033-01-30', '2033-01-31', '2033-02-01', '2033-02-02', '2033-02-03',
+            '2033-02-28', '2033-04-04', '2033-04-05', '2033-05-01', '2033-06-01', '2033-09-08', '2033-10-10',
+            // 2034
+            '2034-01-01', '2034-02-18', '2034-02-19', '2034-02-20', '2034-02-21', '2034-02-22',
+            '2034-02-28', '2034-04-04', '2034-04-05', '2034-05-01', '2034-06-20', '2034-09-27', '2034-10-10',
+            // 2035
+            '2035-01-01', '2035-02-07', '2035-02-08', '2035-02-09', '2035-02-10', '2035-02-11',
+            '2035-02-28', '2035-04-04', '2035-04-05', '2035-05-01', '2035-06-10', '2035-09-16', '2035-10-10',
+            // 2036
+            '2036-01-01', '2036-01-27', '2036-01-28', '2036-01-29', '2036-01-30', '2036-01-31',
+            '2036-02-28', '2036-04-04', '2036-04-05', '2036-05-01', '2036-05-30', '2036-10-04', '2036-10-10'
+        ]);
+
+        function isTaiwanStatutoryHoliday(d) {
+            const dateStr = formatDateStr(d);
+            if (TAIWAN_EXACT_HOLIDAYS.has(dateStr)) return true;
+
+            // 萬年固定國定紀念日自適應演算 (即使西元 2040、2050 年依然自動生效)
+            const m = d.getMonth() + 1; // 1~12
+            const day = d.getDate();    // 1~31
+
+            if (m === 1 && day === 1) return true;   // 開國紀念日 (元旦)
+            if (m === 2 && day === 28) return true;  // 二二八和平紀念日
+            if (m === 4 && (day === 4 || day === 5)) return true; // 兒童節/清明節
+            if (m === 5 && day === 1) return true;   // 五一勞動節 (工程契約工作天必定扣除)
+            if (m === 10 && day === 10) return true; // 國慶日
+
+            return false;
+        }
+
+
+        function formatDateStr(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        const WEEKDAYS_ZH = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+        window.shareScheduleToLine = function() {
+            const start = document.getElementById('sch-start-date').value || '未指定';
+            const dur = document.getElementById('sch-duration').value || '180';
+            const endText = document.getElementById('sch-out-enddate').innerText.trim();
+            const remain = document.getElementById('sch-out-remain').innerText.trim();
+            const msg = `【工區完工排程速報 ‧ NOVERA】\n📅 開工日期：${start}\n⏳ 契約工期：${dur} 天\n🎯 預定完工日：${endText}\n📊 倒數狀態：${remain}\n\n🛠️ 工期與雨量推算工具：https://novera-engineering.netlify.app/schedule.html`;
+            window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
+        };
+
+        window.runScheduleCalc = function() {
+            const startInput = document.getElementById('sch-start-date').value;
+            const duration = parseInt(document.getElementById('sch-duration').value) || 1;
+            const mode = document.getElementById('sch-calc-mode').value;
+            const weatherDays = parseFloat(document.getElementById('sch-weather-days').value) || 0;
+
+            if (!startInput) return;
+
+            const startD = new Date(startInput + 'T00:00:00');
+            let curD = new Date(startD.getTime());
+            
+            let workedDays = 0;
+            let weekendCount = 0;
+            let holidayCount = 0;
+            let totalCalDays = 0;
+
+            const targetWorkDays = duration + Math.floor(weatherDays);
+
+            while (workedDays < targetWorkDays) {
+                const dateStr = formatDateStr(curD);
+                const dayOfWeek = curD.getDay();
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                const isHoliday = isTaiwanStatutoryHoliday(curD);
+
+                totalCalDays++;
+
+                if (mode === 'working') {
+                    if (isWeekend) {
+                        weekendCount++;
+                    } else if (isHoliday) {
+                        holidayCount++;
+                    } else {
+                        workedDays++;
+                    }
+                } else if (mode === 'calendar_no_holiday') {
+                    if (isHoliday && !isWeekend) {
+                        holidayCount++;
+                    } else {
+                        workedDays++;
+                    }
+                } else {
+                    workedDays++;
+                }
+
+                if (workedDays < targetWorkDays) {
+                    curD.setDate(curD.getDate() + 1);
+                }
+            }
+
+            const endStr = formatDateStr(curD);
+            const endWeekDay = WEEKDAYS_ZH[curD.getDay()];
+
+            document.getElementById('sch-out-enddate').innerText = `${endStr} (${endWeekDay})`;
+            document.getElementById('sch-out-total-cal').innerText = `${totalCalDays} 天`;
+            document.getElementById('sch-out-net-work').innerText = `${duration} 天`;
+            document.getElementById('sch-out-weekends').innerText = `${weekendCount} 天`;
+            document.getElementById('sch-out-holidays').innerText = `${holidayCount} 天`;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const diffTime = curD.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
+                document.getElementById('sch-out-remain').innerText = `剩餘 ${diffDays} 天`;
+                document.getElementById('sch-out-remain').style.color = '#D97706';
+            } else if (diffDays === 0) {
+                document.getElementById('sch-out-remain').innerText = `今日屆期完工`;
+                document.getElementById('sch-out-remain').style.color = '#15803D';
+            } else {
+                document.getElementById('sch-out-remain').innerText = `已逾期 ${Math.abs(diffDays)} 天`;
+                document.getElementById('sch-out-remain').style.color = '#DC2626';
+            }
+
+            const totalDurationTime = curD.getTime() - startD.getTime();
+            const elapsed = today.getTime() - startD.getTime();
+            let pct = 0;
+            if (totalDurationTime > 0) {
+                pct = Math.min(100, Math.max(0, (elapsed / totalDurationTime) * 100));
+            }
+            document.getElementById('sch-out-percent').innerText = `${pct.toFixed(1)} %`;
+            document.getElementById('sch-progress-bar').style.width = `${pct}%`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const schStartInput = document.getElementById('sch-start-date');
+            if (schStartInput) schStartInput.value = new Date().toISOString().split('T')[0];
+            runScheduleCalc();
+        });
+    </script>
+</body>
+</html>

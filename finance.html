@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程專案財務 ＆ 案件利潤分析系統 ｜ 現金流 S-Curve ‧ 估驗管考 ‧ Excel匯出 ｜ NOVERA 諾維拉</title>
+    <meta name="description" content="專為土木營造廠、工務所與技師事務所打造之專案財務收支管考與利潤分析系統。自動計算契約追加減、估驗計價、5%保留款、工料成本、毛利率與累積現金流 S 曲線，資料 100% 瀏覽器本地存檔保密。">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- 支援 PWA Web App 模式 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NOVERA財務">
+
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'novera-navy': '#0E1B2E',
+                        'novera-dark': '#1A2B42',
+                        'novera-gold': '#C27803',
+                        'novera-gold-light': '#D97706',
+                        'novera-blue': '#1E3A8A',
+                        'novera-green': '#059669',
+                        'novera-red': '#DC2626'
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- 載入 Chart.js 與日期適配器 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- 載入 SheetJS 支援 Excel 匯出 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        .finance-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px 80px;
+        }
+        .eng-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 4px 16px rgba(14, 27, 46, 0.05);
+            transition: all 0.25s ease;
+        }
+        .eng-card:hover {
+            box-shadow: 0 8px 24px rgba(14, 27, 46, 0.1);
+        }
+        .kpi-card {
+            background: #FFFFFF;
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+            border-left: 5px solid #0E1B2E;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.2s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #64748B;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #0E1B2E;
+            border-bottom-color: #C27803;
+            background: rgba(194, 120, 3, 0.06);
+            border-radius: 6px 6px 0 0;
+        }
+        .table-eng th {
+            background: #0E1B2E;
+            color: #FFFFFF;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 12px 14px;
+            text-align: left;
+        }
+        .table-eng td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+        .table-eng tr:hover td {
+            background: #F8FAFC;
+        }
+        .modal-overlay {
+            background-color: rgba(14, 27, 46, 0.7);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body style="background: #EDF2F7; color: #1E293B; font-family: 'Noto Sans TC', sans-serif;">
+
+    <!-- 全站頂部導覽列 (Navbar) -->
+    <header class="header" style="background: rgba(14, 27, 46, 0.98); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 999;">
+        <div class="container nav-container" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px;">
+            <div class="logo">
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                    <span class="logo-icon" style="background: #C27803; color:#fff; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; font-weight:900;">N</span>
+                    <span class="logo-text" style="font-weight: 900; font-size: 1.25rem; color: #FFFFFF; letter-spacing: 0.5px;">NOVERA <span style="font-size:0.85rem; color: #C27803; font-weight:600;">諾維拉工程顧問</span></span>
+                </a>
+            </div>
+            <nav class="nav-links">
+                <ul style="display: flex; list-style: none; gap: 20px; align-items: center; margin: 0; padding: 0;">
+                    <li><a href="index.html" style="color: #E2E8F0; text-decoration: none; font-weight: 600;">首頁</a></li>
+                    <li><a href="about.html" style="color: #E2E8F0; text-decoration: none; font-weight: 600;">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; text-decoration: none;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" style="font-weight: 700; color: #059669;">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html" style="color: #E2E8F0; text-decoration: none; font-weight: 600;">工程情報 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 頂部資訊 Bar (工程圖紙風格 + 本地安全隱私宣告) -->
+    <section class="page-hero-eng" style="padding: 35px 20px 25px; background: linear-gradient(135deg, #0E1B2E 0%, #1A2B42 100%); color: #fff; border-bottom: 3px solid #C27803;">
+        <div class="container" style="max-width: 1400px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="display: inline-block; font-size: 0.78rem; font-weight: 800; letter-spacing: 1px; color: #F59E0B; background: rgba(194,120,3,0.2); padding: 3px 10px; border-radius: 4px;">ENGINEERING FINANCIAL & PROFIT ANALYZER</span>
+                        <span style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 2px 8px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.4);"><i class="fas fa-circle" style="font-size: 0.55rem; vertical-align: middle;"></i> 本機即時自動存檔中</span>
+                    </div>
+                    <h1 style="font-size: 1.85rem; font-weight: 900; margin: 0 0 6px; color: #FFFFFF;">工程專案財務 ＆ 案件利潤分析系統</h1>
+                    <p style="margin: 0; font-size: 0.92rem; color: #CBD5E1;">專為台灣土木營造廠、工務所與工程顧問設計之案件財務管考。支援契約追加減、估驗計價、5%保留款、工料支出明細與現金流 S 曲線分析。</p>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <button onclick="exportToExcel()" class="btn-primary" style="background: #059669; color: #fff; border: none; padding: 9px 15px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(5,150,105,0.3);">
+                        <i class="fas fa-file-excel"></i> 匯出 Excel 總表
+                    </button>
+                    <button onclick="exportJSON()" class="btn-primary" style="background: #1E3A8A; color: #fff; border: none; padding: 9px 15px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-download"></i> 備份專案檔 (JSON)
+                    </button>
+                    <label class="btn-outline" style="padding: 8px 13px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; border: 1px solid #94A3B8; color: #FFFFFF; background: rgba(255,255,255,0.1); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                        <i class="fas fa-upload"></i> 還原備份 <input type="file" id="jsonFileInput" style="display:none;" accept=".json" onchange="importJSON(event)">
+                    </label>
+                    <button onclick="clearAllData()" class="btn-outline" style="padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; border: 1px solid #EF4444; color: #FCA5A5; background: rgba(239, 68, 68, 0.15); cursor: pointer;" title="清空所有專案與流水帳，開始全新記帳">
+                        <i class="fas fa-trash-alt"></i> 清空開新專案
+                    </button>
+                    <button onclick="resetToDemo()" class="btn-outline" style="padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; border: 1px solid #CBD5E1; color: #E2E8F0; background: rgba(255,255,255,0.08); cursor: pointer;" title="重新載入官方示範工程數據">
+                        <i class="fas fa-redo"></i> 載入示範
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 4 步極速上手 SOP 指南卡片 (解決使用者不知道怎麼開始的痛點) -->
+            <div style="margin-top: 20px; background: rgba(14, 27, 46, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 14px 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 0.88rem; font-weight: 800; color: #F59E0B; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-lightbulb"></i> 4 步極速上手指南（第一次使用請看這裡）：
+                    </span>
+                    <span style="font-size: 0.75rem; color: #94A3B8;">免註冊 ‧ 關閉網頁自動存檔 ‧ 跨電腦可匯出備份</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+                        <strong style="color: #93C5FD; display: block; margin-bottom: 3px;">步驟 1：選擇範例或開新專案</strong>
+                        <span style="color: #CBD5E1; line-height: 1.4;">目前畫面預載示範案。若要記自家工程，點右上角<strong>「清空開新專案」</strong>即可一秒淨空！隨時可點「載入示範」復原。</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border-left: 3px solid #10B981;">
+                        <strong style="color: #6EE7B7; display: block; margin-bottom: 3px;">步驟 2：在「專案總覽」建立工程</strong>
+                        <span style="color: #CBD5E1; line-height: 1.4;">切換至「專案合約總覽」分頁，點擊<strong>「＋ 新增專案」</strong>填入契約總價、業主與追加減合約金額。</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border-left: 3px solid #F59E0B;">
+                        <strong style="color: #FCD34D; display: block; margin-bottom: 3px;">步驟 3：在「收支流水帳」記帳</strong>
+                        <span style="color: #CBD5E1; line-height: 1.4;">切換至「收支流水帳」登記各期估驗請款（自動算 5% 保留款）與混凝土、鋼筋材料、出工費等工料支出。</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; border-left: 3px solid #8B5CF6;">
+                        <strong style="color: #C4B5FD; display: block; margin-bottom: 3px;">步驟 4：全自動存檔 ＆ Excel 匯出</strong>
+                        <span style="color: #CBD5E1; line-height: 1.4;"><strong>直接關閉瀏覽器即可，不用按存檔！</strong> 本機自動永久記憶。要交給會計或換電腦，點<strong>「匯出 Excel」</strong>或<strong>「備份 JSON」</strong>。</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隱私安全保證橫幅 -->
+            <div style="margin-top: 12px; background: rgba(5, 150, 105, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: #A7F3D0;">
+                <i class="fas fa-shield-alt" style="font-size: 1.1rem; color: #34D399;"></i>
+                <span><strong>100% 瀏覽器本地保密存檔（LocalStorage）</strong>：所有合約金額與流水帳皆 100% 存在您的個人電腦，<strong>絕不上傳任何雲端伺服器</strong>，機密財務永不外洩！</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主操作區域 -->
+    <main class="finance-container">
+        
+        <!-- 頂部 6 大財務核心指標 (KPIs) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <div class="kpi-card" style="border-left-color: #0E1B2E;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase;">總契約金額 (含追加減)</div>
+                <div id="kpi-contract-sum" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #0E1B2E; margin-top: 4px;">$0</div>
+                <div id="kpi-contract-count" style="font-size: 0.72rem; color: #94A3B8; margin-top: 2px;">共 0 個專案</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #059669;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #059669; text-transform: uppercase;">實收工程款 (已入帳)</div>
+                <div id="kpi-received-sum" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #059669; margin-top: 4px;">$0</div>
+                <div id="kpi-received-ratio" style="font-size: 0.72rem; color: #059669; font-weight: 700; margin-top: 2px;">回收率 0.0%</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #D97706;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #D97706; text-transform: uppercase;">應收未收 / 保留款</div>
+                <div id="kpi-pending-sum" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #D97706; margin-top: 4px;">$0</div>
+                <div id="kpi-pending-desc" style="font-size: 0.72rem; color: #B45309; margin-top: 2px;">含 5% 工程保留款</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #DC2626;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #DC2626; text-transform: uppercase;">累計總支出成本 (工料)</div>
+                <div id="kpi-cost-sum" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #DC2626; margin-top: 4px;">$0</div>
+                <div id="kpi-cost-ratio" style="font-size: 0.72rem; color: #DC2626; margin-top: 2px;">佔合約 0.0%</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #2563EB;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #2563EB; text-transform: uppercase;">專案總淨利潤 (實收-成本)</div>
+                <div id="kpi-profit-sum" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #2563EB; margin-top: 4px;">$0</div>
+                <div id="kpi-profit-desc" style="font-size: 0.72rem; color: #2563EB; margin-top: 2px;">已實現淨利潤</div>
+            </div>
+            <div class="kpi-card" style="border-left-color: #C27803;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #C27803; text-transform: uppercase;">平均專案淨利率</div>
+                <div id="kpi-margin-rate" class="font-mono" style="font-size: 1.35rem; font-weight: 900; color: #C27803; margin-top: 4px;">0.0%</div>
+                <div id="kpi-margin-status" style="font-size: 0.72rem; color: #92400E; font-weight: 700; margin-top: 2px;">獲利體質良好</div>
+            </div>
+        </div>
+
+        <!-- 視圖切換分頁 (Tabs) -->
+        <div class="eng-card mb-6" style="padding: 0; overflow: hidden;">
+            <div style="display: flex; border-bottom: 2px solid #E2E8F0; background: #F8FAFC; padding: 0 10px; gap: 8px;">
+                <button onclick="switchView('dashboard')" id="tab-dashboard" class="tab-btn active"><i class="fas fa-chart-pie mr-2"></i> 財務戰略儀表板</button>
+                <button onclick="switchView('projects')" id="tab-projects" class="tab-btn"><i class="fas fa-list-check mr-2"></i> 專案合約總覽</button>
+                <button onclick="switchView('ledger')" id="tab-ledger" class="tab-btn"><i class="fas fa-book-open mr-2"></i> 工料與估驗收支流水帳</button>
+            </div>
+        </div>
+
+        <!-- 視圖 1: 財務戰略儀表板 (視覺化圖表大集合) -->
+        <div id="view-dashboard" class="space-y-6">
+            
+            <!-- 圖表第 1 列: 累積現金流 S-Curve (收入 vs. 支出) & 合約總額佔比 (圓餅圖) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="eng-card p-5 lg:col-span-2">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-chart-line text-blue-600 mr-2"></i> 全案累積現金流趨勢圖 (Cash Flow S-Curve)</h3>
+                        <span style="font-size: 0.78rem; background: #EFF6FF; color: #1E40AF; padding: 3px 8px; border-radius: 4px; font-weight: 700;">累計收支曲線</span>
+                    </div>
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="chart-cashflow"></canvas>
+                    </div>
+                </div>
+
+                <div class="eng-card p-5">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-chart-pie text-amber-600 mr-2"></i> 各專案合約金額佔比</h3>
+                        <span style="font-size: 0.78rem; background: #FEF3C7; color: #92400E; padding: 3px 8px; border-radius: 4px; font-weight: 700;">合約分佈</span>
+                    </div>
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="chart-contract-pie"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 圖表第 2 列: 專案毛利率排行 & 成本 vs. 收入比對 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="eng-card p-5">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-chart-column text-emerald-600 mr-2"></i> 各專案淨利潤率排行 (%)</h3>
+                        <span style="font-size: 0.78rem; background: #ECFDF5; color: #065F46; padding: 3px 8px; border-radius: 4px; font-weight: 700;">利潤率績效</span>
+                    </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="chart-profit-rate"></canvas>
+                    </div>
+                </div>
+
+                <div class="eng-card p-5">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-scale-balanced text-indigo-600 mr-2"></i> 專案收入 vs. 成本結構比對</h3>
+                        <span style="font-size: 0.78rem; background: #EEF2FF; color: #3730A3; padding: 3px 8px; border-radius: 4px; font-weight: 700;">收支對照</span>
+                    </div>
+                    <div style="position: relative; height: 280px;">
+                        <canvas id="chart-cost-revenue"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 圖表第 3 列: 月度收支淨額 (月結損益) -->
+            <div class="eng-card p-5">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px;">
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-calendar-days text-purple-600 mr-2"></i> 月度淨現金流走勢 (月結收支與淨利)</h3>
+                    <span style="font-size: 0.78rem; background: #F5F3FF; color: #5B21B6; padding: 3px 8px; border-radius: 4px; font-weight: 700;">每月動能</span>
+                </div>
+                <div style="position: relative; height: 280px;">
+                    <canvas id="chart-monthly-flow"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 視圖 2: 專案合約總覽清單 -->
+        <div id="view-projects" class="space-y-6 hidden">
+            <div class="eng-card p-5">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-folder-tree text-amber-600 mr-2"></i> 專案契約與收益總覽</h3>
+                        <p style="font-size: 0.85rem; color: #64748B; margin: 4px 0 0;">管理所有在建工程與委託專案，支援追加減合約、請款進度與利潤結算。</p>
+                    </div>
+                    <button onclick="openProjectModal()" class="btn-primary" style="background: #0E1B2E; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:800; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas fa-plus"></i> 新增工程專案
+                    </button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="table-eng w-full text-left" style="border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>專案代號 / 名稱</th>
+                                <th>工程類別</th>
+                                <th>業主單位</th>
+                                <th>原始合約</th>
+                                <th>追加減金額</th>
+                                <th>最終合約金額</th>
+                                <th>實收工程款</th>
+                                <th>累計總支出</th>
+                                <th>目前淨利潤</th>
+                                <th>利潤率</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projects-table-body">
+                            <!-- 動態渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 3: 工料與估驗收支流水帳 (Ledger) -->
+        <div id="view-ledger" class="space-y-6 hidden">
+            <div class="eng-card p-5">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: #0E1B2E; margin:0;"><i class="fas fa-receipt text-emerald-600 mr-2"></i> 工程估驗與工料收支流水帳</h3>
+                        <p style="font-size: 0.85rem; color: #64748B; margin: 4px 0 0;">記錄各期估驗款入帳、材料預拌混凝土採購、工班點工、機具租賃與簽證費明細。</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="ledger-filter-project" onchange="renderLedgerTable()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #CBD5E1; font-weight: 700; font-size: 0.88rem; background: #F8FAFC;">
+                            <option value="all">-- 全部專案收支 --</option>
+                        </select>
+                        <button onclick="openTransactionModal()" class="btn-primary" style="background: #059669; color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:800; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fas fa-plus"></i> 新增收支紀錄
+                        </button>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="table-eng w-full text-left" style="border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>收支日期</th>
+                                <th>所屬專案</th>
+                                <th>類別</th>
+                                <th>工程會計科目</th>
+                                <th>金額 (TWD)</th>
+                                <th>對象 / 廠商 / 經手人</th>
+                                <th>備註說明</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body">
+                            <!-- 動態渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal 1: 新增 / 編輯專案 -->
+    <div id="project-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" style="padding: 20px;">
+        <div class="eng-card p-6 w-full max-w-lg" style="background: #FFFFFF; border-radius: 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
+                <h3 id="project-modal-title" style="font-size:1.25rem; font-weight:900; color:#0E1B2E; margin:0;"><i class="fas fa-folder-plus text-amber-600 mr-2"></i> 新增工程專案</h3>
+                <button onclick="closeProjectModal()" style="border:none; background:none; font-size:1.2rem; cursor:pointer; color:#64748B;"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="project-form" onsubmit="saveProject(event)" class="space-y-4">
+                <input type="hidden" id="edit-project-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">專案代號 (例如: P-202601) *</label>
+                    <input type="text" id="form-project-code" required class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm" placeholder="P-202601">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">工程專案名稱 *</label>
+                    <input type="text" id="form-project-name" required class="w-full p-2.5 border border-slate-300 rounded text-sm" placeholder="例如: 台南市安南區雨水下水道第 2 期推進工程">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">工程類別</label>
+                        <select id="form-project-category" class="w-full p-2.5 border border-slate-300 rounded text-sm">
+                            <option value="水利防洪工程">水利防洪工程</option>
+                            <option value="道路橋梁工程">道路橋梁工程</option>
+                            <option value="民間住宅大樓">民間住宅大樓</option>
+                            <option value="科技廠房結構">科技廠房結構</option>
+                            <option value="技師顧問/規劃">技師顧問/規劃</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">業主單位 / 業主姓名</label>
+                        <input type="text" id="form-project-client" class="w-full p-2.5 border border-slate-300 rounded text-sm" placeholder="例如: 水利局 / 某某建設">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">原始契約總金額 (元) *</label>
+                        <input type="number" id="form-contract-sum" required min="0" class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm" placeholder="38500000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">契約追加 / 追減金額 (元)</label>
+                        <input type="number" id="form-contract-adjust" class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm" value="0">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeProjectModal()" class="px-4 py-2 border border-slate-300 rounded font-bold text-sm text-slate-600 hover:bg-slate-100">取消</button>
+                    <button type="submit" class="px-5 py-2 bg-slate-900 text-white rounded font-bold text-sm hover:bg-slate-800">儲存專案</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: 新增 / 編輯收支紀錄 -->
+    <div id="transaction-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" style="padding: 20px;">
+        <div class="eng-card p-6 w-full max-w-lg" style="background: #FFFFFF; border-radius: 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #E2E8F0; padding-bottom:10px; margin-bottom:15px;">
+                <h3 id="transaction-modal-title" style="font-size:1.25rem; font-weight:900; color:#0E1B2E; margin:0;"><i class="fas fa-file-invoice-dollar text-emerald-600 mr-2"></i> 新增工料與估驗紀錄</h3>
+                <button onclick="closeTransactionModal()" style="border:none; background:none; font-size:1.2rem; cursor:pointer; color:#64748B;"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="transaction-form" onsubmit="saveTransaction(event)" class="space-y-4">
+                <input type="hidden" id="edit-tx-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">所屬工程專案 *</label>
+                        <select id="form-tx-project" required class="w-full p-2.5 border border-slate-300 rounded text-sm font-bold">
+                            <!-- 動態注入專案 -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">收支類型 *</label>
+                        <select id="form-tx-type" onchange="updateAccountCategoryOptions()" class="w-full p-2.5 border border-slate-300 rounded text-sm font-bold">
+                            <option value="income" style="color:#059669;">🟢 專案工程收入 (估驗款/預付款)</option>
+                            <option value="expense" style="color:#DC2626;">🔴 工料成本支出 (材料/工資/機具)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">發生日期 *</label>
+                        <input type="date" id="form-tx-date" required class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">工程會計科目 *</label>
+                        <select id="form-tx-category" class="w-full p-2.5 border border-slate-300 rounded text-sm">
+                            <!-- 動態更新 -->
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">金額 (TWD) *</label>
+                        <input type="number" id="form-tx-amount" required min="1" class="w-full p-2.5 border border-slate-300 rounded font-mono text-sm font-bold" placeholder="500000">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">請款/經手廠商/對象</label>
+                        <input type="text" id="form-tx-vendor" class="w-full p-2.5 border border-slate-300 rounded text-sm" placeholder="例如: 國產預拌混凝土 / 某某鋼筋">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">備註 / 憑證發票號碼</label>
+                    <input type="text" id="form-tx-note" class="w-full p-2.5 border border-slate-300 rounded text-sm" placeholder="例如: 第 3 期估驗計價（已扣 5% 保留款）">
+                </div>
+                <div class="flex justify-end gap-3 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeTransactionModal()" class="px-4 py-2 border border-slate-300 rounded font-bold text-sm text-slate-600 hover:bg-slate-100">取消</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-700 text-white rounded font-bold text-sm hover:bg-emerald-800">儲存收支紀錄</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 頁尾版權 -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心運算與圖表 JavaScript -->
+    <script>
+        // 預設示範數據 (台南下水道 + 左營大樓建案)
+        const DEMO_PROJECTS = [
+            {
+                id: 'P-TNN-01',
+                code: 'P-TNN-01',
+                name: '台南市安南區雨水下水道第 2 期推進工程',
+                category: '水利防洪工程',
+                client: '台南市政府水利局',
+                contractSum: 38500000,
+                contractAdjust: 1200000 // 追加 120 萬
+            },
+            {
+                id: 'P-KHH-02',
+                code: 'P-KHH-02',
+                name: '高雄市左營區 15F 集合住宅新建工程 (結構顧問)',
+                category: '民間住宅大樓',
+                client: '興富發建設 / 某某營造',
+                contractSum: 12800000,
+                contractAdjust: -300000 // 追減 30 萬
+            },
+            {
+                id: 'P-PIF-03',
+                code: 'P-PIF-03',
+                name: '屏東科技產業園區標準廠房深開挖與擋土安全評估',
+                category: '科技廠房結構',
+                client: '經濟部產業園區管理局',
+                contractSum: 4600000,
+                contractAdjust: 0
+            }
+        ];
+
+        const DEMO_TRANSACTIONS = [
+            // 專案 1
+            { id: 'tx-1', projectId: 'P-TNN-01', type: 'income', date: '2025-01-15', category: '開工預付款', amount: 7700000, vendor: '水利局', note: '依約請領 20% 開工預付款' },
+            { id: 'tx-2', projectId: 'P-TNN-01', type: 'expense', date: '2025-02-10', category: '主體材料 (預拌混凝土/瀝青)', amount: 2450000, vendor: '國產實業', note: '箱涵結構基底灌漿料' },
+            { id: 'tx-3', projectId: 'P-TNN-01', type: 'expense', date: '2025-02-28', category: '鋼筋/鋼構材採購', amount: 3800000, vendor: '東和鋼鐵', note: 'D19/D25 竹節鋼筋 120 噸' },
+            { id: 'tx-4', projectId: 'P-TNN-01', type: 'income', date: '2025-03-25', category: '第 1 期估驗款', amount: 6200000, vendor: '水利局', note: '第 1 期估驗 (扣 5% 保留款)' },
+            { id: 'tx-5', projectId: 'P-TNN-01', type: 'expense', date: '2025-04-15', category: '分包商連工帶料', amount: 2900000, vendor: '大成推進工程行', note: 'Φ1500 泥水推進工班費' },
+            { id: 'tx-6', projectId: 'P-TNN-01', type: 'expense', date: '2025-05-10', category: '重機械租賃 (吊車/挖土機)', amount: 850000, vendor: '高昇吊車有限公司', note: '100T 履帶吊車租金' },
+            { id: 'tx-7', projectId: 'P-TNN-01', type: 'income', date: '2025-06-20', category: '第 2 期估驗款', amount: 8400000, vendor: '水利局', note: '第 2 期估驗款' },
+            
+            // 專案 2
+            { id: 'tx-8', projectId: 'P-KHH-02', type: 'income', date: '2025-02-01', category: '開工預付款', amount: 2560000, vendor: '興富發建設', note: '結構設計簽約金 20%' },
+            { id: 'tx-9', projectId: 'P-KHH-02', type: 'expense', date: '2025-03-05', category: '結構技師簽證/顧問費', amount: 980000, vendor: 'NOVERA 主持技師群', note: '基礎耐震結構分析' },
+            { id: 'tx-10', projectId: 'P-KHH-02', type: 'expense', date: '2025-04-20', category: '品管試驗/地質鑽探規費', amount: 350000, vendor: '台灣檢驗科技 (SGS)', note: '連續壁超音波垂直度' },
+            { id: 'tx-11', projectId: 'P-KHH-02', type: 'income', date: '2025-05-30', category: '各期估驗款 (扣除保留款)', amount: 3840000, vendor: '興富發建設', note: '地下室連續壁完成請款' },
+
+            // 專案 3
+            { id: 'tx-12', projectId: 'P-PIF-03', type: 'income', date: '2025-03-10', category: '開工預付款', amount: 1380000, vendor: '園區管理局', note: '預付款 30%' },
+            { id: 'tx-13', projectId: 'P-PIF-03', type: 'expense', date: '2025-04-12', category: '專業技師/繪圖人員點工', amount: 620000, vendor: '工務所同仁', note: '擋土安全支撐分析' }
+        ];
+
+        // 資料庫狀態 (從 LocalStorage 讀取，若無則載入示範數據)
+        let state = {
+            projects: [],
+            transactions: []
+        };
+
+        const INCOME_CATEGORIES = [
+            '開工預付款',
+            '第 1 期估驗款',
+            '第 2 期估驗款',
+            '第 3 期估驗款',
+            '各期估驗款 (扣除保留款)',
+            '物價指數調整款',
+            '契約追加工程款',
+            '竣工驗收尾款',
+            '履約保證金退還',
+            '其他工程收入'
+        ];
+
+        const EXPENSE_CATEGORIES = [
+            '主體材料 (預拌混凝土/瀝青)',
+            '鋼筋/鋼構材採購',
+            '分包商連工帶料',
+            '工班現場出工工資',
+            '重機械租賃 (吊車/挖土機)',
+            '品管試驗/地質鑽探規費',
+            '結構技師簽證/顧問費',
+            '安衛環保措施費',
+            '工地水電規費與雜支',
+            '其他工程支出'
+        ];
+
+        // 初始化
+        function initApp() {
+            const saved = localStorage.getItem('novera_finance_data_v1');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) {
+                    state = { projects: [...DEMO_PROJECTS], transactions: [...DEMO_TRANSACTIONS] };
+                }
+            } else {
+                state = { projects: [...DEMO_PROJECTS], transactions: [...DEMO_TRANSACTIONS] };
+                saveState();
+            }
+
+            updateAccountCategoryOptions();
+            refreshAll();
+        }
+
+        function saveState() {
+            localStorage.setItem('novera_finance_data_v1', JSON.stringify(state));
+        }
+
+        function clearAllData() {
+            if(confirm('【確認清空】確定要清空所有專案與收支流水帳嗎？\n\n清空後您將獲得一個全新的空白帳本，可直接開始建立自家工程。\n（若日後想參考範例，隨時點擊「載入示範」即可恢復）')) {
+                state = { projects: [], transactions: [] };
+                saveState();
+                refreshAll();
+                switchView('projects');
+                alert('已清空所有資料！您可以點擊「＋ 新增工程專案」開始建立您的第一個工程案件。');
+            }
+        }
+
+        function resetToDemo() {
+            if(confirm('確定要載入預設的公共工程示範案例嗎？\n（您目前的資料將被示範案例覆蓋，建議若有重要資料請先點「備份專案檔」）')) {
+                state = { projects: JSON.parse(JSON.stringify(DEMO_PROJECTS)), transactions: JSON.parse(JSON.stringify(DEMO_TRANSACTIONS)) };
+                saveState();
+                refreshAll();
+                alert('已成功載入官方示範工程數據！');
+            }
+        }
+
+        function refreshAll() {
+            calculateAndRenderKPIs();
+            renderProjectsTable();
+            populateProjectDropdowns();
+            renderLedgerTable();
+            renderAllCharts();
+        }
+
+        // 格式化千分位
+        function fmt(n) {
+            if (isNaN(n) || n === null) return '$0';
+            return '$' + Math.round(n).toLocaleString('en-US');
+        }
+
+        // 計算 KPI 指標
+        function calculateAndRenderKPIs() {
+            let totalContract = 0;
+            let totalReceived = 0;
+            let totalCost = 0;
+
+            state.projects.forEach(p => {
+                totalContract += (p.contractSum || 0) + (p.contractAdjust || 0);
+            });
+
+            state.transactions.forEach(t => {
+                const amt = parseFloat(t.amount) || 0;
+                if (t.type === 'income') totalReceived += amt;
+                if (t.type === 'expense') totalCost += amt;
+            });
+
+            const pending = Math.max(0, totalContract - totalReceived);
+            const netProfit = totalReceived - totalCost;
+            const marginRate = totalContract > 0 ? ((netProfit / totalContract) * 100).toFixed(1) : '0.0';
+            const recoveryRate = totalContract > 0 ? ((totalReceived / totalContract) * 100).toFixed(1) : '0.0';
+            const costRatio = totalContract > 0 ? ((totalCost / totalContract) * 100).toFixed(1) : '0.0';
+
+            document.getElementById('kpi-contract-sum').textContent = fmt(totalContract);
+            document.getElementById('kpi-contract-count').textContent = `共 ${state.projects.length} 個專案`;
+
+            document.getElementById('kpi-received-sum').textContent = fmt(totalReceived);
+            document.getElementById('kpi-received-ratio').textContent = `回收率 ${recoveryRate}%`;
+
+            document.getElementById('kpi-pending-sum').textContent = fmt(pending);
+
+            document.getElementById('kpi-cost-sum').textContent = fmt(totalCost);
+            document.getElementById('kpi-cost-ratio').textContent = `佔合約 ${costRatio}%`;
+
+            document.getElementById('kpi-profit-sum').textContent = fmt(netProfit);
+            document.getElementById('kpi-margin-rate').textContent = `${marginRate}%`;
+            
+            const statusEl = document.getElementById('kpi-margin-status');
+            if (parseFloat(marginRate) >= 15) {
+                statusEl.textContent = '獲利體質極佳 (高於業界)';
+                statusEl.style.color = '#059669';
+            } else if (parseFloat(marginRate) >= 8) {
+                statusEl.textContent = '獲利正常穩健';
+                statusEl.style.color = '#C27803';
+            } else {
+                statusEl.textContent = '利潤偏低，需控管工料';
+                statusEl.style.color = '#DC2626';
+            }
+        }
+
+        // 切換分頁視圖
+        function switchView(viewName) {
+            ['dashboard', 'projects', 'ledger'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`tab-${v}`).classList.remove('active');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.getElementById(`tab-${viewName}`).classList.add('active');
+
+            if (viewName === 'dashboard') {
+                renderAllCharts();
+            }
+        }
+
+        // 渲染專案列表
+        function renderProjectsTable() {
+            const tbody = document.getElementById('projects-table-body');
+            tbody.innerHTML = '';
+
+            if (state.projects.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center py-10 bg-slate-50">
+                    <i class="fas fa-folder-open text-slate-300 text-4xl mb-3 block"></i>
+                    <div class="font-bold text-slate-700 text-base mb-1">目前尚無工程專案資料</div>
+                    <div class="text-xs text-slate-500 mb-4">您可以點擊下方按鈕開始新增您的第一個工程專案，或載入示範資料。</div>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="openProjectModal()" class="px-4 py-2 bg-slate-900 text-white rounded font-bold text-xs hover:bg-slate-800"><i class="fas fa-plus mr-1"></i> 新增第一個工程專案</button>
+                        <button onclick="resetToDemo()" class="px-4 py-2 border border-slate-300 rounded font-bold text-xs text-slate-700 hover:bg-slate-100"><i class="fas fa-redo mr-1"></i> 載入示範案例</button>
+                    </div>
+                </td></tr>`;
+                return;
+            }
+
+            state.projects.forEach(p => {
+                const finalSum = (p.contractSum || 0) + (p.contractAdjust || 0);
+                
+                // 計算該專案已收與已付
+                const pTxs = state.transactions.filter(t => t.projectId === p.id);
+                const received = pTxs.filter(t => t.type === 'income').reduce((acc, c) => acc + (parseFloat(c.amount)||0), 0);
+                const cost = pTxs.filter(t => t.type === 'expense').reduce((acc, c) => acc + (parseFloat(c.amount)||0), 0);
+                const profit = received - cost;
+                const margin = finalSum > 0 ? ((profit / finalSum) * 100).toFixed(1) : '0.0';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="font-weight: 800; color: #0E1B2E;">${p.name}</div>
+                        <span class="font-mono text-xs text-slate-500">${p.code}</span>
+                    </td>
+                    <td><span class="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-700">${p.category}</span></td>
+                    <td style="font-size: 0.85rem; color:#475569;">${p.client || '-'}</td>
+                    <td class="font-mono text-slate-600">${fmt(p.contractSum)}</td>
+                    <td class="font-mono ${p.contractAdjust >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${p.contractAdjust >= 0 ? '+' : ''}${fmt(p.contractAdjust)}</td>
+                    <td class="font-mono font-bold text-slate-900">${fmt(finalSum)}</td>
+                    <td class="font-mono text-emerald-700 font-bold">${fmt(received)}</td>
+                    <td class="font-mono text-rose-700">${fmt(cost)}</td>
+                    <td class="font-mono font-bold ${profit >= 0 ? 'text-blue-700' : 'text-red-600'}">${fmt(profit)}</td>
+                    <td><span class="text-xs font-bold px-2 py-0.5 rounded ${parseFloat(margin)>=10 ? 'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-800'}">${margin}%</span></td>
+                    <td>
+                        <button onclick="editProject('${p.id}')" class="text-blue-600 hover:text-blue-800 mr-2" title="編輯專案"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteProject('${p.id}')" class="text-red-500 hover:text-red-700" title="刪除專案"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 渲染收支流水帳
+        function renderLedgerTable() {
+            const tbody = document.getElementById('ledger-table-body');
+            const filterProject = document.getElementById('ledger-filter-project').value;
+            tbody.innerHTML = '';
+
+            let list = [...state.transactions];
+            if (filterProject !== 'all') {
+                list = list.filter(t => t.projectId === filterProject);
+            }
+
+            // 按日期倒序排列
+            list.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 bg-slate-50">
+                    <i class="fas fa-receipt text-slate-300 text-4xl mb-3 block"></i>
+                    <div class="font-bold text-slate-700 text-base mb-1">目前尚無任何收支流水帳</div>
+                    <div class="text-xs text-slate-500 mb-4">點擊下方按鈕開始登記第一筆估驗款或材料支出。</div>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="openTransactionModal()" class="px-4 py-2 bg-emerald-700 text-white rounded font-bold text-xs hover:bg-emerald-800"><i class="fas fa-plus mr-1"></i> 登記第一筆收支</button>
+                    </div>
+                </td></tr>`;
+                return;
+            }
+
+            list.forEach(t => {
+                const proj = state.projects.find(p => p.id === t.projectId) || { name: '未知專案' };
+                const isIncome = t.type === 'income';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-mono text-xs">${t.date}</td>
+                    <td><span class="font-bold text-xs text-slate-800">${proj.name}</span></td>
+                    <td><span class="text-xs font-bold px-2 py-0.5 rounded ${isIncome ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${isIncome ? '收入 (估驗)' : '支出 (成本)'}</span></td>
+                    <td style="font-size:0.88rem; font-weight:600; color:#334155;">${t.category}</td>
+                    <td class="font-mono font-bold ${isIncome ? 'text-emerald-700' : 'text-rose-700'}">${isIncome ? '+' : '-'}${fmt(t.amount)}</td>
+                    <td style="font-size:0.85rem; color:#475569;">${t.vendor || '-'}</td>
+                    <td style="font-size:0.82rem; color:#64748B;">${t.note || '-'}</td>
+                    <td>
+                        <button onclick="editTransaction('${t.id}')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteTransaction('${t.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function populateProjectDropdowns() {
+            const ledgerFilter = document.getElementById('ledger-filter-project');
+            const txSelect = document.getElementById('form-tx-project');
+            const currentFilter = ledgerFilter.value;
+
+            ledgerFilter.innerHTML = '<option value="all">-- 全部專案收支 --</option>';
+            txSelect.innerHTML = '';
+
+            state.projects.forEach(p => {
+                ledgerFilter.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                txSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+            });
+
+            ledgerFilter.value = currentFilter;
+        }
+
+        function updateAccountCategoryOptions() {
+            const type = document.getElementById('form-tx-type').value;
+            const catSelect = document.getElementById('form-tx-category');
+            catSelect.innerHTML = '';
+
+            const list = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+            list.forEach(c => {
+                catSelect.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+
+        // --- 專案 Modal 控制 ---
+        function openProjectModal(editId = null) {
+            document.getElementById('project-form').reset();
+            document.getElementById('edit-project-id').value = '';
+            document.getElementById('project-modal-title').innerHTML = '<i class="fas fa-folder-plus text-amber-600 mr-2"></i> 新增工程專案';
+
+            if (editId) {
+                const p = state.projects.find(x => x.id === editId);
+                if (p) {
+                    document.getElementById('edit-project-id').value = p.id;
+                    document.getElementById('form-project-code').value = p.code;
+                    document.getElementById('form-project-name').value = p.name;
+                    document.getElementById('form-project-category').value = p.category;
+                    document.getElementById('form-project-client').value = p.client || '';
+                    document.getElementById('form-contract-sum').value = p.contractSum;
+                    document.getElementById('form-contract-adjust').value = p.contractAdjust || 0;
+                    document.getElementById('project-modal-title').innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i> 編輯專案合約';
+                }
+            }
+            document.getElementById('project-modal').classList.remove('hidden');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('project-modal').classList.add('hidden');
+        }
+
+        function saveProject(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-project-id').value;
+            const code = document.getElementById('form-project-code').value.trim();
+            const name = document.getElementById('form-project-name').value.trim();
+            const category = document.getElementById('form-project-category').value;
+            const client = document.getElementById('form-project-client').value.trim();
+            const contractSum = parseFloat(document.getElementById('form-contract-sum').value) || 0;
+            const contractAdjust = parseFloat(document.getElementById('form-contract-adjust').value) || 0;
+
+            if (editId) {
+                const idx = state.projects.findIndex(p => p.id === editId);
+                if (idx !== -1) {
+                    state.projects[idx] = { ...state.projects[idx], code, name, category, client, contractSum, contractAdjust };
+                }
+            } else {
+                const newId = 'P-' + Date.now().toString().slice(-6);
+                state.projects.push({ id: newId, code, name, category, client, contractSum, contractAdjust });
+            }
+
+            saveState();
+            closeProjectModal();
+            refreshAll();
+        }
+
+        function editProject(id) {
+            openProjectModal(id);
+        }
+
+        function deleteProject(id) {
+            if (confirm('確定要刪除此專案嗎？（該專案底下的所有收支流水帳也將一併刪除）')) {
+                state.projects = state.projects.filter(p => p.id !== id);
+                state.transactions = state.transactions.filter(t => t.projectId !== id);
+                saveState();
+                refreshAll();
+            }
+        }
+
+        // --- 流水帳 Modal 控制 ---
+        function openTransactionModal(editId = null) {
+            if (state.projects.length === 0) {
+                alert('請先建立至少一個工程專案後，再新增收支紀錄！');
+                openProjectModal();
+                return;
+            }
+
+            document.getElementById('transaction-form').reset();
+            document.getElementById('edit-tx-id').value = '';
+            document.getElementById('form-tx-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-modal-title').innerHTML = '<i class="fas fa-file-invoice-dollar text-emerald-600 mr-2"></i> 新增工料與估驗紀錄';
+            updateAccountCategoryOptions();
+
+            if (editId) {
+                const tx = state.transactions.find(t => t.id === editId);
+                if (tx) {
+                    document.getElementById('edit-tx-id').value = tx.id;
+                    document.getElementById('form-tx-project').value = tx.projectId;
+                    document.getElementById('form-tx-type').value = tx.type;
+                    updateAccountCategoryOptions();
+                    document.getElementById('form-tx-category').value = tx.category;
+                    document.getElementById('form-tx-date').value = tx.date;
+                    document.getElementById('form-tx-amount').value = tx.amount;
+                    document.getElementById('form-tx-vendor').value = tx.vendor || '';
+                    document.getElementById('form-tx-note').value = tx.note || '';
+                    document.getElementById('transaction-modal-title').innerHTML = '<i class="fas fa-edit text-blue-600 mr-2"></i> 編輯收支紀錄';
+                }
+            }
+
+            document.getElementById('transaction-modal').classList.remove('hidden');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transaction-modal').classList.add('hidden');
+        }
+
+        function saveTransaction(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-tx-id').value;
+            const projectId = document.getElementById('form-tx-project').value;
+            const type = document.getElementById('form-tx-type').value;
+            const date = document.getElementById('form-tx-date').value;
+            const category = document.getElementById('form-tx-category').value;
+            const amount = parseFloat(document.getElementById('form-tx-amount').value) || 0;
+            const vendor = document.getElementById('form-tx-vendor').value.trim();
+            const note = document.getElementById('form-tx-note').value.trim();
+
+            if (editId) {
+                const idx = state.transactions.findIndex(t => t.id === editId);
+                if (idx !== -1) {
+                    state.transactions[idx] = { id: editId, projectId, type, date, category, amount, vendor, note };
+                }
+            } else {
+                const newId = 'tx-' + Date.now();
+                state.transactions.push({ id: newId, projectId, type, date, category, amount, vendor, note });
+            }
+
+            saveState();
+            closeTransactionModal();
+            refreshAll();
+        }
+
+        function editTransaction(id) {
+            openTransactionModal(id);
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('確定要刪除這筆收支紀錄嗎？')) {
+                state.transactions = state.transactions.filter(t => t.id !== id);
+                saveState();
+                refreshAll();
+            }
+        }
+
+        // --- Chart.js 視覺化繪圖引擎 ---
+        let charts = {};
+
+        function renderAllCharts() {
+            renderCashflowChart();
+            renderContractPieChart();
+            renderProfitRateChart();
+            renderCostRevenueChart();
+            renderMonthlyFlowChart();
+        }
+
+        function renderCashflowChart() {
+            const ctx = document.getElementById('chart-cashflow').getContext('2d');
+            if (charts.cashflow) charts.cashflow.destroy();
+
+            // 建立日期排序清單
+            const sortedTxs = [...state.transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const dates = [...new Set(sortedTxs.map(t => t.date))];
+
+            let cumIncome = 0;
+            let cumExpense = 0;
+            const incomeData = [];
+            const expenseData = [];
+            const netData = [];
+
+            dates.forEach(d => {
+                const onDay = sortedTxs.filter(t => t.date === d);
+                onDay.forEach(t => {
+                    if (t.type === 'income') cumIncome += parseFloat(t.amount);
+                    if (t.type === 'expense') cumExpense += parseFloat(t.amount);
+                });
+                incomeData.push({ x: d, y: cumIncome });
+                expenseData.push({ x: d, y: cumExpense });
+                netData.push({ x: d, y: cumIncome - cumExpense });
+            });
+
+            charts.cashflow = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: '累積估驗實收 (TWD)',
+                            data: incomeData,
+                            borderColor: '#059669',
+                            backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 3,
+                            pointRadius: 4
+                        },
+                        {
+                            label: '累積工料成本支出 (TWD)',
+                            data: expenseData,
+                            borderColor: '#DC2626',
+                            backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 3,
+                            pointRadius: 4
+                        },
+                        {
+                            label: '累積淨現金利潤 (TWD)',
+                            data: netData,
+                            borderColor: '#2563EB',
+                            borderDash: [5, 5],
+                            tension: 0.2,
+                            borderWidth: 2,
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'time', time: { unit: 'month' }, grid: { color: '#F1F5F9' } },
+                        y: { ticks: { callback: v => '$' + (v/10000).toLocaleString() + '萬' }, grid: { color: '#F1F5F9' } }
+                    }
+                }
+            });
+        }
+
+        function renderContractPieChart() {
+            const ctx = document.getElementById('chart-contract-pie').getContext('2d');
+            if (charts.pie) charts.pie.destroy();
+
+            const labels = state.projects.map(p => p.name.length > 12 ? p.name.substring(0, 12) + '...' : p.name);
+            const data = state.projects.map(p => (p.contractSum || 0) + (p.contractAdjust || 0));
+
+            charts.pie = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#0E1B2E', '#C27803', '#059669', '#2563EB', '#8B5CF6', '#EC4899'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: c => ` ${c.label}: ${fmt(c.parsed)}` } }
+                    }
+                }
+            });
+        }
+
+        function renderProfitRateChart() {
+            const ctx = document.getElementById('chart-profit-rate').getContext('2d');
+            if (charts.profitRate) charts.profitRate.destroy();
+
+            const items = state.projects.map(p => {
+                const finalSum = (p.contractSum || 0) + (p.contractAdjust || 0);
+                const pTxs = state.transactions.filter(t => t.projectId === p.id);
+                const received = pTxs.filter(t => t.type === 'income').reduce((a, b) => a + parseFloat(b.amount), 0);
+                const cost = pTxs.filter(t => t.type === 'expense').reduce((a, b) => a + parseFloat(b.amount), 0);
+                const profit = received - cost;
+                const margin = finalSum > 0 ? ((profit / finalSum) * 100) : 0;
+                return { name: p.name.substring(0, 10), rate: parseFloat(margin.toFixed(1)) };
+            }).sort((a, b) => b.rate - a.rate);
+
+            charts.profitRate = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: items.map(x => x.name),
+                    datasets: [{
+                        label: '淨利率 (%)',
+                        data: items.map(x => x.rate),
+                        backgroundColor: items.map(x => x.rate >= 10 ? '#059669' : (x.rate >= 0 ? '#F59E0B' : '#DC2626')),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { ticks: { callback: v => v + '%' }, grid: { color: '#F1F5F9' } }
+                    }
+                }
+            });
+        }
+
+        function renderCostRevenueChart() {
+            const ctx = document.getElementById('chart-cost-revenue').getContext('2d');
+            if (charts.costRevenue) charts.costRevenue.destroy();
+
+            const labels = state.projects.map(p => p.name.substring(0, 10));
+            const receivedData = state.projects.map(p => {
+                return state.transactions.filter(t => t.projectId === p.id && t.type === 'income').reduce((a, b) => a + parseFloat(b.amount), 0);
+            });
+            const costData = state.projects.map(p => {
+                return state.transactions.filter(t => t.projectId === p.id && t.type === 'expense').reduce((a, b) => a + parseFloat(b.amount), 0);
+            });
+
+            charts.costRevenue = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: '實收工程款', data: receivedData, backgroundColor: '#059669', borderRadius: 4 },
+                        { label: '累計工料成本', data: costData, backgroundColor: '#DC2626', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { ticks: { callback: v => '$' + (v/10000).toLocaleString() + '萬' }, grid: { color: '#F1F5F9' } }
+                    }
+                }
+            });
+        }
+
+        function renderMonthlyFlowChart() {
+            const ctx = document.getElementById('chart-monthly-flow').getContext('2d');
+            if (charts.monthly) charts.monthly.destroy();
+
+            // 按月份統計
+            const monthly = {};
+            state.transactions.forEach(t => {
+                const ym = t.date.substring(0, 7); // YYYY-MM
+                if (!monthly[ym]) monthly[ym] = { income: 0, expense: 0 };
+                if (t.type === 'income') monthly[ym].income += parseFloat(t.amount);
+                if (t.type === 'expense') monthly[ym].expense += parseFloat(t.amount);
+            });
+
+            const months = Object.keys(monthly).sort();
+            const incomeSeries = months.map(m => monthly[m].income);
+            const expenseSeries = months.map(m => monthly[m].expense);
+            const netSeries = months.map(m => monthly[m].income - monthly[m].expense);
+
+            charts.monthly = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: '當月入帳 (收入)', data: incomeSeries, backgroundColor: '#059669', borderRadius: 4 },
+                        { label: '當月支出 (成本)', data: expenseSeries, backgroundColor: '#DC2626', borderRadius: 4 },
+                        { type: 'line', label: '當月淨現金流', data: netSeries, borderColor: '#2563EB', borderWidth: 3, pointRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { ticks: { callback: v => '$' + (v/10000).toLocaleString() + '萬' }, grid: { color: '#F1F5F9' } }
+                    }
+                }
+            });
+        }
+
+        // --- 備份與匯出機制 ---
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", `NOVERA_工程專案財務備份_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.projects && data.transactions) {
+                        state = data;
+                        saveState();
+                        refreshAll();
+                        alert('專案財務資料庫已成功還原！');
+                    } else {
+                        alert('檔案格式不正確，請確認為 NOVERA 財務備份 JSON 檔。');
+                    }
+                } catch(err) {
+                    alert('讀取備份檔案失敗：' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // --- 會計審計級高階 Excel 匯出引擎 (徹底解決跑版與寬度擠壓問題) ---
+        function exportToExcel() {
+            if (state.projects.length === 0) {
+                alert('目前無專案資料可匯出！');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 8);
+
+            // 計算核心匯總數據
+            let totalContractSum = 0;
+            let totalContractAdjust = 0;
+            let totalFinalSum = 0;
+            let totalReceived = 0;
+            let totalCost = 0;
+
+            state.projects.forEach(p => {
+                const finalSum = (p.contractSum || 0) + (p.contractAdjust || 0);
+                const pTxs = state.transactions.filter(t => t.projectId === p.id);
+                const received = pTxs.filter(t => t.type === 'income').reduce((a, b) => a + parseFloat(b.amount), 0);
+                const cost = pTxs.filter(t => t.type === 'expense').reduce((a, b) => a + parseFloat(b.amount), 0);
+
+                totalContractSum += (p.contractSum || 0);
+                totalContractAdjust += (p.contractAdjust || 0);
+                totalFinalSum += finalSum;
+                totalReceived += received;
+                totalCost += cost;
+            });
+
+            const totalProfit = totalReceived - totalCost;
+            const totalMargin = totalFinalSum > 0 ? ((totalProfit / totalFinalSum) * 100).toFixed(2) : '0.00';
+            const recoveryRatio = totalFinalSum > 0 ? ((totalReceived / totalFinalSum) * 100).toFixed(1) : '0.0';
+            const costRatio = totalFinalSum > 0 ? ((totalCost / totalFinalSum) * 100).toFixed(1) : '0.0';
+            const pendingSum = totalFinalSum - totalReceived;
+
+            // ==========================================
+            // 工作表 1：財務管考總體 KPI 摘要表
+            // ==========================================
+            const wsKpiData = [
+                ['【NOVERA 諾維拉工程顧問】工程專案財務管考與案件利潤總體審計報告'],
+                [`報表產製時間：${dateStr} ${timeStr} ｜ 幣別：新台幣 (TWD) ｜ 管考模式：內部財務決策審計`],
+                [''],
+                ['財務指標項目 (Key Financial Indicators)', '數值 (TWD / 比例)', '指標說明與統計依據'],
+                ['在建與管考專案總數', `${state.projects.length} 個專案`, '全案包含之各類公共工程與民間營建專案'],
+                ['總契約金額 (含追加減)', totalFinalSum, `原始合約總價 $${totalContractSum.toLocaleString()} + 累計追加減 $${totalContractAdjust.toLocaleString()}`],
+                ['累計實收工程款 (已入帳)', totalReceived, `契約工程款回收率：${recoveryRatio}%`],
+                ['應收未收 / 保留款總額', pendingSum, `包含業主各期應付未付估驗款與 5% 工程品質保留款`],
+                ['累計總工料成本支出', totalCost, `工料成本佔契約總價比例：${costRatio}%`],
+                ['累計淨現金利潤總額', totalProfit, `實收工程款扣除工料支出後之淨現金溢酬`],
+                ['全案綜合毛利率 (%)', `${totalMargin}%`, `整體專案淨利潤 / 最終契約總額之平均毛利率`],
+                ['收支流水帳總筆數', `${state.transactions.length} 筆`, '包含所有估驗款請款、各項材料款與出工工資紀錄'],
+                [''],
+                ['※ 備註：本報表所有數據由 NOVERA 工程財務管考系統即時推算，數據經本機 LocalStorage 沙盒加密，無第三方伺服器上傳紀錄。']
+            ];
+
+            const wsKpi = XLSX.utils.aoa_to_sheet(wsKpiData);
+            wsKpi['!cols'] = [
+                { wch: 35 }, // 項目
+                { wch: 25 }, // 數值
+                { wch: 55 }  // 說明
+            ];
+
+            // ==========================================
+            // 工作表 2：各工程專案合約與利潤分析總表
+            // ==========================================
+            const wsProjectsData = [
+                ['【NOVERA 諾維拉工程顧問】各在建工程專案合約金額與損益利潤分析總表'],
+                [`製表日期：${dateStr} ｜ 專案總計：共 ${state.projects.length} 案 ｜ 單位：新台幣元 (TWD)`],
+                [''],
+                ['序號', '專案代號', '工程專案名稱', '工程類別', '業主單位', '原始合約金額', '追加減金額', '最終合約總額', '累計實收工程款', '累計工料成本', '專案淨利潤', '淨利率(%)', '管考狀態']
+            ];
+
+            state.projects.forEach((p, idx) => {
+                const finalSum = (p.contractSum || 0) + (p.contractAdjust || 0);
+                const pTxs = state.transactions.filter(t => t.projectId === p.id);
+                const received = pTxs.filter(t => t.type === 'income').reduce((a, b) => a + parseFloat(b.amount), 0);
+                const cost = pTxs.filter(t => t.type === 'expense').reduce((a, b) => a + parseFloat(b.amount), 0);
+                const profit = received - cost;
+                const margin = finalSum > 0 ? parseFloat(((profit / finalSum) * 100).toFixed(2)) : 0.00;
+
+                wsProjectsData.push([
+                    idx + 1,
+                    p.code || 'PRJ-' + (idx + 1),
+                    p.name,
+                    p.category || '未分類',
+                    p.client || '未指定',
+                    p.contractSum || 0,
+                    p.contractAdjust || 0,
+                    finalSum,
+                    received,
+                    cost,
+                    profit,
+                    margin,
+                    profit >= 0 ? '獲利良好' : '成本預警'
+                ]);
+            });
+
+            // 專案表底部合計列
+            wsProjectsData.push([
+                '【總計】',
+                `共 ${state.projects.length} 案`,
+                '全案匯總合計 (TOTAL)',
+                '-',
+                '-',
+                totalContractSum,
+                totalContractAdjust,
+                totalFinalSum,
+                totalReceived,
+                totalCost,
+                totalProfit,
+                parseFloat(totalMargin),
+                totalProfit >= 0 ? '整體獲利' : '虧損預警'
+            ]);
+
+            const wsProjects = XLSX.utils.aoa_to_sheet(wsProjectsData);
+            wsProjects['!cols'] = [
+                { wch: 8 },  // 序號
+                { wch: 16 }, // 專案代號
+                { wch: 36 }, // 專案名稱
+                { wch: 15 }, // 工程類別
+                { wch: 24 }, // 業主單位
+                { wch: 18 }, // 原始合約
+                { wch: 15 }, // 追加減
+                { wch: 20 }, // 最終合約總額
+                { wch: 20 }, // 實收工程款
+                { wch: 20 }, // 工料成本
+                { wch: 18 }, // 淨利潤
+                { wch: 14 }, // 淨利率%
+                { wch: 14 }  // 狀態
+            ];
+
+            // ==========================================
+            // 工作表 3：估驗款與工料支出收支流水帳
+            // ==========================================
+            const wsLedgerData = [
+                ['【NOVERA 諾維拉工程顧問】工程款估驗請款與工料成本收支流水明細帳'],
+                [`製表日期：${dateStr} ｜ 流水帳總筆數：共 ${state.transactions.length} 筆 ｜ 單位：新台幣元 (TWD)`],
+                [''],
+                ['序號', '收支日期', '專案代號', '工程專案名稱', '收支類型', '工程會計科目', '交易金額 (TWD)', '經手廠商 / 估驗請款對象', '備註說明與單據號碼']
+            ];
+
+            let sumIncome = 0;
+            let sumExpense = 0;
+
+            state.transactions.forEach((t, idx) => {
+                const proj = state.projects.find(p => p.id === t.projectId) || { code: 'N/A', name: '已刪除或未指定專案' };
+                const amt = parseFloat(t.amount) || 0;
+                if (t.type === 'income') sumIncome += amt;
+                if (t.type === 'expense') sumExpense += amt;
+
+                wsLedgerData.push([
+                    idx + 1,
+                    t.date,
+                    proj.code,
+                    proj.name,
+                    t.type === 'income' ? '【收入】估驗款' : '【支出】工料成本',
+                    t.category || '未分類科目',
+                    amt,
+                    t.vendor || '-',
+                    t.note || '-'
+                ]);
+            });
+
+            // 流水帳底部合計列
+            wsLedgerData.push([
+                '【總計】',
+                '-',
+                '-',
+                `收支總計 (共 ${state.transactions.length} 筆)`,
+                '匯總彙整',
+                `收入 $${sumIncome.toLocaleString()} ｜ 支出 $${sumExpense.toLocaleString()}`,
+                sumIncome - sumExpense,
+                `累計淨現金結餘：$${(sumIncome - sumExpense).toLocaleString()}`,
+                '-'
+            ]);
+
+            const wsLedger = XLSX.utils.aoa_to_sheet(wsLedgerData);
+            wsLedger['!cols'] = [
+                { wch: 8 },  // 序號
+                { wch: 14 }, // 日期
+                { wch: 16 }, // 專案代號
+                { wch: 32 }, // 專案名稱
+                { wch: 18 }, // 收支類型
+                { wch: 20 }, // 會計科目
+                { wch: 18 }, // 金額
+                { wch: 28 }, // 廠商/對象
+                { wch: 35 }  // 備註說明
+            ];
+
+            // ==========================================
+            // 組裝多活頁簿並匯出檔案
+            // ==========================================
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, wsKpi, "1.財務管考總體摘要");
+            XLSX.utils.book_append_sheet(wb, wsProjects, "2.各專案利潤分析總表");
+            XLSX.utils.book_append_sheet(wb, wsLedger, "3.工料與估驗流水帳明細");
+
+            XLSX.writeFile(wb, `NOVERA_工程專案財務與案件利潤分析總表_${dateStr}.xlsx`);
+        }
+
+        // 頁面載入時初始化
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

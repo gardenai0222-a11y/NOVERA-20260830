@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全國公共工程標案情報 ｜ 官方標準 Excel 免費下載 ｜ NOVERA 諾維拉工程顧問</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問提供全國公共工程標案情報總表 Excel 免費下載，涵蓋規劃設計、監造技術服務、營造施工與技師簽證，並提供服務建議書、施工計畫書與技師簽證專業代辦。">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- 引用諾維拉官方 CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .radar-hero {
+            position: relative;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: #fff;
+            padding: 85px 0 70px 0;
+            border-bottom: 4px solid var(--accent-color);
+            overflow: hidden;
+        }
+
+        .radar-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .radar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            border-radius: 999px;
+            color: var(--accent-hover);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .radar-pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
+            50% { opacity: 0.6; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(14, 165, 233, 0); }
+        }
+
+        .radar-hero h1 {
+            color: #FFFFFF;
+            font-size: clamp(2rem, 3.5vw, 2.7rem);
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+
+        .radar-hero h1 span {
+            color: var(--accent-hover);
+        }
+
+        .radar-hero-desc {
+            color: var(--bg-light);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 35px;
+            max-width: 760px;
+        }
+
+        /* 頂部兩大並列卡片 (下載 Excel ｜ 贊助諾維拉) */
+        .hero-twin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .twin-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.25s ease;
+        }
+
+        .twin-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .twin-card.download-card {
+            border-top: 4px solid #10B981;
+        }
+
+        .twin-card.sponsor-card {
+            border-top: 4px solid #F59E0B;
+        }
+
+        .twin-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .twin-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            flex-shrink: 0;
+        }
+
+        .twin-icon.green { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+        .twin-icon.amber { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+
+        .twin-card-title {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .twin-card-desc {
+            color: #CBD5E1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .btn-twin-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-download-excel {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .btn-download-excel:hover {
+            box-shadow: 0 8px 22px rgba(16, 185, 129, 0.6);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-open-sponsor {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: #0F172A;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-open-sponsor:hover {
+            box-shadow: 0 8px 22px rgba(245, 158, 11, 0.6);
+            transform: translateY(-2px);
+            color: #0F172A;
+        }
+
+        .twin-sub-note {
+            margin-top: 10px;
+            font-size: 0.78rem;
+            color: #94A3B8;
+            text-align: center;
+        }
+
+        /* 服務特區 */
+        .service-feature-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 32px 26px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+        }
+
+        .service-feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-color);
+        }
+
+        @media (max-width: 850px) {
+            .hero-twin-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                                        <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" style="font-weight: 700; color: #0284C7;">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section (並列下載與贊助) -->
+        <section class="radar-hero">
+            <div class="container">
+                <div class="radar-badge">
+                    <div class="radar-pulse-dot"></div> 公開標案情報 ｜ 官方標準 Excel 總表免費下載 ｜ 22 縣市工程商機
+                </div>
+                <h1>全國公共工程<br><span>標案情報總表</span></h1>
+                <p class="radar-hero-desc">
+                    NOVERA 諾維拉工程顧問為全台土木營造同業整理之公共工程招標情報總表。收錄規劃設計、監造技術服務、工程施工與技師簽證案，提供多分頁官方標準 Excel 活頁簿免費下載。
+                </p>
+
+                <!-- 使用說明 Guide Box -->
+                <div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 18px 22px; margin-bottom: 24px; text-align: left;" data-aos="fade-up">
+                    <div style="color: #6EE7B7; font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-book-open" style="color: #34D399;"></i> 標案情報 Excel 總表使用說明：
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 0.85rem; color: #CBD5E1; line-height: 1.6;">
+                        <div><strong style="color: #fff;">1. 每日自動整理：</strong> 系統每日即時排程抓取政府電子採購網之最新公告，整理為全台 22 縣市工程商機。</div>
+                        <div><strong style="color: #fff;">2. 雙活頁簿分頁：</strong> Excel 內建「設計監造技術服務」與「工程施工標」兩大獨立分頁，方便各專業領域快篩。</div>
+                        <div><strong style="color: #fff;">3. 官方直通連結：</strong> 內含標案代號、招標機關、預算金額、截標日期，並附帶一鍵直達政府電子採購網之超連結。</div>
+                        <div><strong style="color: #fff;">4. 投標顧問支援：</strong> 如需專案備標、服務建議書撰寫或施工計畫書編製，可直接點擊下方委託洽詢。</div>
+                    </div>
+                </div>
+
+                <!-- 並列卡片區塊：下載 EXCEL ｜ 贊助諾維拉 -->
+                <div class="hero-twin-grid" data-aos="fade-up">
+                    <!-- 左卡：下載 EXCEL -->
+                    <div class="twin-card download-card">
+                        <div>
+                            <div class="twin-card-header">
+                                <div class="twin-icon green"><i class="fas fa-file-excel"></i></div>
+                                <h3 class="twin-card-title">標案情報總表 (Excel)</h3>
+                            </div>
+                            <p class="twin-card-desc">
+                                完整收錄全國「🏛️ 設計監造標」與「🏗️ 工程施工標」雙分頁，含採購案號、預算金額、招標機關與官方直通連結。
+                            </p>
+                        </div>
+                        <div>
+                            <a href="tenders_today.xlsx" download="今日政府電子採購網.xlsx" class="btn-twin-action btn-download-excel">
+                                <i class="fas fa-download"></i> 免費下載標案總表 Excel
+                            </a>
+                            <div class="twin-sub-note">
+                                <i class="fas fa-check-circle" style="color: #34D399;"></i> 官方標準排版 ｜ 100% 免登入即刻下載
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右卡：贊助諾維拉 -->
+                    <div class="twin-card sponsor-card">
+                        <div>
+                            <div class="twin-card-header">
+                                <div class="twin-icon amber"><i class="fas fa-coffee"></i></div>
+                                <h3 class="twin-card-title">支持諾維拉團隊</h3>
+                            </div>
+                            <p class="twin-card-desc">
+                                NOVERA 標案情報與工程計算工具由團隊自主維護開發。若這些資源對您的業務有幫助，歡迎小額贊助請喝杯咖啡！
+                            </p>
+                        </div>
+                        <div>
+                            <button onclick="document.getElementById('bankModal').style.display='flex'" class="btn-twin-action btn-open-sponsor">
+                                <i class="fas fa-university"></i> 銀行轉帳贊助（國泰世華）
+                            </button>
+                            <div class="twin-sub-note">
+                                <i class="fas fa-shield-alt" style="color: #FBBF24;"></i> 國泰世華銀行 (013) ｜ 戶名：胡女士
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOVERA 標案技術支援專區 -->
+        <section style="background: #F8FAFC; padding: 75px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+            <div class="container">
+                <div class="section-heading" data-aos="fade-up">
+                    <span class="sub-heading">ENGINEERING CONSULTING</span>
+                    <h2>NOVERA 標案投標全方位技術顧問支援</h2>
+                    <div class="heading-line"></div>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 680px; margin: 10px auto 0;">從投標備標、評選簡報到開工送審計畫書，諾維拉工程團隊提供最紮實的專業技術後盾。</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px;">
+                    <!-- 項目 1 -->
+                    <div class="service-feature-card" data-aos="fade-up" data-aos-delay="100">
+                        <div style="width: 52px; height: 52px; border-radius: 12px; background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px;">
+                            <i class="fas fa-file-signature"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px;">服務建議書 ＆ 評選簡報</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; margin-bottom: 18px;">針對設計監造與技術標，提供配分矩陣精準拆解、得標策略撰寫與 18 頁評選簡報 PPTX 實體編撰，全面提升評選得標競爭力。</p>
+                        <a href="index.html#contact" style="color: var(--accent-hover); font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">洽詢建議書代編 <i class="fas fa-arrow-right"></i></a>
+                    </div>
+
+                    <!-- 項目 2 -->
+                    <div class="service-feature-card" data-aos="fade-up" data-aos-delay="200">
+                        <div style="width: 52px; height: 52px; border-radius: 12px; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px;">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px;">施工 ＆ 整體品質計畫書代辦</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; margin-bottom: 18px;">對齊工程會最新規範！提供開工前必備之整體施工計畫書、整體品質計畫書與職安衛管理計畫書快速代撰過審服務。</p>
+                        <a href="index.html#contact" style="color: var(--accent-hover); font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">洽詢計畫書代撰 <i class="fas fa-arrow-right"></i></a>
+                    </div>
+
+                    <!-- 項目 3 -->
+                    <div class="service-feature-card" data-aos="fade-up" data-aos-delay="300">
+                        <div style="width: 52px; height: 52px; border-radius: 12px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 20px;">
+                            <i class="fas fa-stamp"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary-color); margin-bottom: 12px;">專業技師簽證 ＆ 結構計算</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; margin-bottom: 18px;">國家考試合格土木技師團隊，出具合法簽證報告、擋土支撐安全檢算、施工架檢核與老舊建築耐震初詳細評估報告。</p>
+                        <a href="index.html#contact" style="color: var(--accent-hover); font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">洽詢技師簽證 <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 底部合作號召 -->
+        <section class="container" style="margin: 60px auto;">
+            <div style="background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); border-radius: var(--radius-modern); padding: 40px; color: #fff; display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: center; box-shadow: var(--shadow-lg); border-top: 4px solid var(--accent-color);" data-aos="fade-up">
+                <div>
+                    <h3 style="color: #fff; font-size: 1.35rem; font-weight: 800; margin-bottom: 10px;">🟢 需要工程投標協助或專業顧問諮詢？</h3>
+                    <p style="color: var(--border-color); line-height: 1.6; margin-bottom: 0;">
+                        歡迎營造廠、建築師事務所與工程同業直接透過官方 LINE 與諾維拉團隊聯繫，我們將指派資深工程師為您對接需求！
+                    </p>
+                </div>
+                <div>
+                    <a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 800; font-size: 1rem; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+                        <i class="fab fa-line" style="font-size: 1.2rem;"></i> 專案委託洽詢
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 銀行匯款贊助彈窗 -->
+    <div class="modal-overlay" id="bankModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.8); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:14px; padding:32px; max-width:440px; width:90%; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+            <button onclick="document.getElementById('bankModal').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.2rem; color:var(--text-muted); cursor:pointer;"><i class="fas fa-times"></i></button>
+            <h3 style="font-size:1.25rem; margin-bottom:6px; display:flex; align-items:center; gap:8px; color:var(--primary-color);">
+                <i class="fas fa-university" style="color:var(--accent-color);"></i> 銀行轉帳支持諾維拉
+            </h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:18px;">感謝您支持 NOVERA 維護標案情報總表與工程實用工具！</p>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-base); border-radius:8px; margin-bottom:10px;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">收款銀行</span>
+                <span style="font-size:1rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:var(--primary-color);">國泰世華銀行 (013)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-base); border-radius:8px; margin-bottom:10px;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">戶名</span>
+                <span style="font-size:1rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:var(--primary-color);">胡女士</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-base); border-radius:8px; margin-bottom:10px;">
+                <span style="font-size:0.85rem; color:var(--text-muted);">帳號（點擊複製）</span>
+                <span style="font-size:1rem; font-weight:800; font-family:'JetBrains Mono', monospace; color:var(--accent-color); cursor:pointer;" onclick="copyAccount('007506098097')">007506098097 <i class="fas fa-copy" style="font-size:0.8rem;"></i></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
+
+        function copyAccount(acc) {
+            navigator.clipboard.writeText(acc).then(() => {
+                alert('國泰世華銀行帳號已複製至剪貼簿！感謝您的支持！');
+            });
+        }
+    </script>
+</body>
+</html>

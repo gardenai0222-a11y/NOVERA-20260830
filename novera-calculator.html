@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVERA 智慧工程算料系統 ｜ 旗艦版線上工程計算機</title>
+    <meta name="description" content="整合樑柱版牆混凝土體積、鋼筋搭接長度與損耗率、開挖回填土方平衡之旗艦工程計算系統。">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep-space: #050816;
+            --bg-glass: rgba(10, 15, 30, 0.8);
+            --bg-interface: #1b213b;
+            --border-plasma: rgba(0, 255, 255, 0.3);
+            --border-plasma-hover: rgba(0, 255, 255, 0.7);
+            --text-glow: #e0f2fe;
+            --text-muted: #8ca5c3;
+            --accent-cyan: #00ffff;
+            --accent-magenta: #ff00ff;
+            --danger: #f43f5e;
+            --success: #34d399;
+        }
+
+        @keyframes text-glow-anim {
+            0%, 100% { text-shadow: 0 0 6px var(--accent-cyan), 0 0 14px var(--accent-cyan), 0 0 22px #0c4a6e; }
+            50% { text-shadow: 0 0 12px var(--accent-cyan), 0 0 24px var(--accent-cyan), 0 0 40px #0c4a6e; }
+        }
+        @keyframes scanner-glow {
+            from { box-shadow: inset 0 0 12px rgba(0, 255, 255, 0.15), 0 0 18px rgba(0, 255, 255, 0.15); }
+            to { box-shadow: inset 0 0 18px rgba(0, 255, 255, 0.25), 0 0 30px rgba(0, 255, 255, 0.25); }
+        }
+        @keyframes scan-line {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(calc(100% + 20px)); opacity: 0; }
+        }
+        @keyframes hud-corner-anim {
+            0%, 100% { width: 20px; height: 20px; }
+            50% { width: 30px; height: 30px; }
+        }
+        @keyframes loading-spinner { to { transform: rotate(360deg); } }
+
+        body {
+            font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+            background-color: var(--bg-deep-space);
+            color: var(--text-glow);
+            overflow: hidden; /* Hide body scrollbar to use canvas as full background */
+        }
+        
+        #canvas-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .main-scroller {
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep-space); }
+        ::-webkit-scrollbar-thumb { background-color: var(--accent-cyan); border-radius: 5px; box-shadow: 0 0 8px var(--accent-cyan); border: 1px solid var(--bg-deep-space); }
+        ::-webkit-scrollbar-thumb:hover { background: #00dddd; }
+
+        .container {
+            max-width: 1200px; margin: 2rem auto; padding: 2.5rem;
+            background-color: var(--bg-glass);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-radius: 1.5rem; border: 1px solid var(--border-plasma);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .hud-corner {
+            position: absolute; width: 20px; height: 20px; border-style: solid; border-color: var(--accent-cyan);
+            animation: hud-corner-anim 4s infinite alternate ease-in-out;
+            opacity: 0.8;
+        }
+        .hud-corner.top-left { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+        .hud-corner.top-right { top: -2px; right: -2px; border-width: 2px 2px 0 0; }
+        .hud-corner.bottom-left { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; }
+        .hud-corner.bottom-right { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+        .header h1 {
+            font-size: 3rem; font-weight: 700; color: var(--text-glow);
+            animation: text-glow-anim 4s infinite alternate;
+        }
+        
+        .form-section {
+            border: 1px solid var(--border-plasma);
+            border-radius: 0.75rem; margin-top: 1.5rem; transition: all 0.3s ease-in-out;
+            animation: scanner-glow 6s infinite alternate ease-in-out;
+            position: relative; overflow: hidden;
+            background: linear-gradient(rgba(10, 15, 30, 0.8), rgba(10, 15, 30, 0.8));
+        }
+        .form-section::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            animation: scan-line 7s linear infinite 1s;
+        }
+
+        .form-section-title {
+            color: var(--text-glow); cursor: pointer; user-select: none; font-weight: 500; font-size: 1.25rem;
+            display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem;
+            background: rgba(0, 255, 255, 0.08);
+        }
+        .form-section-content { display: none; padding: 1.5rem; border-top: 1px solid var(--border-plasma); }
+        .form-section-content.expanded { display: block; }
+
+        .tabs-container { display: flex; border-bottom: 1px solid var(--border-plasma); flex-wrap: wrap; }
+        .tab-button {
+            padding: 0.75rem 1.25rem; font-size: 1rem; font-weight: 500; cursor: pointer; color: var(--text-muted);
+            border: none; background: none; transition: all 0.3s ease; position: relative;
+        }
+        .tab-button::after { content: ''; position: absolute; bottom: -1px; left: 10%; right: 10%; height: 2px; background: var(--accent-cyan); transform: scaleX(0); transition: transform 0.3s ease; box-shadow: 0 0 10px var(--accent-cyan); }
+        .tab-button.active { color: var(--accent-cyan); text-shadow: 0 0 10px var(--accent-cyan); }
+        .tab-button.active::after { transform: scaleX(1); }
+        
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.25rem; /* 標籤與輸入框的間距 */
+        }
+        .input-group label { text-shadow: 0 0 5px rgba(0, 255, 255, 0.6); }
+        .input-group input, .input-group select {
+            width: 100%; /* 確保輸入框填滿其網格單元 */
+            border: 1px solid var(--border-plasma); background-color: rgba(10, 15, 30, 0.9);
+            color: var(--text-glow); border-radius: 0.375rem; padding: 0.625rem 0.75rem;
+            outline: none; transition: all 0.3s;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.6), 0 0 0 3px rgba(0, 255, 255, 0.25), inset 0 1px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            border: 1px solid var(--border-plasma-hover);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.1), 0 0 8px rgba(0, 255, 255, 0.4);
+        }
+        .btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 5px 12px rgba(0,0,0,0.4), 0 0 20px rgba(0, 255, 255, 0.7); border-color: var(--accent-cyan); }
+        
+        .btn-action { background: linear-gradient(45deg, var(--accent-cyan), #0891b2); font-size: 1.125rem; padding: 0.75rem 2rem; border-color: var(--accent-cyan); }
+        .btn-action:hover { box-shadow: 0 0 30px var(--accent-cyan); }
+        
+        .rebar-input-container { margin-top: 1rem; background-color: var(--bg-glass); border: 1px solid var(--border-plasma); border-radius: 0.5rem; overflow: hidden; }
+        .rebar-form-header { background-color: rgba(0, 255, 255, 0.05); padding: 0.75rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
+        .rebar-form-content { padding: 1.25rem; transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out, visibility 0.5s; max-height: 2000px; overflow: hidden; }
+        .rebar-form-content.collapsed { max-height: 0; padding-top: 0; padding-bottom: 0; visibility: hidden; }
+        
+        .modal-backdrop { background-color: rgba(10, 15, 30, 0.7); backdrop-filter: blur(8px); }
+        .modal-content { background-color: var(--bg-interface); border: 1px solid var(--border-plasma); box-shadow: 0 0 30px rgba(0, 255, 255, 0.2); }
+        .add-btn { display: none; }
+        .tab-panel.active .add-btn { display: inline-flex; }
+    </style>
+
+    <link rel="canonical" href="https://novera-engineering.netlify.app/novera-calculator.html">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "NOVERA 數量核算工具",
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TWD"
+      },
+      "description": "專為土木與營造人設計的進階版數量核算線上工具，可快速計算柱、樑、版、牆、樁的鋼筋與混凝土數量，支援匯出 Excel 料單。",
+      "url": "https://novera-engineering.netlify.app/novera-calculator.html"
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首頁",
+          "item": "https://novera-engineering.netlify.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "NOVERA 數量核算",
+          "item": "https://novera-engineering.netlify.app/novera-calculator.html"
+        }
+      ]
+    }
+    </script>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F172A">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://novera-engineering.netlify.app/novera-calculator.html">
+    <meta property="og:title" content="NOVERA 智慧工程算料系統 ｜ 旗艦版線上工程計算機">
+    <meta property="og:description" content="整合樑柱版牆混凝土體積、鋼筋搭接長度與損耗率、開挖回填土方平衡之旗艦工程計算系統。">
+    <meta property="og:image" content="https://novera-engineering.netlify.app/assets/lin_engineer_real.png">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="NOVERA 諾維拉工程顧問">
+    <!-- GEO 地域標籤 (南台灣土木工程核心) -->
+    <meta name="geo.region" content="TW-KHH;TW-TNN;TW-PIF">
+    <meta name="geo.placename" content="高雄市, 臺南市, 屏東縣">
+    <meta name="keywords" content="工程算料系統, 鋼筋配筋計算, 混凝土體積計算, 擋土開挖算料">
+</head>
+<body>
+    <canvas id="canvas-background"></canvas>
+    <div class="main-scroller">
+        <div class="container">
+            <div class="hud-corner top-left"></div> <div class="hud-corner top-right"></div>
+            <div class="hud-corner bottom-left"></div> <div class="hud-corner bottom-right"></div>
+            
+            <div class="text-center mb-8 header">
+                <h1>NOVERA 數量核算</h1>
+                <p class="text-sm text-muted mt-2">© 2024 NOVERA (諾維拉土木技師事務所) 版權所有</p>
+                <p class="text-xs text-gray-500 mt-2 text-center">本工具僅供輔助，所有數據應以實際工程規範及設計圖為準。NOVERA 不對任何因使用本工具產生的誤差或損失負責。</p>
+            </div>
+
+            <!-- Section 1: 工程資訊 -->
+            <div class="form-section">
+                <div class="form-section-title" onclick="toggleSection('info')">
+                    <span>一、工程資訊</span>
+                    <svg id="info-toggle-icon" class="w-6 h-6 transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+                <div id="info" class="form-section-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div class="input-group"><label for="project-name">工程名稱</label><input type="text" id="project-name" placeholder="例如: 某某大樓新建工程"></div>
+                        <div class="input-group"><label for="company-name">建設公司</label><input type="text" id="company-name" placeholder="例如: 某某建設"></div>
+                        <div class="input-group"><label for="design-company">設計單位</label><input type="text" id="design-company" placeholder="例如: 某某建築師事務所"></div>
+                        <div class="input-group"><label for="location">工程地點</label><input type="text" id="location" placeholder="例如: 某某市某某區"></div>
+                        <div class="input-group"><label for="date">計算日期</label><input type="date" id="date"></div>
+                        <div class="input-group"><label for="vendor">承包廠商</label><input type="text" id="vendor" placeholder="例如: 某某營造"></div>
+                        <div class="input-group col-span-full"><label for="novera">撿料單位</label><input type="text" id="novera" value="NOVERA 事務所"></div>
+                    </div>
+                    <p class="text-sm text-muted mt-4 text-center py-2 bg-black/20 rounded-md">※ 料單未含損耗</p>
+                    
+                    <!-- JSON Import/Export -->
+                    <div class="mt-6 pt-4 border-t border-dashed border-[var(--border-plasma)]">
+                        <label class="text-base font-semibold text-[var(--accent-cyan)]">資料保存</label>
+                        <p class="text-xs text-muted mb-3">您可以將目前所有的工程資訊與手動輸入的構件匯出為 JSON 檔案，以便日後匯入並繼續作業。</p>
+                        <div class="flex flex-wrap gap-4">
+                            <button class="btn btn-primary" onclick="exportJSON()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                匯出 JSON
+                            </button>
+                            <input type="file" id="json-import-input" class="hidden" accept=".json" onchange="importJSON(event)">
+                            <button class="btn" onclick="document.getElementById('json-import-input').click()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" transform="rotate(180 10 10)" /></svg>
+                                匯入 JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: 手動輸入 -->
+            <div class="form-section">
+                <div class="form-section-title" onclick="toggleSection('manual-input')">
+                    <span>二、手動輸入</span>
+                    <svg id="manual-input-toggle-icon" class="w-6 h-6 transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+                <div id="manual-input" class="form-section-content">
+                    <div id="tabs-container" class="tabs-container">
+                        <button class="tab-button active" onclick="showTab('column')">柱</button>
+                        <button class="tab-button" onclick="showTab('beam')">樑</button>
+                        <button class="tab-button" onclick="showTab('slab')">版</button>
+                        <button class="tab-button" onclick="showTab('wall')">牆</button>
+                        <button class="tab-button" onclick="showTab('pile')">樁</button>
+                        <button class="tab-button" onclick="showTab('misc')">工作筋</button>
+                    </div>
+                    <div id="tab-content-container" class="mt-4">
+                        <div id="column-panel" class="tab-panel active"><div id="column-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('column')">新增柱</button></div>
+                        <div id="beam-panel" class="tab-panel"><div id="beam-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('beam')">新增樑</button></div>
+                        <div id="slab-panel" class="tab-panel"><div id="slab-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('slab')">新增版</button></div>
+                        <div id="wall-panel" class="tab-panel"><div id="wall-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('wall')">新增牆</button></div>
+                        <div id="pile-panel" class="tab-panel"><div id="pile-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('pile')">新增樁</button></div>
+                        <div id="misc-panel" class="tab-panel"><div id="misc-form-container"></div><button class="btn btn-primary mt-4 add-btn" onclick="addForm('misc')">新增工作筋</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="status-message" class="text-center my-6 font-semibold transition-colors duration-300"></div>
+            <div class="flex flex-col items-center justify-center mt-8 gap-4">
+                <button class="btn btn-action" onclick="calculateAndExport()">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01M12 6v-1h4a1 1 0 011 1v10a1 1 0 01-1 1h-4v-1M12 18v-1h4a1 1 0 001-1V8a1 1 0 00-1-1h-4v-1" /></svg>
+                    計算並匯出 Excel
+                </button>
+                <button onclick="document.getElementById('calc-bank-modal').classList.remove('hidden')" class="btn" style="background: rgba(180, 83, 9, 0.25); border-color: rgba(245, 158, 11, 0.6); color: #FDE68A; font-size: 0.95rem; padding: 8px 20px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.2rem;">☕</span> 覺得好用幫您省下加班時間？支持諾維拉團隊
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Donation -->
+    <div id="calc-bank-modal" class="hidden fixed inset-0 flex items-center justify-center z-50 modal-backdrop" style="background: rgba(5, 8, 22, 0.85); backdrop-filter: blur(12px);">
+        <div class="p-6 rounded-xl shadow-2xl w-full max-w-md modal-content" style="background: var(--bg-glass); border: 1px solid var(--border-plasma); color: var(--text-glow);">
+            <div class="flex justify-between items-center mb-4 border-b border-[var(--border-plasma)] pb-3">
+                <h3 class="text-xl font-bold text-[var(--accent-cyan)] flex items-center gap-2">
+                    ☕ 贊助支持諾維拉
+                </h3>
+                <button type="button" onclick="document.getElementById('calc-bank-modal').classList.add('hidden')" style="color: var(--text-muted); font-size: 1.25rem;">✕</button>
+            </div>
+            <p class="text-sm text-gray-300 mb-4 leading-relaxed">
+                本套數量核算系統由 NOVERA 諾維拉自主開發並免費提供同業使用。若本工具幫您節省了繁瑣的算料時間，歡迎小額贊助請喝杯咖啡！
+            </p>
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between p-3 rounded-lg bg-[rgba(0,255,255,0.06)] border border-[var(--border-plasma)]">
+                    <span class="text-xs text-gray-400">收款銀行</span>
+                    <span class="font-mono font-bold text-white">國泰世華銀行 (013)</span>
+                </div>
+                <div class="flex justify-between p-3 rounded-lg bg-[rgba(0,255,255,0.06)] border border-[var(--border-plasma)]">
+                    <span class="text-xs text-gray-400">戶名</span>
+                    <span class="font-mono font-bold text-white">胡女士</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-lg bg-[rgba(0,255,255,0.06)] border border-[var(--border-plasma)] cursor-pointer" onclick="navigator.clipboard.writeText('007506098097'); alert('國泰世華銀行帳號 007506098097 已複製！感謝您的支持！');">
+                    <span class="text-xs text-gray-400">帳號 (點擊複製)</span>
+                    <span class="font-mono font-bold text-[var(--accent-cyan)] text-base">007506098097 📋</span>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="button" onclick="document.getElementById('calc-bank-modal').classList.add('hidden')" class="btn w-full">關閉視窗</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for copying to other floors -->
+    <div id="copy-modal" class="hidden fixed inset-0 flex items-center justify-center z-50 modal-backdrop">
+        <div class="p-6 rounded-lg shadow-xl w-full max-w-sm modal-content">
+            <h3 class="text-lg font-semibold text-white mb-4">選擇要複製到的樓層</h3>
+            <div id="floor-checkbox-container" class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-2"></div>
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="closeCopyModal()" class="btn">取消</button>
+                <button type="button" onclick="confirmCopy()" class="btn btn-primary">確認複製</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sound Synthesizer ---
+        const synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 0.1 },
+        }).toDestination();
+
+        function playSound(type) {
+            if (typeof Tone === 'undefined') return;
+            try {
+                Tone.start();
+                if (type === 'click') {
+                    synth.triggerAttackRelease("C5", "8n");
+                } else if (type === 'tab') {
+                    synth.triggerAttackRelease(["C5", "E5"], "16n");
+                } else if (type === 'success') {
+                    synth.triggerAttackRelease(["C5", "E5", "G5"], "8n");
+                } else if (type === 'error') {
+                     synth.triggerAttackRelease("C3", "8n");
+                }
+            } catch(e) {
+                console.warn("Audio context not ready.");
+            }
+        }
+        
+        // --- Constants and Global State ---
+        const rebarWeights = { '#3 (10mm)': 0.56, '#4 (13mm)': 0.994, '#5 (16mm)': 1.56, '#6 (19mm)': 2.25, '#7 (22mm)': 3.04, '#8 (25mm)': 3.98, '#9 (29mm)': 5.04, '#10 (32mm)': 6.23, '#11 (36mm)': 7.94, };
+        const rebarDiameters = { '#3 (10mm)': 0.953, '#4 (13mm)': 1.27, '#5 (16mm)': 1.588, '#6 (19mm)': 1.905, '#7 (22mm)': 2.222, '#8 (25mm)': 2.54, '#9 (29mm)': 2.865, '#10 (32mm)': 3.22, '#11 (36mm)': 3.58, };
+        const rebarGrades = ['SD280', 'SD280W', 'SD420', 'SD420W', 'SD490', 'SD490W', 'SD690'];
+        const stirrupSpacing = ['10 cm', '15 cm', '20 cm', '25 cm'];
+        const maxStockLengths = ['6 m', '7 m', '8 m', '12 m'];
+        const connectorTypes = ['無', '單端母頭', '雙端公母頭', '公母續接器', '摩擦壓接續接器', '灌漿套筒式續接器'];
+        const commonWorkingRebarSizes = ['#3 (10mm)', '#4 (13mm)', '#5 (16mm)'];
+        const floors = ['B1', '1F', '2F', '3F', '4F'];
+        const componentTypes = { column: '柱', beam: '樑', slab: '版', wall: '牆', pile: '樁', misc: '工作筋' };
+        const concreteStrengths = ['210 kg/cm²', '280 kg/cm²', '350 kg/cm²', '420 kg/cm²', '自訂'];
+        const floorFinishes = ['無', '水泥粉光', '地磚', '木地板', '其他'];
+        const ceilingFinishes = ['無', '水泥粉光', '油漆', '其他'];
+        const generalWallFinishes = ['無', '水泥粉光', '油漆', '其他'];
+        const exteriorWallFinishes = ['無', '水泥粉光', '油漆', '磁磚', '石頭漆', '其他'];
+        let formToCopy = null;
+
+        // --- Helper & UI Functions ---
+        function createOptions(optionsArray, selected = null) { return optionsArray.map(opt => `<option value="${opt}" ${selected === opt ? 'selected' : ''}>${opt}</option>`).join(''); }
+        function createRebarOptions(selectedSize = null) { return createOptions(Object.keys(rebarWeights), selectedSize); }
+        function createGradeOptions(selectedGrade = 'SD420W') { return createOptions(rebarGrades, selectedGrade); }
+        function createSpacingOptions(selectedSpacing = null) { return createOptions(stirrupSpacing, selectedSpacing); }
+        function createLengthOptions(selectedLength = null) { return createOptions(maxStockLengths, selectedLength) + `<option value="自訂">自訂</option>`; }
+        function createFloorOptions(selectedFloor = null) { const floorOptions = createOptions(floors, selectedFloor); return floorOptions + `<option value="自訂">自訂</option>`; }
+        
+        function toggleSection(id) {
+            playSound('click');
+            const content = document.getElementById(id); const icon = document.getElementById(id + '-toggle-icon');
+            const isExpanded = content.classList.contains('expanded');
+            if (isExpanded) {
+                 content.classList.remove('expanded');
+                 icon.classList.remove('rotate-180');
+            } else {
+                 content.classList.add('expanded');
+                 icon.classList.add('rotate-180');
+            }
+        }
+
+        function toggleForm(headerElement) {
+            playSound('click');
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('svg');
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('rotate-180');
+        }
+        
+        function showTab(type) {
+            playSound('tab');
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(`${type}-panel`).classList.add('active');
+            document.querySelector(`.tab-button[onclick="showTab('${type}')"]`).classList.add('active');
+        }
+
+        function toggleCustomInput(selectElement, inputElementId) {
+            const inputGroup = document.getElementById(inputElementId);
+            if (selectElement.value === '自訂') { inputGroup.classList.remove('hidden'); } else { inputGroup.classList.add('hidden'); }
+        }
+        function toggleCustomFinish(selectElement) {
+            const customInput = selectElement.nextElementSibling;
+            if (customInput && customInput.classList.contains('custom-finish')) {
+                if (selectElement.value === '其他') { customInput.classList.remove('hidden'); } else { customInput.classList.add('hidden'); }
+            }
+        }
+        function getFinishValue(selectElement) {
+            if (!selectElement) return '無';
+            if (selectElement.value === '其他') {
+                const customInput = selectElement.nextElementSibling;
+                return customInput ? customInput.value.trim() || '其他(未指定)' : '其他';
+            }
+            return selectElement.value;
+        }
+
+        function toggleWorkingRebarShape(selectElement) {
+            const container = selectElement.closest('.rebar-form-content');
+            const straightInput = container.querySelector('.straight-rebar-group');
+            const LShapeInputs = container.querySelector('.l-shape-rebar-group');
+            if (selectElement.value === '直筋') {
+                straightInput.classList.remove('hidden'); LShapeInputs.classList.add('hidden');
+            } else if (selectElement.value === 'L型') {
+                straightInput.classList.add('hidden'); LShapeInputs.classList.remove('hidden');
+            }
+        }
+        function getRebarProperties(size) { return { weight: rebarWeights[size] || 0, diameter: rebarDiameters[size] || 0 }; }
+
+        // --- Form Generation ---
+        function addForm(type, collapseExisting = true) {
+            const container = document.getElementById(type + '-form-container');
+            if (collapseExisting) {
+                container.querySelectorAll('.rebar-form-content').forEach(content => {
+                    if (!content.classList.contains('collapsed')) {
+                        content.classList.add('collapsed');
+                        const icon = content.previousElementSibling.querySelector('svg');
+                        if (icon) icon.classList.remove('rotate-180');
+                    }
+                });
+            }
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = getFormHTML(type);
+            const newForm = tempDiv.firstElementChild; 
+            container.appendChild(newForm); 
+
+            updateFormIdentifier(newForm);
+            const idInput = newForm.querySelector('.form-component-id, .form-rebar-remarks');
+            if(idInput) {
+                idInput.addEventListener('input', () => updateFormIdentifier(newForm));
+            }
+
+            const newContent = newForm.querySelector('.rebar-form-content');
+            if (newContent) {
+                 newContent.classList.remove('collapsed');
+                 const icon = newContent.previousElementSibling.querySelector('svg');
+                 if(icon) icon.classList.add('rotate-180');
+            }
+            return newForm; 
+        }
+
+        function getFormHTML(type) {
+            const uniqueId = type + '-' + Date.now();
+            const componentName = componentTypes[type] || '構件';
+            const commonFields = `<div class="input-group"><label>構件數量</label><input type="text" class="form-component-count" placeholder="例如: 10" inputmode="numeric" value="1"></div>`;
+            const concreteField = `<div class="input-group"><label>混凝土強度</label><select class="form-concrete-strength">${createOptions(concreteStrengths, '280 kg/cm²')}</select></div>`;
+            const actionButtons = `
+                <div class="col-span-full flex justify-end items-center space-x-2 mt-4 pt-4 border-t border-dashed border-[var(--border-plasma)]">
+                    <button type="button" class="btn" onclick="showCopyModal(this)">複製到其他樓層</button>
+                    <button type="button" class="btn btn-danger" onclick="removeForm(this)">移除</button>
+                </div>`;
+            
+            let finishFields = '';
+            switch (type) {
+                case 'column': case 'beam': case 'pile':
+                    finishFields = `<div class="input-group"><label>拆模後面材</label><select class="form-finish-material" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                case 'slab':
+                    finishFields = `<div class="input-group"><label>版上(地坪)</label><select class="form-floor-finish" onchange="toggleCustomFinish(this)">${createOptions(floorFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                    <div class="input-group"><label>版下(坪頂)</label><select class="form-ceiling-finish" onchange="toggleCustomFinish(this)">${createOptions(ceilingFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+                case 'wall':
+                     finishFields = `<div class="input-group"><label>內牆面材</label><select class="form-interior-finish" onchange="toggleCustomFinish(this)">${createOptions(generalWallFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>
+                                     <div class="input-group"><label>外牆面材</label><select class="form-exterior-finish" onchange="toggleCustomFinish(this)">${createOptions(exteriorWallFinishes)}</select><input type="text" class="custom-finish hidden mt-2" placeholder="請輸入面材名稱"></div>`; break;
+            }
+            
+            let specificFields = '';
+            switch (type) {
+                case 'column':
+                    specificFields = `<div class="input-group"><label>柱編號</label><input type="text" class="form-component-id" placeholder="例如: C1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>斷面長 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 60" inputmode="numeric"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 60" inputmode="numeric"></div> <div class="input-group"><label>構件高 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.2" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 12" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
+                case 'beam':
+                    specificFields = `<div class="input-group"><label>樑編號</label><input type="text" class="form-component-id" placeholder="例如: B1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>構件長 (m)</label><input type="text" class="form-component-length" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>斷面高 (cm)</label><input type="text" class="form-section-a" placeholder="例如: 70" inputmode="numeric"></div> <div class="input-group"><label>斷面寬 (cm)</label><input type="text" class="form-section-b" placeholder="例如: 40" inputmode="numeric"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#7 (22mm)')}</select></div> <div class="input-group"><label>主筋總根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 8" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距</label><select class="form-stirrup-spacing">${createSpacingOptions('10 cm')}</select></div> <div class="input-group"><label>腰筋號數</label><select class="form-waist-rebar-size">${createRebarOptions('#4 (13mm)')}</select></div>`; break;
+                case 'slab':
+                    specificFields = `<div class="input-group"><label>版編號</label><input type="text" class="form-component-id" placeholder="例如: S1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 8.0" inputmode="decimal"></div> <div class="input-group"><label>寬度 (m)</label><input type="text" class="form-component-width" placeholder="例如: 6.0" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 15" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group"><label>X向主筋尺寸</label><select class="form-main-rebar-size-x">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>X向間距 (cm)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label>Y向主筋尺寸</label><select class="form-main-rebar-size-y">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>Y向間距 (cm)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                case 'wall':
+                    specificFields = `<div class="input-group"><label>牆編號</label><input type="text" class="form-component-id" placeholder="例如: W1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: GF"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 5.0" inputmode="decimal"></div> <div class="input-group"><label>高度 (m)</label><input type="text" class="form-component-height" placeholder="例如: 3.5" inputmode="decimal"></div> <div class="input-group"><label>厚度 (cm)</label><input type="text" class="form-component-thickness" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>配筋層數</label><select class="form-rebar-layers"><option value="單層">單層</option><option value="雙層" selected>雙層</option></select></div> <div class="input-group"><label>水平筋尺寸 (X)</label><select class="form-main-rebar-size-x">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group"><label>水平筋間距 (X)</label><select class="form-rebar-spacing-x">${createSpacingOptions('20 cm')}</select></div> <div class="input-group"><label>垂直筋尺寸 (Y)</label><select class="form-main-rebar-size-y">${createRebarOptions('#5 (16mm)')}</select></div> <div class="input-group"><label>垂直筋間距 (Y)</label><select class="form-rebar-spacing-y">${createSpacingOptions('20 cm')}</select></div> <div class="input-group md:col-span-2"><label>最大撿料長度</label><select class="form-max-length" onchange="toggleCustomInput(this, '${uniqueId}-max-length-custom')">${createLengthOptions('12 m')}</select></div> <div id="${uniqueId}-max-length-custom" class="input-group custom-max-length-group hidden md:col-span-2"><label>自訂長度 (m)</label><input type="text" class="custom-max-length" placeholder="例如: 13.5" inputmode="decimal"></div>`; break;
+                case 'pile':
+                    specificFields = `<div class="input-group"><label>樁編號</label><input type="text" class="form-component-id" placeholder="例如: P1"></div> ${commonFields} <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('B1')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>樁直徑 (m)</label><input type="text" class="form-component-diameter" placeholder="例如: 1.5" inputmode="decimal"></div> <div class="input-group"><label>樁長度 (m)</label><input type="text" class="form-component-length" placeholder="例如: 30" inputmode="decimal"></div> ${concreteField} ${finishFields} <div class="col-span-full border-t border-dashed border-gray-600 my-2"></div> <div class="input-group"><label>主筋尺寸</label><select class="form-main-rebar-size">${createRebarOptions('#8 (25mm)')}</select></div> <div class="input-group"><label>主筋根數</label><input type="text" class="form-main-rebar-count" placeholder="例如: 16" inputmode="numeric"></div> <div class="input-group"><label>箍筋尺寸</label><select class="form-stirrup-size">${createRebarOptions('#4 (13mm)')}</select></div> <div class="input-group"><label>箍筋間距 (cm)</label><select class="form-stirrup-spacing">${createSpacingOptions('15 cm')}</select></div> <div class="input-group"><label>續接器類型</label><select class="form-connector-type">${connectorTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div>`; break;
+                case 'misc':
+                    specificFields = `<div class="input-group"><label>名稱/備註</label><input type="text" class="form-rebar-remarks" placeholder="例如: 工作筋/吊模筋"></div> <div class="input-group"><label>樓層</label><select class="form-component-floor" onchange="toggleCustomInput(this, '${uniqueId}-floor-custom')">${createFloorOptions('1F')}</select><div id="${uniqueId}-floor-custom" class="input-group hidden mt-2"><label>自訂樓層</label><input type="text" class="custom-floor" placeholder="例如: B2F"></div></div> <div class="input-group"><label>鋼筋牌號</label><select class="form-rebar-grade">${createGradeOptions()}</select></div> <div class="input-group"><label>鋼筋尺寸</label><select class="form-rebar-size">${createRebarOptions(commonWorkingRebarSizes[0])}</select></div> <div class="input-group"><label>鋼筋形狀</label><select class="form-rebar-shape" onchange="toggleWorkingRebarShape(this)"><option value="直筋">直筋</option><option value="L型">L型</option></select></div> <div class="straight-rebar-group col-span-1"><div class="input-group"><label>單根長度 (cm)</label><input type="text" class="form-rebar-length" placeholder="例如: 120" inputmode="decimal"></div></div> <div class="l-shape-rebar-group hidden md:col-span-2 grid grid-cols-2 gap-4"><div class="input-group"><label>長度1 (cm)</label><input type="text" class="form-rebar-length-1" placeholder="例如: 150" inputmode="decimal"></div><div class="input-group"><label>長度2 (cm)</label><input type="text" class="form-rebar-length-2" placeholder="例如: 50" inputmode="decimal"></div></div> <div class="input-group"><label>總根數</label><input type="text" class="form-rebar-count" placeholder="例如: 100" inputmode="numeric"></div>`; break;
+            }
+
+            return `<div class="rebar-input-container" data-type="${type}" data-id="${uniqueId}">
+                        <div class="rebar-form-header" onclick="toggleForm(this)">
+                           <span>${componentName} - <span class="component-identifier text-cyan-400">未命名</span></span>
+                           <svg class="w-6 h-6 transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <div class="rebar-form-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1">
+                            ${specificFields}
+                            ${actionButtons}
+                        </div>
+                    </div>`;
+        }
+        
+        function updateFormIdentifier(formContainer) {
+            const idInput = formContainer.querySelector('.form-component-id, .form-rebar-remarks');
+            const identifierSpan = formContainer.querySelector('.component-identifier');
+            if(identifierSpan) {
+                identifierSpan.textContent = idInput?.value.trim() || '未命名';
+            }
+        }
+        
+        function removeForm(button) {
+            playSound('click');
+            const formContainer = button.closest('.rebar-input-container');
+            formContainer.style.transition = 'opacity 0.3s, transform 0.3s';
+            formContainer.style.opacity = '0';
+            formContainer.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                formContainer.remove();
+            }, 300);
+        }
+
+        function showCopyModal(button) {
+            playSound('click');
+            formToCopy = button.closest('.rebar-input-container');
+            const modal = document.getElementById('copy-modal');
+            const checkboxContainer = document.getElementById('floor-checkbox-container');
+            const floorCheckboxesHTML = floors.map(floor => `<label class="flex items-center space-x-3 cursor-pointer p-2 rounded-md hover:bg-gray-700/50 transition-colors"><input type="checkbox" value="${floor}" class="floor-copy-checkbox h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-400 focus:ring-cyan-500"><span class="text-gray-200">${floor}</span></label>`).join('');
+            const otherFloorHTML = `<div class="flex items-center space-x-3 cursor-pointer mt-2 p-2"><input type="checkbox" id="other-floor-checkbox" value="其他" class="floor-copy-checkbox h-4 w-4 rounded bg-gray-700 border-gray-600 text-cyan-400 focus:ring-cyan-500"><label for="other-floor-checkbox" class="text-gray-200">其他:</label><input type="text" id="other-floor-input" class="w-full" placeholder="輸入樓層名稱" disabled></div>`;
+            checkboxContainer.innerHTML = floorCheckboxesHTML + otherFloorHTML;
+            document.getElementById('other-floor-checkbox').addEventListener('change', (e) => {
+                const otherInput = document.getElementById('other-floor-input');
+                otherInput.disabled = !e.target.checked;
+                if(e.target.checked) otherInput.focus();
+            });
+            modal.classList.remove('hidden');
+        }
+        function closeCopyModal() { playSound('click'); document.getElementById('copy-modal').classList.add('hidden'); formToCopy = null; }
+        function confirmCopy() {
+            playSound('success');
+            if (!formToCopy) return;
+            let selectedFloors = Array.from(document.querySelectorAll('.floor-copy-checkbox:checked')).map(cb => cb.value).filter(val => val !== '其他');
+            const otherCheckbox = document.getElementById('other-floor-checkbox');
+            const otherInput = document.getElementById('other-floor-input');
+            if (otherCheckbox.checked && otherInput.value.trim() !== '') { selectedFloors.push(otherInput.value.trim()); }
+            if (selectedFloors.length > 0) { copyFormToFloors(formToCopy, selectedFloors); }
+            closeCopyModal();
+        }
+        function copyFormToFloors(sourceForm, targetFloors) {
+            const type = sourceForm.dataset.type; if (!type) return;
+            const sourceValues = {};
+            sourceForm.querySelectorAll('input, select').forEach(el => {
+                const key = Array.from(el.classList).filter(c => c.startsWith('form-') || c.startsWith('custom-')).join(' ');
+                if (key) { sourceValues[key] = (el.type === 'checkbox' || el.type === 'radio') ? el.checked : el.value; }
+            });
+            targetFloors.forEach(floor => {
+                const newForm = addForm(type);
+                const container = document.getElementById(`${type}-form-container`);
+                newForm.querySelectorAll('input, select').forEach(el => {
+                    const key = Array.from(el.classList).filter(c => c.startsWith('form-') || c.startsWith('custom-')).join(' ');
+                    if (key && key in sourceValues) {
+                         if (el.type === 'checkbox' || el.type === 'radio') { el.checked = sourceValues[key]; } else { el.value = sourceValues[key]; }
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                const floorSelect = newForm.querySelector('.form-component-floor');
+                const customFloorInput = newForm.querySelector('.custom-floor');
+                if (floorSelect) {
+                    const isStandardFloor = floors.includes(floor);
+                    floorSelect.value = isStandardFloor ? floor : '自訂';
+                    floorSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    if (!isStandardFloor && customFloorInput) { customFloorInput.value = floor; }
+                }
+                updateFormIdentifier(newForm);
+            });
+        }
+        
+        function setAIStatus(text, isLoading = false, isError = false) {
+            const statusText = document.getElementById('ai-status-text');
+            const spinner = document.querySelector('#ai-status .loading-spinner');
+            statusText.textContent = text;
+            spinner.style.display = isLoading ? 'block' : 'none';
+            if(isError) {
+                playSound('error');
+                statusText.style.color = 'var(--danger)';
+            } else {
+                 statusText.style.color = 'var(--accent-cyan)';
+            }
+        }
+        
+        // --- JSON Import/Export Functions ---
+        
+        function exportJSON() {
+            playSound('success');
+            const statusMessage = document.getElementById('status-message');
+            try {
+                const dataToSave = {
+                    projectInfo: {},
+                    components: {
+                        column: [], beam: [], slab: [], wall: [], pile: [], misc: []
+                    }
+                };
+
+                // 1. 收集工程資訊
+                document.querySelectorAll('#info .input-group input, #info .input-group select').forEach(el => {
+                    if(el.id) dataToSave.projectInfo[el.id] = el.value;
+                });
+
+                // 2. 收集所有構件資訊
+                Object.keys(componentTypes).forEach(type => {
+                    document.querySelectorAll(`#${type}-panel .rebar-input-container`).forEach(form => {
+                        const componentData = { type: type };
+                        form.querySelectorAll('input, select').forEach(el => {
+                            const key = Array.from(el.classList).filter(c => c.startsWith('form-') || c.startsWith('custom-')).join(' ');
+                            if (key) {
+                                componentData[key] = (el.type === 'checkbox' || el.type === 'radio') ? el.checked : el.value;
+                            }
+                        });
+                        dataToSave.components[type].push(componentData);
+                    });
+                });
+
+                // 3. 建立並下載檔案
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const projectName = dataToSave.projectInfo['project-name'] || '未命名工程';
+                a.download = `${projectName}_備份.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                statusMessage.textContent = '資料已成功匯出!';
+                statusMessage.style.color = 'var(--success)';
+                setTimeout(() => statusMessage.textContent = '', 3000);
+
+            } catch (error) {
+                console.error("匯出 JSON 失敗:", error);
+                statusMessage.textContent = '匯出資料失敗。';
+                statusMessage.style.color = 'var(--danger)';
+                setTimeout(() => statusMessage.textContent = '', 3000);
+            }
+        }
+
+        function importJSON(event) {
+            playSound('click');
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            const reader = new FileReader();
+            const statusMessage = document.getElementById('status-message');
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // 1. 還原工程資訊
+                    if (data.projectInfo) {
+                        Object.keys(data.projectInfo).forEach(key => {
+                            const el = document.getElementById(key);
+                            if (el) el.value = data.projectInfo[key];
+                        });
+                    }
+
+                    // 2. 清空現有構件
+                    Object.keys(componentTypes).forEach(type => {
+                        const container = document.getElementById(`${type}-form-container`);
+                        if(container) container.innerHTML = '';
+                    });
+
+                    // 3. 重新建立所有構件
+                    let firstPopulatedType = null;
+                    if (data.components) {
+                        Object.keys(data.components).forEach(type => {
+                            if (componentTypes[type] && data.components[type].length > 0) {
+                                if (!firstPopulatedType) firstPopulatedType = type;
+                                
+                                data.components[type].forEach(componentData => {
+                                    const newForm = addForm(type, false);
+                                    Object.keys(componentData).forEach(key => {
+                                        const selector = key.split(' ').map(k => `.${k}`).join('');
+                                        const element = newForm.querySelector(selector);
+                                        if(element) {
+                                            if (element.type === 'checkbox' || element.type === 'radio') {
+                                                element.checked = componentData[key];
+                                            } else {
+                                                element.value = componentData[key];
+                                            }
+                                            element.dispatchEvent(new Event('change', { bubbles: true }));
+                                        }
+                                    });
+                                    updateFormIdentifier(newForm);
+                                });
+                            }
+                        });
+                    }
+                    
+                    playSound('success');
+                    statusMessage.textContent = '資料已成功匯入!';
+                    statusMessage.style.color = 'var(--success)';
+                    
+                    // 自動展開並跳轉
+                    const manualInputSection = document.getElementById('manual-input');
+                    if (!manualInputSection.classList.contains('expanded')) {
+                        toggleSection('manual-input');
+                    }
+                    if (firstPopulatedType) {
+                        showTab(firstPopulatedType);
+                    }
+                    document.getElementById('manual-input').parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+
+                } catch (error) {
+                    console.error("匯入 JSON 失敗:", error);
+                    playSound('error');
+                    statusMessage.textContent = '匯入失敗，檔案格式錯誤。';
+                    statusMessage.style.color = 'var(--danger)';
+                } finally {
+                    // 清空 file input 以便下次觸發 change
+                    event.target.value = null;
+                    setTimeout(() => statusMessage.textContent = '', 3000);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // --- Calculation Functions (Updated for Taiwan Code Compliance) ---
+        function calculateQuantitiesForColumn(form) {
+            const result = { rebars: [], calculationSteps: [], materials: {} }; const componentId = form.querySelector('.form-component-id')?.value || 'N/A'; const componentCount = parseInt(form.querySelector('.form-component-count')?.value) || 1; const componentFloor = form.querySelector('.form-component-floor')?.value === '自訂' ? form.querySelector('.custom-floor')?.value || 'N/A' : form.querySelector('.form-component-floor')?.value; const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'N/A'; const sectionLengthC = parseFloat(form.querySelector('.form-section-a')?.value) || 0; const sectionWidthC = parseFloat(form.querySelector('.form-section-b')?.value) || 0; const componentHeightC = parseFloat(form.querySelector('.form-component-height')?.value) || 0; const mainRebarCountC = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0; const mainRebarSizeC = form.querySelector('.form-main-rebar-size')?.value; const stirrupSizeC = form.querySelector('.form-stirrup-size')?.value; const stirrupSpacingC = parseFloat(form.querySelector('.form-stirrup-spacing')?.value.replace(' cm', '')) || 0; const connectorType = form.querySelector('.form-connector-type')?.value;
+            
+            // 修復: 強制將 Metadata 寫入 materials 物件，避免無鋼筋時資料遺失
+            if (sectionLengthC > 0 && sectionWidthC > 0 && componentHeightC > 0) { const concreteVolume = (sectionLengthC / 100) * (sectionWidthC / 100) * componentHeightC; const formworkArea = ((sectionLengthC / 100) + (sectionWidthC / 100)) * 2 * componentHeightC; const finishSelect = form.querySelector('.form-finish-material'); const generalFinishType = getFinishValue(finishSelect); const calcStrings = { concrete: `${sectionLengthC}cm x ${sectionWidthC}cm x ${componentHeightC}m`, formwork: `((${sectionLengthC}cm + ${sectionWidthC}cm) x 2) x ${componentHeightC}m`, finish: `((${sectionLengthC}cm + ${sectionWidthC}cm) x 2) x ${componentHeightC}m`, }; 
+            result.materials = { componentId, componentFloor, componentType: componentTypes.column, concreteVolume: concreteVolume * componentCount, formworkArea: formworkArea * componentCount, generalFinishType: generalFinishType, generalFinishArea: (generalFinishType !== '無') ? formworkArea * componentCount : 0, calculationStrings: calcStrings }; }
+            
+            if (!mainRebarSizeC || !stirrupSizeC || mainRebarCountC === 0 || componentHeightC === 0 || stirrupSpacingC === 0) { result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 輸入資料不足，無法計算鋼筋。`); return result; }
+            // 修正: 柱保護層維持 4cm
+            const cover = 4, hook135Ratio = 12, hook90Ratio = 12, lapRatio = 40; const mainRebarPropsC = getRebarProperties(mainRebarSizeC); const stirrupPropsC = getRebarProperties(stirrupSizeC); const totalHeightInCm = componentHeightC * 100; const lapLength_float = lapRatio * mainRebarPropsC.diameter; const lapLength = Math.ceil(lapLength_float);
+            result.calculationSteps.push(`--- 構件 (${componentTypes.column}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`); result.calculationSteps.push(`主筋計算:`); result.calculationSteps.push(`  - 搭接長度 (40db): ${lapRatio} * ${mainRebarPropsC.diameter.toFixed(3)} = ${lapLength_float.toFixed(2)} cm, 取 ${lapLength} cm`);
+            if (mainRebarCountC > 0) { const longRebarCount = Math.ceil(mainRebarCountC / 2); const shortRebarCount = Math.floor(mainRebarCountC / 2); const longRebarLength_float = totalHeightInCm + lapLength; const shortRebarLength_float = totalHeightInCm; const ceiledLong = Math.ceil(longRebarLength_float); const ceiledShort = Math.ceil(shortRebarLength_float); result.calculationSteps.push(`  - 主筋(長): ${totalHeightInCm.toFixed(2)} + ${lapLength} = ${ceiledLong} cm (${longRebarCount}根)`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: mainRebarSizeC, rebarType: '主筋(長)', shape: '直筋', singleLength: ceiledLong, singleWeight: (ceiledLong / 100) * mainRebarPropsC.weight, count: longRebarCount * componentCount, remarks: `柱主筋長筋`, componentType: componentTypes.column, componentCount, connectorType, A: ceiledLong }); result.calculationSteps.push(`  - 主筋(短): ${totalHeightInCm.toFixed(2)} = ${ceiledShort} cm (${shortRebarCount}根)`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: mainRebarSizeC, rebarType: '主筋(短)', shape: '直筋', singleLength: ceiledShort, singleWeight: (ceiledShort / 100) * mainRebarPropsC.weight, count: shortRebarCount * componentCount, remarks: `柱主筋短筋`, componentType: componentTypes.column, componentCount, connectorType, A: ceiledShort }); if (connectorType !== '無') { result.calculationSteps.push(`  - 續接器: ${mainRebarCountC} 個/個`); result.rebars.push({ itemType: 'accessory', name: '續接器', count: mainRebarCountC * componentCount, componentId, componentFloor, componentType: componentTypes.column, remarks: connectorType }); } }
+            if (stirrupSpacingC > 0 && sectionLengthC > 0 && sectionWidthC > 0) {
+                result.calculationSteps.push(`箍筋/繫筋計算:`); const effectiveLengthC_float = sectionLengthC - 2 * cover, effectiveWidthC_float = sectionWidthC - 2 * cover; const singleHook135_float = hook135Ratio * stirrupPropsC.diameter; const ceiledHook135 = Math.ceil(singleHook135_float); const ceiledEffectiveLength = Math.ceil(effectiveLengthC_float); const ceiledEffectiveWidth = Math.ceil(effectiveWidthC_float); const stirrupLength = (ceiledEffectiveLength * 2) + (ceiledEffectiveWidth * 2) + (2 * ceiledHook135); const stirrupCount = Math.floor((totalHeightInCm - 20) / stirrupSpacingC) + 2; 
+                result.calculationSteps.push(`  - 箍筋 (135°耐震彎鉤): ${ceiledHook135}(A) + ${ceiledEffectiveWidth}(B) + ${ceiledEffectiveLength}(C) + ${ceiledEffectiveWidth}(D) + ${ceiledEffectiveLength}(E) + ${ceiledHook135}(F) = ${stirrupLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeC, rebarType: '箍筋', shape: '矩形閉合', singleLength: stirrupLength, singleWeight: (stirrupLength / 100) * stirrupPropsC.weight, count: stirrupCount * componentCount, remarks: `柱箍筋`, componentType: componentTypes.column, componentCount, A: ceiledHook135, B: ceiledEffectiveWidth, C: ceiledEffectiveLength, D: ceiledEffectiveWidth, E: ceiledEffectiveLength, F: ceiledHook135 });
+                const tieCountPerStirrup = Math.floor((mainRebarCountC - 4) / 2);
+                if (tieCountPerStirrup > 0) { 
+                    // 修正: 繫筋改為一端90度，一端135度 (Crosstie)
+                    const hookLength90_float = hook90Ratio * stirrupPropsC.diameter; const ceiledHook90 = Math.ceil(hookLength90_float); 
+                    const mainLength1_float = sectionLengthC - 2 * cover; const ceiledMainLength1 = Math.ceil(mainLength1_float); 
+                    const tieLength1 = ceiledMainLength1 + ceiledHook90 + ceiledHook135; // 90 + Length + 135
+                    const mainLength2_float = sectionWidthC - 2 * cover; const ceiledMainLength2 = Math.ceil(mainLength2_float); 
+                    const tieLength2 = ceiledMainLength2 + ceiledHook90 + ceiledHook135; 
+                    
+                    result.calculationSteps.push(`  - 繫筋 (90°+135°): 90°鉤(${ceiledHook90}) + 長 + 135°鉤(${ceiledHook135})`); 
+                    if (sectionLengthC !== sectionWidthC) { 
+                        result.calculationSteps.push(`  - 繫筋(長): ${ceiledHook90} + ${ceiledMainLength1} + ${ceiledHook135} = ${tieLength1} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeC, rebarType: '繫筋(長)', shape: 'U型', singleLength: tieLength1, singleWeight: (tieLength1 / 100) * stirrupPropsC.weight, count: Math.ceil(tieCountPerStirrup / 2) * stirrupCount * componentCount, remarks: `柱繫筋(90+135)`, componentType: componentTypes.column, componentCount, A: ceiledHook90, B: ceiledMainLength1, C: ceiledHook135 }); 
+                        result.calculationSteps.push(`  - 繫筋(短): ${ceiledHook90} + ${ceiledMainLength2} + ${ceiledHook135} = ${tieLength2} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeC, rebarType: '繫筋(短)', shape: 'U型', singleLength: tieLength2, singleWeight: (tieLength2 / 100) * stirrupPropsC.weight, count: Math.floor(tieCountPerStirrup / 2) * stirrupCount * componentCount, remarks: `柱繫筋(90+135)`, componentType: componentTypes.column, componentCount, A: ceiledHook90, B: ceiledMainLength2, C: ceiledHook135 }); 
+                    } else { 
+                        result.calculationSteps.push(`  - 繫筋: ${ceiledHook90} + ${ceiledMainLength1} + ${ceiledHook135} = ${tieLength1} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeC, rebarType: '繫筋', shape: 'U型', singleLength: tieLength1, singleWeight: (tieLength1 / 100) * stirrupPropsC.weight, count: tieCountPerStirrup * stirrupCount * componentCount, remarks: `柱繫筋(90+135)`, componentType: componentTypes.column, componentCount, A: ceiledHook90, B: ceiledMainLength1, C: ceiledHook135 }); 
+                    } 
+                }
+            } return result;
+        }
+        function calculateQuantitiesForBeam(form) {
+            const result = { rebars: [], calculationSteps: [], materials: {} }; const componentId = form.querySelector('.form-component-id')?.value || 'N/A'; const componentCount = parseInt(form.querySelector('.form-component-count')?.value) || 1; const componentFloor = form.querySelector('.form-component-floor')?.value === '自訂' ? form.querySelector('.custom-floor')?.value || 'N/A' : form.querySelector('.form-component-floor')?.value; const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'N/A'; const componentLengthB = parseFloat(form.querySelector('.form-component-length')?.value) || 0; const sectionHeightB = parseFloat(form.querySelector('.form-section-a')?.value) || 0; const sectionWidthB = parseFloat(form.querySelector('.form-section-b')?.value) || 0; const mainRebarCountB = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0; const mainRebarSizeB = form.querySelector('.form-main-rebar-size')?.value; const stirrupSizeB = form.querySelector('.form-stirrup-size')?.value; const stirrupSpacingB = parseFloat(form.querySelector('.form-stirrup-spacing')?.value.replace(' cm', '')) || 0; const waistRebarSize = form.querySelector('.form-waist-rebar-size')?.value;
+            
+            // 修復: 強制將 Metadata 寫入 materials 物件
+            if (sectionWidthB > 0 && sectionHeightB > 0 && componentLengthB > 0) { const concreteVolume = (sectionWidthB / 100) * (sectionHeightB / 100) * componentLengthB; const formworkArea = ((sectionWidthB / 100) + 2 * (sectionHeightB / 100)) * componentLengthB; const finishSelect = form.querySelector('.form-finish-material'); const generalFinishType = getFinishValue(finishSelect); const calcStrings = { concrete: `${sectionWidthB}cm x ${sectionHeightB}cm x ${componentLengthB}m`, formwork: `(${sectionWidthB}cm + 2 x ${sectionHeightB}cm) x ${componentLengthB}m`, finish: `(${sectionWidthB}cm + 2 x ${sectionHeightB}cm) x ${componentLengthB}m`, }; 
+            result.materials = { componentId, componentFloor, componentType: componentTypes.beam, concreteVolume: concreteVolume * componentCount, formworkArea: formworkArea * componentCount, generalFinishType: generalFinishType, generalFinishArea: (generalFinishType !== '無') ? formworkArea * componentCount : 0, calculationStrings: calcStrings, }; }
+            
+            if (!mainRebarSizeB || !stirrupSizeB || componentLengthB === 0) { result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 輸入資料不足，無法計算鋼筋。`); return result; }
+            // 修正: 梁保護層維持 4cm, 增加135度彎鉤參數
+            const cover = 4, hook90Ratio = 12, hook135Ratio = 12; const mainRebarPropsB = getRebarProperties(mainRebarSizeB), stirrupPropsB = getRebarProperties(stirrupSizeB); result.calculationSteps.push(`--- 構件 (${componentTypes.beam}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`);
+            if (mainRebarCountB > 0) { result.calculationSteps.push(`主筋計算:`); const singleHook90_float = hook90Ratio * mainRebarPropsB.diameter; const mainLength_float = (componentLengthB * 100) - 2 * cover; const singleHook90 = Math.ceil(singleHook90_float); const mainLength = Math.ceil(mainLength_float); const totalLength = mainLength + 2 * singleHook90; result.calculationSteps.push(`  - 主筋彎鉤 (90°): ${hook90Ratio} * ${mainRebarPropsB.diameter.toFixed(3)} = ${singleHook90_float.toFixed(2)} cm, 取 ${singleHook90} cm`); result.calculationSteps.push(`  - 主筋單根長度: ${singleHook90} + ${mainLength} + ${singleHook90} = ${totalLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: mainRebarSizeB, rebarType: '主筋', shape: '兩端彎鉤', singleLength: totalLength, singleWeight: (totalLength / 100) * mainRebarPropsB.weight, count: mainRebarCountB * componentCount, remarks: `梁主筋`, componentType: componentTypes.beam, componentCount, A: singleHook90, B: mainLength, C: singleHook90 }); }
+            if (stirrupSpacingB > 0 && sectionHeightB > 0 && sectionWidthB > 0) { 
+                result.calculationSteps.push(`箍筋計算 (耐震彎鉤):`); const effectiveHeightB_float = sectionHeightB - 2 * cover, effectiveWidthB_float = sectionWidthB - 2 * cover; 
+                // 修正: 梁箍筋改用 135度 彎鉤 (Seismic Hook)
+                const singleHook135_float = hook135Ratio * stirrupPropsB.diameter; const effectiveHeightB = Math.ceil(effectiveHeightB_float); const effectiveWidthB = Math.ceil(effectiveWidthB_float); const singleHook135 = Math.ceil(singleHook135_float); const stirrupLength = (effectiveHeightB * 2) + (effectiveWidthB * 2) + (2 * singleHook135); const stirrupCount = Math.floor((componentLengthB * 100) / stirrupSpacingB); 
+                result.calculationSteps.push(`  - 箍筋彎鉤 (135°): ${hook135Ratio} * ${stirrupPropsB.diameter.toFixed(3)} = ${singleHook135_float.toFixed(2)} cm, 取 ${singleHook135} cm`); result.calculationSteps.push(`  - 箍筋單根長度: ${singleHook135}(A) + ${effectiveWidthB}(B) + ${effectiveHeightB}(C) + ${effectiveWidthB}(D) + ${effectiveHeightB}(E) + ${singleHook135}(F) = ${stirrupLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeB, rebarType: '箍筋', shape: '矩形閉合', singleLength: stirrupLength, singleWeight: (stirrupLength / 100) * stirrupPropsB.weight, count: stirrupCount * componentCount, remarks: `梁箍筋(耐震)`, componentType: componentTypes.beam, componentCount, A: singleHook135, B: effectiveWidthB, C: effectiveHeightB, D: effectiveWidthB, E: effectiveHeightB, F: singleHook135 }); 
+            }
+            // 修正: 腰筋規範改為 > 90cm
+            if (sectionHeightB > 90 && waistRebarSize) { result.calculationSteps.push(`腰筋計算 (梁深>90cm):`); const waistRebarProps = getRebarProperties(waistRebarSize); const waistRebarCount = Math.floor((sectionHeightB - 90) / 30) * 2 + 2; const waistRebarLength_float = (componentLengthB * 100) - (2 * cover); const waistRebarLength = Math.ceil(waistRebarLength_float); result.calculationSteps.push(`  - 腰筋數量: floor((${sectionHeightB} - 90) / 30) * 2 + 2 = ${waistRebarCount} 根/個`); result.calculationSteps.push(`  - 腰筋單根長度: ${componentLengthB * 100} - 2 * ${cover} = ${waistRebarLength_float.toFixed(2)} cm, 取 ${waistRebarLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: waistRebarSize, rebarType: '腰筋', shape: '直筋', singleLength: waistRebarLength, singleWeight: (waistRebarLength / 100) * waistRebarProps.weight, count: waistRebarCount * componentCount, remarks: `梁腰筋`, componentType: componentTypes.beam, componentCount, A: waistRebarLength }); }
+            return result;
+        }
+        function calculateQuantitiesForSlabOrWall(form, type) {
+            const result = { rebars: [], calculationSteps: [], materials: {} }; const isSlab = type === 'slab'; const componentId = form.querySelector('.form-component-id')?.value || 'N/A'; const componentCount = parseInt(form.querySelector('.form-component-count')?.value) || 1; const componentFloor = form.querySelector('.form-component-floor')?.value === '自訂' ? form.querySelector('.custom-floor')?.value || 'N/A' : form.querySelector('.form-component-floor')?.value; const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'N/A'; const length = parseFloat(form.querySelector('.form-component-length')?.value) || 0; const widthOrHeight = parseFloat(form.querySelector(isSlab ? '.form-component-width' : '.form-component-height')?.value) || 0; const thickness = parseFloat(form.querySelector('.form-component-thickness')?.value) || 0; const rebarLayers = form.querySelector('.form-rebar-layers')?.value; const rebarSizeX = form.querySelector('.form-main-rebar-size-x')?.value, rebarSpacingX = parseFloat(form.querySelector('.form-rebar-spacing-x')?.value.replace(' cm', '')) || 0; const rebarSizeY = form.querySelector('.form-main-rebar-size-y')?.value, rebarSpacingY = parseFloat(form.querySelector('.form-rebar-spacing-y')?.value.replace(' cm', '')) || 0; const maxLengthSelect = form.querySelector('.form-max-length')?.value; let maxCutLength = (maxLengthSelect === '自訂') ? parseFloat(form.querySelector('.custom-max-length')?.value) || 0 : parseFloat(maxLengthSelect.replace(' m', '')) || 0;
+            
+            // 修復: 強制將 Metadata 寫入 materials 物件
+            if (length > 0 && widthOrHeight > 0 && thickness > 0) { const concreteVolume = length * widthOrHeight * (thickness / 100); if (isSlab) { const area = length * widthOrHeight; const floorFinishSelect = form.querySelector('.form-floor-finish'); const ceilingFinishSelect = form.querySelector('.form-ceiling-finish'); const floorFinishType = getFinishValue(floorFinishSelect); const ceilingFinishType = getFinishValue(ceilingFinishSelect); const calcStrings = { concrete: `${length}m x ${widthOrHeight}m x ${thickness}cm`, formwork: `${length}m x ${widthOrHeight}m`, floorFinish: `${length}m x ${widthOrHeight}m`, ceilingFinish: `${length}m x ${widthOrHeight}m`, }; 
+            result.materials = { componentId, componentFloor, componentType: componentTypes[type], concreteVolume: concreteVolume * componentCount, formworkArea: area * componentCount, floorFinishType: floorFinishType, floorFinishArea: (floorFinishType !== '無') ? area * componentCount : 0, ceilingFinishType: ceilingFinishType, ceilingFinishArea: (ceilingFinishType !== '無') ? area * componentCount : 0, calculationStrings: calcStrings, }; } else { const area = length * widthOrHeight; const intFinishSelect = form.querySelector('.form-interior-finish'); const extFinishSelect = form.querySelector('.form-exterior-finish'); const interiorFinishType = getFinishValue(intFinishSelect); const exteriorFinishType = getFinishValue(extFinishSelect); const calcStrings = { concrete: `${length}m x ${widthOrHeight}m x ${thickness}cm`, formwork: `(${length}m x ${widthOrHeight}m) x 2`, interiorFinish: `${length}m x ${widthOrHeight}m`, exteriorFinish: `${length}m x ${widthOrHeight}m`, }; 
+            result.materials = { componentId, componentFloor, componentType: componentTypes[type], concreteVolume: concreteVolume * componentCount, formworkArea: area * 2 * componentCount, interiorFinishType: interiorFinishType, interiorFinishArea: (interiorFinishType !== '無') ? area * componentCount : 0, exteriorFinishType: exteriorFinishType, exteriorFinishArea: (exteriorFinishType !== '無') ? area * componentCount : 0, calculationStrings: calcStrings, }; } }
+            
+            if (length === 0 || widthOrHeight === 0 || maxCutLength === 0 || thickness === 0) { result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 輸入資料不足，無法計算鋼筋。`); return result; }
+            // 修正: 版保護層改為 2cm (一般室內)，牆維持 4cm (假設外牆) 或 2cm (內牆)。這裡版使用 2cm，牆使用 3cm 比較通用。
+            const rebarSets = rebarLayers === '雙層' ? 2 : 1, lapRatio = 40;
+            const cover = isSlab ? 2 : 3; 
+            const hookLength_float = thickness - (2 * cover); const hookLength = Math.ceil(hookLength_float); result.calculationSteps.push(`--- 構件 (${componentTypes[type]}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`); result.calculationSteps.push(`彎鉤長度 (90°): ${thickness} (厚) - 2 * ${cover} (保) = ${hookLength_float.toFixed(2)} cm, 取 ${hookLength} cm`);
+            const directions = [{ dir: 'X', size: rebarSizeX, spacing: rebarSpacingX, runLength: length * 100, countDim: widthOrHeight * 100, rebarType: isSlab ? '版主筋(X)' : '水平筋(X)' }, { dir: 'Y', size: rebarSizeY, spacing: rebarSpacingY, runLength: widthOrHeight * 100, countDim: length * 100, rebarType: isSlab ? '版主筋(Y)' : '垂直筋(Y)' }];
+            directions.forEach(({ dir, size, spacing, runLength, countDim, rebarType }) => {
+                if (spacing > 0 && size) { const rebarProps = getRebarProperties(size); const numberOfBars = Math.floor(countDim / spacing) + 1; const lapLengthCm_float = lapRatio * rebarProps.diameter; const lapLengthCm = Math.ceil(lapLengthCm_float); const maxCutLengthCm = maxCutLength * 100; result.calculationSteps.push(`${rebarType} 計算:`); result.calculationSteps.push(`  - 根數: floor(${countDim.toFixed(2)} / ${spacing}) + 1 = ${numberOfBars} 根/層`); result.calculationSteps.push(`  - 搭接長度: ${lapRatio} * ${rebarProps.diameter.toFixed(3)} = ${lapLengthCm_float.toFixed(2)} cm, 取 ${lapLengthCm} cm`); if (runLength <= maxCutLengthCm) { const singleLength_float = runLength - (2 * cover); const singleLength = Math.ceil(singleLength_float); const totalLength = singleLength + (2 * hookLength); result.calculationSteps.push(`  - 撿料長度 ${runLength.toFixed(2)} cm <= 最大長度 ${maxCutLengthCm.toFixed(2)} cm. 採用單支兩端彎鉤筋。`); result.calculationSteps.push(`  - 單根長度: ${hookLength} + ${singleLength} + ${hookLength} = ${totalLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: size, rebarType, shape: '兩端彎鉤', singleLength: totalLength, singleWeight: (totalLength / 100) * rebarProps.weight, count: numberOfBars * rebarSets * componentCount, remarks: ``, componentType: componentTypes[type], componentCount, A: hookLength, B: singleLength, C: hookLength }); } else { const runLengthInner = runLength - (2 * cover); const numPieces = Math.ceil(runLengthInner / (maxCutLengthCm - lapLengthCm)); const numLaps = numPieces - 1; const avgPieceLength_float = (runLengthInner + numLaps * lapLengthCm) / numPieces; const avgPieceLength = Math.ceil(avgPieceLength_float); result.calculationSteps.push(`  - 撿料長度 ${runLength.toFixed(2)} cm > 最大長度 ${maxCutLengthCm.toFixed(2)} cm. 需要 ${numLaps} 個搭接, 拆為 ${numPieces} 支鋼筋。`); result.calculationSteps.push(`  - 每段平均長度(含搭接): (${runLengthInner.toFixed(2)} + ${numLaps} * ${lapLengthCm}) / ${numPieces} = ${avgPieceLength_float.toFixed(2)} cm, 取 ${avgPieceLength} cm`); const startLength = avgPieceLength + hookLength; result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: size, rebarType: `${rebarType}-起`, shape: 'L型', singleLength: startLength, singleWeight: (startLength / 100) * rebarProps.weight, count: numberOfBars * rebarSets * componentCount, remarks: '長料搭接', componentType: componentTypes[type], componentCount, A: hookLength, B: avgPieceLength }); if(numPieces > 2) { for (let i = 0; i < numPieces - 2; i++) { result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: size, rebarType: `${rebarType}-中${i+1}`, shape: '直筋', singleLength: avgPieceLength, singleWeight: (avgPieceLength / 100) * rebarProps.weight, count: numberOfBars * rebarSets * componentCount, remarks: '長料搭接', componentType: componentTypes[type], componentCount, A: avgPieceLength }); } } const endLength = avgPieceLength + hookLength; result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: size, rebarType: `${rebarType}-末`, shape: 'L型', singleLength: endLength, singleWeight: (endLength / 100) * rebarProps.weight, count: numberOfBars * rebarSets * componentCount, remarks: '長料搭接', componentType: componentTypes[type], componentCount, A: avgPieceLength, B: hookLength }); } }
+            });
+            if (isSlab) { if (rebarLayers === '雙層') { result.calculationSteps.push(`椅馬筋計算:`); const chairRebarSize = '#4 (13mm)'; const chairRebarProps = getRebarProperties(chairRebarSize); const chairCount = Math.ceil(length * widthOrHeight / 0.81) * componentCount; const legHeight_float = thickness - 2 * cover - getRebarProperties(rebarSizeX).diameter - getRebarProperties(rebarSizeY).diameter; const topLength = 30, footLength = 30; const legHeight = Math.ceil(legHeight_float); const singleLength = topLength + 2 * legHeight + 2 * footLength; result.calculationSteps.push(`  - 數量 (90cm間距): ceil(${length} * ${widthOrHeight} / 0.81) * ${componentCount} = ${chairCount} 支`); result.calculationSteps.push(`  - 單支尺寸: ${footLength}(腳)+${legHeight}(腳高)+${topLength}(頂)+${legHeight}(腳高)+${footLength}(腳) = ${singleLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: chairRebarSize, rebarType: '椅馬筋', shape: '椅馬', singleLength, singleWeight: (singleLength / 100) * chairRebarProps.weight, count: chairCount, remarks: '雙層板用', componentType: componentTypes.slab, componentCount, A: footLength, B: legHeight, C: topLength, D: legHeight, E: footLength }); } result.calculationSteps.push(`水泥墊塊計算:`); const spacerCount = Math.ceil(length * widthOrHeight) * rebarSets * componentCount; result.calculationSteps.push(`  - 數量 (1m間距): ceil(${length} * ${widthOrHeight}) * ${rebarSets} (層) * ${componentCount} = ${spacerCount} 個`); result.rebars.push({ itemType: 'accessory', name: '水泥墊塊', count: spacerCount, componentId, componentFloor, componentType: componentTypes.slab, remarks: `間距約 1m x 1m` }); }
+            return result;
+        }
+        function calculateQuantitiesForPile(form) {
+            const result = { rebars: [], calculationSteps: [], materials: {} }; const componentId = form.querySelector('.form-component-id')?.value || 'N/A'; const componentCount = parseInt(form.querySelector('.form-component-count')?.value) || 1; const componentFloor = form.querySelector('.form-component-floor')?.value === '自訂' ? form.querySelector('.custom-floor')?.value || 'N/A' : form.querySelector('.form-component-floor')?.value; const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'N/A'; const componentDiameterP = parseFloat(form.querySelector('.form-component-diameter')?.value) || 0, componentLengthP = parseFloat(form.querySelector('.form-component-length')?.value) || 0; const mainRebarCountP = parseInt(form.querySelector('.form-main-rebar-count')?.value) || 0, mainRebarSizeP = form.querySelector('.form-main-rebar-size')?.value; const stirrupSizeP = form.querySelector('.form-stirrup-size')?.value, stirrupSpacingP = parseFloat(form.querySelector('.form-stirrup-spacing')?.value.replace(' cm', '')) || 0; const connectorType = form.querySelector('.form-connector-type')?.value;
+            
+            // 修復: 強制將 Metadata 寫入 materials 物件
+            if (componentDiameterP > 0 && componentLengthP > 0) { const radius = componentDiameterP / 2; const concreteVolume = Math.PI * radius * radius * componentLengthP; const formworkArea = Math.PI * componentDiameterP * componentLengthP; const finishSelect = form.querySelector('.form-finish-material'); const generalFinishType = getFinishValue(finishSelect); const calcStrings = { concrete: `π x (${radius.toFixed(2)}m)² x ${componentLengthP}m`, formwork: `π x ${componentDiameterP}m x ${componentLengthP}m`, finish: `π x ${componentDiameterP}m x ${componentLengthP}m`, }; 
+            result.materials = { componentId, componentFloor, componentType: componentTypes.pile, concreteVolume: concreteVolume * componentCount, formworkArea: formworkArea * componentCount, generalFinishType: generalFinishType, generalFinishArea: (generalFinishType !== '無') ? formworkArea * componentCount : 0, calculationStrings: calcStrings, } }
+            
+            if (componentDiameterP === 0 || componentLengthP === 0) { result.calculationSteps.push(`${componentId} (樓層: ${componentFloor}) - 輸入資料不足，無法計算鋼筋。`); return result; }
+            result.calculationSteps.push(`--- 構件 (${componentTypes.pile}) 編號: ${componentId}, 樓層: ${componentFloor}, 數量: ${componentCount} ---`); const cover = 7.5;
+            if (mainRebarCountP > 0 && mainRebarSizeP) { result.calculationSteps.push(`主筋計算:`); const mainRebarPropsP = getRebarProperties(mainRebarSizeP); const totalMainRebarLength_float = componentLengthP * 100; const totalMainRebarLength = Math.ceil(totalMainRebarLength_float); result.calculationSteps.push(`  - 單根長度: ${totalMainRebarLength_float.toFixed(2)} cm, 進位取 ${totalMainRebarLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: mainRebarSizeP, rebarType: '主筋', shape: '直筋', singleLength: totalMainRebarLength, singleWeight: (totalMainRebarLength / 100) * mainRebarPropsP.weight, count: mainRebarCountP * componentCount, remarks: `樁主筋`, componentType: componentTypes.pile, componentCount, connectorType, A: totalMainRebarLength }); }
+            if (stirrupSpacingP > 0 && stirrupSizeP) { result.calculationSteps.push(`箍筋計算 (螺旋):`); const stirrupPropsP = getRebarProperties(stirrupSizeP); const effectiveDiameter_float = (componentDiameterP * 100) - (2 * cover); const stirrupPerimeter_float = Math.PI * effectiveDiameter_float; const stirrupCount = Math.floor((componentLengthP * 100) / stirrupSpacingP); const totalSpiralLength_float = stirrupPerimeter_float * stirrupCount; const totalSpiralLength = Math.ceil(totalSpiralLength_float); result.calculationSteps.push(`  - 有效直徑: ${componentDiameterP*100} - 2 * ${cover} = ${effectiveDiameter_float.toFixed(2)} cm`); result.calculationSteps.push(`  - 單圈長度: PI * ${effectiveDiameter_float.toFixed(2)} = ${stirrupPerimeter_float.toFixed(2)} cm`); result.calculationSteps.push(`  - 總圈數: floor(${componentLengthP*100} / ${stirrupSpacingP}) = ${stirrupCount} 圈`); result.calculationSteps.push(`  - 總長度: ${stirrupPerimeter_float.toFixed(2)} * ${stirrupCount} = ${totalSpiralLength_float.toFixed(2)} cm, 進位取 ${totalSpiralLength} cm`); result.rebars.push({ componentId, componentFloor, rebarGrade, rebarSize: stirrupSizeP, rebarType: '箍筋', shape: '螺旋', singleLength: totalSpiralLength, singleWeight: (totalSpiralLength / 100) * stirrupPropsP.weight, count: 1 * componentCount, remarks: `樁螺旋箍筋`, componentType: componentTypes.pile, componentCount }); }
+            return result;
+        }
+        function calculateQuantitiesForMisc(form) {
+            const result = { rebars: [], calculationSteps: [], materials: {} }; const remarks = form.querySelector('.form-rebar-remarks')?.value || 'N/A'; const componentFloor = form.querySelector('.form-component-floor')?.value === '自訂' ? form.querySelector('.custom-floor')?.value || 'N/A' : form.querySelector('.form-component-floor')?.value; const rebarGrade = form.querySelector('.form-rebar-grade')?.value || 'N/A'; const rebarSize = form.querySelector('.form-rebar-size')?.value; const rebarShape = form.querySelector('.form-rebar-shape')?.value; const rebarCount = parseInt(form.querySelector('.form-rebar-count')?.value) || 0;
+            if (rebarCount === 0 || !rebarSize) { result.calculationSteps.push(`${remarks} (樓層: ${componentFloor}) - 輸入資料不足，無法計算。`); return result; }
+            result.calculationSteps.push(`--- 工作筋 (${remarks}), 樓層: ${componentFloor} ---`); let singleLengthCm = 0; let rebarData = { A: '', B: ''};
+            if (rebarShape === '直筋') { const singleLengthCm_float = parseFloat(form.querySelector('.form-rebar-length')?.value) || 0; const ceiledLength = Math.ceil(singleLengthCm_float); rebarData.A = ceiledLength; singleLengthCm = ceiledLength; result.calculationSteps.push(`  - 形狀: 直筋, 長度: ${singleLengthCm_float.toFixed(2)} cm, 進位取 ${ceiledLength} cm`); } 
+            else if (rebarShape === 'L型') { const length1_float = parseFloat(form.querySelector('.form-rebar-length-1')?.value) || 0; const length2_float = parseFloat(form.querySelector('.form-rebar-length-2')?.value) || 0; const length1 = Math.ceil(length1_float); const length2 = Math.ceil(length2_float); singleLengthCm = length1 + length2; rebarData.A = length1; rebarData.B = length2; result.calculationSteps.push(`  - 形狀: L型, 長度: ${length1_float.toFixed(2)} cm + ${length2_float.toFixed(2)} cm. 進位後為 ${length1} cm + ${length2} cm = ${singleLengthCm} cm`); }
+            if (singleLengthCm === 0) { result.calculationSteps.push(`${remarks} (樓層: ${componentFloor}) - 輸入資料不足，無法計算。`); return result; }
+            const rebarProps = getRebarProperties(rebarSize); result.rebars.push({ ...rebarData, componentId: remarks, componentFloor, rebarGrade, rebarSize, rebarType: '工作筋', shape: rebarShape, singleLength: singleLengthCm, singleWeight: (singleLengthCm / 100) * rebarProps.weight, count: rebarCount, remarks, componentType: componentTypes.misc, componentCount: rebarCount });
+            return result;
+        }
+        function collectCalculationInstructions() { 
+            return [ 
+                ["計算說明與依據"], 
+                ["本撿料工具之計算邏輯係參照台灣常用營建實務，並整合 CNS 國家標準與 ACI 318 規範之原則。"], 
+                [""], 
+                ["【總則】"], 
+                ["1. 鋼筋重量: 單位長度重量（kg/m）依據 CNS 560 (2018) 鋼筋混凝土用鋼筋標準 (D29, D32, D36 重量已更新)。"], 
+                ["2. 保護層 (Cover): 預設值如下，柱、梁為 4cm；牆為 3cm；樓版 (Slab) 為 2cm；樁基礎為 7.5cm。"], 
+                ["3. 搭接長度 (Lap Splice): 依 ACI 318 規範建議，預設搭接長度為 40db (db = 鋼筋直徑)。"], 
+                ["4. 彎鉤長度 (Hook): 135度彎鉤為 12db；90度彎鉤為 12db。"], 
+                ["5. 尺寸進位: 所有計算出的鋼筋各段長度，均採無條件進位至整數公分。"], 
+                ["6. 數量計算: 模板、混凝土與面材數量為概算值，未考慮開口、重複及損耗。"], 
+                [""], 
+                ["【構件細則】"], 
+                ["7. 柱 (Column):"], 
+                ["   - 主筋: 採長短筋交錯配置，長筋長度 = 樓層高 + 1 搭接長度。"], 
+                ["   - 箍筋數量: floor((樓層高 - 20cm) / 間距) + 2，此為簡化計算，並採用 135度耐震彎鉤。"], 
+                ["   - 繫筋數量: 單層繫筋數 = floor((主筋總數 - 4) / 2)，採用一端 90°、一端 135° 彎鉤配置。"], 
+                [""], 
+                ["8. 樑 (Beam):"], 
+                ["   - 主筋: 主長度已扣除兩側保護層 (4cm)。"], 
+                ["   - 箍筋: 採用 135度耐震彎鉤。"], 
+                ["   - 腰筋: 當梁深超過 90cm 時，依規範每30cm增加一排(2根)腰筋。"], 
+                [""], 
+                ["9. 版 (Slab) & 牆 (Wall):"], 
+                ["   - 版模板: 僅計算底部(坪頂)一面。"], 
+                ["   - 短向鋼筋 (< 最大撿料長度): 計算為一支兩端帶90度彎鉤之鋼筋。"], 
+                ["   - 長向鋼筋 (> 最大撿料長度): 自動拆解為多支鋼筋以符合撿料長度。系統會計算所需搭接數，並拆解為「L型(起)」、「直筋(中)」、「L型(末)」三種類型。"], 
+                ["   - 椅馬筋 (Slab Chair): 雙層板筋專用，以 90cm x 90cm 間距估算數量。"], 
+                ["   - 水泥墊塊 (Spacer): 以 1m x 1m 間距估算數量。"], 
+                [""], 
+                ["10. 樁 (Pile):"], 
+                ["   - 箍筋: 視為連續之螺旋箍筋，總長度 = (樁長 / 間距) x (箍筋單圈周長)。"], 
+                [""], 
+                ["【免責聲明】"], 
+                ["本工具為輔助性質，所有計算結果應由專業技師複核，並以最終施工圖與工程規範為準。對於因使用本工具所造成的任何損失，開發者概不負責。"] 
+            ]; 
+        }
+        function calculateAndExport() {
+            playSound('success');
+            const statusMessage = document.getElementById('status-message'); statusMessage.textContent = '正在計算數據並生成 Excel...'; statusMessage.style.color = 'var(--accent-cyan)';
+            const allCalcs = []; const calculationDetails = [];
+            ['column', 'beam', 'slab', 'wall', 'pile', 'misc'].forEach(type => { document.querySelectorAll(`#${type}-panel .rebar-input-container`).forEach(form => { let result; switch(type) { case 'column': result = calculateQuantitiesForColumn(form); break; case 'beam': result = calculateQuantitiesForBeam(form); break; case 'slab': result = calculateQuantitiesForSlabOrWall(form, 'slab'); break; case 'wall': result = calculateQuantitiesForSlabOrWall(form, 'wall'); break; case 'pile': result = calculateQuantitiesForPile(form); break; case 'misc': result = calculateQuantitiesForMisc(form); break; } if (result) { allCalcs.push(result); if (result.calculationSteps) { calculationDetails.push(...result.calculationSteps, ''); } } }); });
+            const dataByFloor = {}; const rebarSummary = {}; const accessorySummary = {}; const materialSummary = { totalConcrete: 0, totalFormwork: 0, finishes: {} };
+            const components = new Map();
+            
+            // 修復: 優先使用 materials 物件中的 Metadata，若無則嘗試從 rebars 獲取，確保資料不遺失
+            allCalcs.forEach(calc => { 
+                const firstItem = (Object.keys(calc.materials).length > 0) ? calc.materials : (calc.rebars?.[0]); 
+                if (!firstItem) return; 
+                
+                const componentId = firstItem.componentId || (calc.rebars.length > 0 ? calc.rebars[0].componentId : 'N/A'); 
+                const componentFloor = firstItem.componentFloor || (calc.rebars.length > 0 ? calc.rebars[0].componentFloor : '未分類'); 
+                const componentType = firstItem.componentType || (calc.rebars.length > 0 ? calc.rebars[0].componentType : 'N/A'); 
+                
+                const key = `${componentFloor}-${componentId}-${componentType}`; 
+                if (!components.has(key)) { 
+                    components.set(key, { componentId: componentId, componentFloor: componentFloor, componentType: componentType, ...calc.materials, rebars: calc.rebars || [], }); 
+                } 
+            });
+            
+            components.forEach(component => {
+                materialSummary.totalConcrete += component.concreteVolume || 0; materialSummary.totalFormwork += component.formworkArea || 0; const finishTypes = [ { type: component.generalFinishType, area: component.generalFinishArea }, { type: component.floorFinishType, area: component.floorFinishArea }, { type: component.ceilingFinishType, area: component.ceilingFinishArea }, { type: component.interiorFinishType, area: component.interiorFinishArea }, { type: component.exteriorFinishType, area: component.exteriorFinishArea }, ]; finishTypes.forEach(finish => { if (finish.type && finish.type !== '無' && finish.area > 0) { if (!materialSummary.finishes[finish.type]) materialSummary.finishes[finish.type] = 0; materialSummary.finishes[finish.type] += finish.area; } });
+                (component.rebars || []).forEach(rebar => { if (rebar.itemType === 'accessory') { const name = rebar.name || '未命名配件'; if (!accessorySummary[name]) { accessorySummary[name] = 0; } accessorySummary[name] += rebar.count || 0; } else { const rebarKey = `${rebar.rebarSize} (${rebar.rebarGrade})`; if (!rebarSummary[rebarKey]) rebarSummary[rebarKey] = { totalWeight: 0, totalLength: 0 }; rebarSummary[rebarKey].totalWeight += (rebar.singleWeight || 0) * (rebar.count || 0); rebarSummary[rebarKey].totalLength += ((rebar.singleLength || 0) / 100) * (rebar.count || 0); } });
+                const floor = component.componentFloor || '未分類'; if (!dataByFloor[floor]) dataByFloor[floor] = []; dataByFloor[floor].push(component);
+            });
+            const wb = XLSX.utils.book_new();
+            const infoData = [['NOVERA 材料計算清單'], ['© 2024 NOVERA (諾維拉土木技師事務所) 版權所有，侵權必究。'], [], ['項目', '內容'], ['工程名稱', document.getElementById('project-name')?.value || ''], ['建設公司', document.getElementById('company-name')?.value || ''], ['設計單位', document.getElementById('design-company')?.value || ''], ['工程地點', document.getElementById('location')?.value || ''], ['計算日期', document.getElementById('date')?.value || ''], ['承包廠商', document.getElementById('vendor')?.value || ''], ['撿料單位', document.getElementById('novera')?.value || ''], [], ['備註', '※ 料單未含損耗'], ['免責聲明', '本工具僅供輔助使用，所有數據應以實際工程規範及設計圖為準。']]; const wsInfo = XLSX.utils.aoa_to_sheet(infoData); XLSX.utils.book_append_sheet(wb, wsInfo, '工程資訊');
+            const summaryRebarData = [['鋼筋總計'], ['鋼筋尺寸', '總長度 (m)', '總重 (kg)']]; Object.keys(rebarSummary).sort().forEach(size => { summaryRebarData.push([size, rebarSummary[size].totalLength.toFixed(2), rebarSummary[size].totalWeight.toFixed(2)]); }); const summaryAccessoryData = [[''], ['配件總計'], ['配件項目', '總數量', '單位']]; Object.entries(accessorySummary).forEach(([name, count]) => { const unit = name.includes('續接器') ? '組' : '個'; summaryAccessoryData.push([name, count, unit]); }); const summaryMaterialData = [[''], ['其他材料總計'], ['材料項目', '總數量', '單位']]; summaryMaterialData.push(['混凝土', materialSummary.totalConcrete.toFixed(2), 'm³']); summaryMaterialData.push(['模板', materialSummary.totalFormwork.toFixed(2), 'm²']); Object.entries(materialSummary.finishes).forEach(([type, area]) => { summaryMaterialData.push([type, area.toFixed(2), 'm²']); }); const wsSummary = XLSX.utils.aoa_to_sheet(summaryRebarData); if (Object.keys(accessorySummary).length > 0) { XLSX.utils.sheet_add_aoa(wsSummary, summaryAccessoryData, { origin: -1 }); } XLSX.utils.sheet_add_aoa(wsSummary, summaryMaterialData, { origin: -1 });
+            const sortedComponents = Array.from(components.values()).sort((a, b) => { const floorA = a.componentFloor || ''; const floorB = b.componentFloor || ''; const idA = a.componentId || ''; const idB = b.componentId || ''; const floorComp = floorA.localeCompare(floorB); if (floorComp !== 0) return floorComp; return idA.localeCompare(idB); }); const concreteBreakdown = [[''], ['混凝土數量明細'], ['樓層', '構件類型', '構件編號', '計算式', '數量 (m³)']]; const formworkBreakdown = [[''], ['模板面積明細'], ['樓層', '構件類型', '構件編號', '計算式', '面積 (m²)']]; const finishBreakdowns = {};
+            sortedComponents.forEach(component => { const calcStrings = component.calculationStrings || {}; if ((component.concreteVolume || 0) > 0) { concreteBreakdown.push([component.componentFloor, component.componentType, component.componentId, calcStrings.concrete || '', component.concreteVolume.toFixed(2)]); } if ((component.formworkArea || 0) > 0) { formworkBreakdown.push([component.componentFloor, component.componentType, component.componentId, calcStrings.formwork || '', component.formworkArea.toFixed(2)]); } const componentFinishes = [ { type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish }, { type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish }, { type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish }, { type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish }, { type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish }, ]; componentFinishes.forEach(f => { if (f.type && f.type !== '無' && f.area > 0) { if (!finishBreakdowns[f.type]) { finishBreakdowns[f.type] = [[''], [`${f.type} 面積明細`], ['樓層', '構件類型', '構件編號', '計算式', '面積 (m²)']]; } finishBreakdowns[f.type].push([component.componentFloor, component.componentType, component.componentId, f.calc || '', f.area.toFixed(2)]); } }); });
+            concreteBreakdown.push(['', '', '', '總計', materialSummary.totalConcrete.toFixed(2)]); formworkBreakdown.push(['', '', '', '總計', materialSummary.totalFormwork.toFixed(2)]); Object.keys(finishBreakdowns).forEach(type => { finishBreakdowns[type].push(['', '', '', '總計', (materialSummary.finishes[type] || 0).toFixed(2)]); }); XLSX.utils.sheet_add_aoa(wsSummary, concreteBreakdown, { origin: -1 }); XLSX.utils.sheet_add_aoa(wsSummary, formworkBreakdown, { origin: -1 }); Object.values(finishBreakdowns).sort((a,b) => a[1][0].localeCompare(b[1][0])).forEach(breakdown => { XLSX.utils.sheet_add_aoa(wsSummary, breakdown, { origin: -1 }); }); XLSX.utils.book_append_sheet(wb, wsSummary, '總計');
+            const standardFloorsOrder = ['B1', '1F', '2F', '3F', '4F']; const sortedFloors = Object.keys(dataByFloor).sort((a, b) => { const aIndex = standardFloorsOrder.indexOf(a); const bIndex = standardFloorsOrder.indexOf(b); if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex; if (aIndex !== -1) return -1; if (bIndex !== -1) return 1; return a.localeCompare(b); });
+            sortedFloors.forEach(floor => {
+                const floorComponents = dataByFloor[floor]; const floorRebarJson = []; const floorMaterialJson = []; const materialHeaders = ['構件類型', '構件編號', '混凝土體積 (m³)', '混凝土計算式', '模板面積 (m²)', '模板計算式']; const usedFinishHeaders = new Set();
+                floorComponents.forEach(component => {
+                    const calcStrings = component.calculationStrings || {}; const materialRow = { '構件類型': component.componentType, '構件編號': component.componentId, '混凝土體積 (m³)': (component.concreteVolume || 0) > 0 ? (component.concreteVolume || 0).toFixed(2) : '', '混凝土計算式': calcStrings.concrete || '', '模板面積 (m²)': (component.formworkArea || 0) > 0 ? (component.formworkArea || 0).toFixed(2) : '', '模板計算式': calcStrings.formwork || '', }; const finishTypes = [ { header: '面材 (柱/樑/樁)', type: component.generalFinishType, area: component.generalFinishArea, calc: calcStrings.finish }, { header: '版上面材', type: component.floorFinishType, area: component.floorFinishArea, calc: calcStrings.floorFinish }, { header: '版下面材', type: component.ceilingFinishType, area: component.ceilingFinishArea, calc: calcStrings.ceilingFinish }, { header: '內牆面材', type: component.interiorFinishType, area: component.interiorFinishArea, calc: calcStrings.interiorFinish }, { header: '外牆面材', type: component.exteriorFinishType, area: component.exteriorFinishArea, calc: calcStrings.exteriorFinish }, ];
+                    finishTypes.forEach(f => { if (f.type && f.type !== '無' && (f.area || 0) > 0) { const header = `${f.header} (${f.type})`; const qtyHeader = `${header} 數量 (m²)`; const calcHeader = `${header} 計算式`; materialRow[qtyHeader] = (f.area || 0).toFixed(2); materialRow[calcHeader] = f.calc || ''; usedFinishHeaders.add(qtyHeader); usedFinishHeaders.add(calcHeader); } });
+                    floorMaterialJson.push(materialRow);
+                    (component.rebars || []).forEach(rebar => { if (rebar.itemType === 'accessory') { floorRebarJson.push({ '構件類型': rebar.componentType, '構件編號': rebar.componentId, '鋼筋用途': rebar.name, '總根數': rebar.count, '備註': rebar.remarks }); } else { floorRebarJson.push({ '構件類型': rebar.componentType, '構件編號': rebar.componentId, '鋼筋用途': rebar.rebarType, '鋼筋牌號': rebar.rebarGrade, '鋼筋尺寸': rebar.rebarSize, '續接器': rebar.connectorType || '無', '鋼筋形狀': rebar.shape, 'A': rebar.A || '', 'B': rebar.B || '', 'C': rebar.C || '', 'D': rebar.D || '', 'E': rebar.E || '', 'F': rebar.F || '', '單根長度 (cm)': rebar.singleLength, '單構件根數': (rebar.count / (rebar.componentCount || 1)).toFixed(2).replace(/\.00$/, ''), '總根數': rebar.count, '總長度 (m)': ((rebar.singleLength * rebar.count) / 100).toFixed(2), '總重 (kg)': (rebar.singleWeight * rebar.count).toFixed(2), '備註': rebar.remarks, }); } });
+                });
+                if (floorRebarJson.length > 0) { const wsRebar = XLSX.utils.json_to_sheet(floorRebarJson); XLSX.utils.book_append_sheet(wb, wsRebar, `鋼筋撿料單 (${floor})`); }
+                if (floorMaterialJson.length > 0) { const finalHeaders = materialHeaders.concat(Array.from(usedFinishHeaders).sort()); const wsMaterial = XLSX.utils.json_to_sheet(floorMaterialJson, { header: finalHeaders }); XLSX.utils.book_append_sheet(wb, wsMaterial, `其他材料單 (${floor})`); }
+            });
+            const wsInstructions = XLSX.utils.aoa_to_sheet(collectCalculationInstructions()); XLSX.utils.book_append_sheet(wb, wsInstructions, '計算說明');
+            const wsDetails = XLSX.utils.aoa_to_sheet(calculationDetails.map(d => [d])); XLSX.utils.book_append_sheet(wb, wsDetails, '計算過程');
+            XLSX.writeFile(wb, `${document.getElementById('project-name')?.value || '未命名工程'}_材料計算清單_${new Date().toISOString().slice(0,10)}.xlsx`);
+            statusMessage.textContent = '數據已成功匯出！';
+            statusMessage.style.color = 'var(--success)';
+        }
+
+        // --- Initial Load ---
+        window.onload = function() {
+            document.getElementById('date').valueAsDate = new Date();
+            showTab('column');
+
+            // 初始化所有區塊為關閉狀態
+            document.querySelectorAll('.form-section-content').forEach(content => {
+                content.classList.remove('expanded');
+                const icon = document.getElementById(content.id + '-toggle-icon');
+                if(icon) icon.classList.remove('rotate-180');
+            });
+             
+            // Add event listeners for sound effects
+            document.querySelectorAll('button, .tab-button, .pdf-upload-label, .rebar-form-header').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if(!e.currentTarget.classList.contains('tab-button')) {
+                       // playSound('click'); This is now handled in the function itself
+                    }
+                });
+            });
+            
+            // --- Canvas Background Logic ---
+            const canvas = document.getElementById('canvas-background');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let mouse = { x: null, y: null };
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.5 + 0.5;
+                    this.speedX = (Math.random() * 0.4 - 0.2);
+                    this.speedY = (Math.random() * 0.4 - 0.2);
+                    this.color = `rgba(0, 255, 255, ${Math.random() * 0.5 + 0.2})`;
+                }
+                update() {
+                    if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                    if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                const numberOfParticles = (canvas.width * canvas.height) / 9000;
+                for (let i = 0; i < numberOfParticles; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                connect();
+                requestAnimationFrame(animate);
+            }
+
+            function connect() {
+                let opacityValue = 1;
+                for (let a = 0; a < particles.length; a++) {
+                    for (let b = a; b < particles.length; b++) {
+                        let distance = Math.sqrt(
+                            (particles[a].x - particles[b].x) * (particles[a].x - particles[b].x) +
+                            (particles[a].y - particles[b].y) * (particles[a].y - particles[b].y)
+                        );
+                        if (distance < 100) {
+                            opacityValue = 1 - (distance / 100);
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${opacityValue * 0.5})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[a].x, particles[a].y);
+                            ctx.lineTo(particles[b].x, particles[b].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                initParticles();
+            });
+            
+            document.querySelector('.main-scroller').addEventListener('mousemove', (event) => {
+                 mouse.x = event.clientX;
+                 mouse.y = event.clientY + event.currentTarget.scrollTop;
+                 // Repel particles from mouse
+                 for(let i=0; i<5; i++) { // affect a few particles
+                     if(particles[i]) {
+                         let dx = mouse.x - particles[i].x;
+                         let dy = mouse.y - particles[i].y;
+                         let distance = Math.sqrt(dx*dx + dy*dy);
+                         if (distance < 50) {
+                             particles[i].x -= dx/20;
+                             particles[i].y -= dy/20;
+                         }
+                     }
+                 }
+            });
+
+            resizeCanvas();
+            initParticles();
+            animate();
+        };
+    </script>
+    <script>
+        // IP Protection Script
+        (function() {
+            // 1. Disable Right Click
+            document.addEventListener('contextmenu', event => event.preventDefault());
+
+            // 2. Disable Keyboard Shortcuts (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S)
+            document.addEventListener('keydown', function(e) {
+                if (e.keyCode === 123) { // F12
+                    e.preventDefault();
+                    return false;
+                }
+                if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) { // Ctrl+Shift+I or J
+                    e.preventDefault();
+                    return false;
+                }
+                if (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) { // Ctrl+U or S
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // 3. Simple Domain Check (Optional, uncomment and set your domain later)
+            /*
+            const allowedDomains = ['yourdomain.com', 'localhost', '127.0.0.1'];
+            if (!allowedDomains.includes(window.location.hostname) && window.location.protocol !== 'file:') {
+                document.body.innerHTML = '<h1 style="color:white;text-align:center;margin-top:20%;">未授權的使用。請至官方網站使用。</h1>';
+            }
+            */
+        })();
+    </script>
+
+    <!-- 會員專屬工具門禁系統 (方案 B) -->
+    
+</body>
+</html>

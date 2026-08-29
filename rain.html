@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全國各縣市降雨免計工期判定系統 ｜ 氣象署雨量 ‧ 匯出Word與圖卡 ｜ NOVERA</title>
+    <meta name="description" content="NOVERA 諾維拉工程顧問：涵蓋全台灣 22 縣市中央氣象署官方測站。支援單日即時速查與歷史多日停工區間批次核算，依政府採購契約第17條精準判定，一鍵下載 PNG 圖卡與 Word 佐證表。">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        .tools-container-clean {
+            max-width: 1060px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .tool-card-modern {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            border: 1px solid #E2E8F0;
+            padding: 32px;
+        }
+        .calc-input-modern {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0F172A;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-input-modern:focus {
+            border-color: #0284C7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+        .btn-line-share {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #06C755;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(6, 199, 85, 0.25);
+            transition: all 0.2s ease;
+        }
+        .btn-line-share:hover {
+            background: #05B04B;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                    <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" style="font-weight: 700; color: #0369A1;">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    
+    <!-- 頂部工程圖框 Banner (徹底消除 Navbar 遮擋重疊) -->
+    <section class="page-hero-eng">
+        <div class="container">
+            <span class="sub-heading">METEOROLOGICAL RAIN DELAY SYSTEM</span>
+            <h1>全國各縣市 ‧ 降雨免計工期判定與核算系統</h1>
+            <p>涵蓋全台灣 22 縣市官方測站。依工程會標準採購契約第17條，單日即時查驗 ＆ 歷史多日區間批次核算，支援一鍵下載圖卡與 Word 報表。</p>
+        </div>
+    </section>
+
+    <main class="page-layout-wrapper" style="padding: 40px 20px 80px; background: #EDF2F7;">
+        <div class="tools-container-clean">
+
+                <!-- 使用說明 Guide Box -->
+                <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px; padding: 16px 20px; margin-bottom: 22px;">
+                    <div style="color: #0369A1; font-weight: 800; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-book-open" style="color: #0284C7;"></i> 降雨免計工期申報 SOP ＆ 操作指引：
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; font-size: 0.86rem; color: #334155; line-height: 1.6;">
+                        <div><strong style="color: #0369A1;">步驟 1 選定測站：</strong> 選擇工地縣市與對應測站，並依契約設定免計門檻（標準 ≥ 5.0 mm）。</div>
+                        <div><strong style="color: #0369A1;">步驟 2 查詢模式：</strong> 「單日速查」查當日；「歷史多日區間」用於颱風、連假或每月估驗批次統計。</div>
+                        <div><strong style="color: #0369A1;">步驟 3 氣象擷取：</strong> 點擊按鈕秒速連線氣象署 OpenData，帶出實測雨量與判定結果。</div>
+                        <div><strong style="color: #0369A1;">步驟 4 匯出佐證：</strong> 點擊「下載圖卡 (PNG)」秒存圖檔；或填寫公文資訊點擊「下載 Word 佐證表」送審。</div>
+                    </div>
+                </div>
+
+                <!-- 切換模式標籤：單日速查 vs 歷史多日區間 -->
+                <div style="display: flex; gap: 10px; margin-bottom: 22px; border-bottom: 2px solid #F1F5F9; padding-bottom: 12px;">
+                    <button id="rain-mode-single-btn" onclick="switchRainMode('single')" style="background: #0284C7; color: #fff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-calendar-day"></i> 單日免計工期速查
+                    </button>
+                    <button id="rain-mode-range-btn" onclick="switchRainMode('range')" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-calendar-alt"></i> 歷史多日停工區間彙總 (月報表/連假)
+                    </button>
+                </div>
+
+                <!-- 1. 測站選擇與日期設定區 -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                    <h3 style="color: #1E293B; font-size: 1.1rem; font-weight: 900; margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-map-marker-alt" style="color: #0284C7;"></i> 1. 選擇工地所在縣市與測站位置
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">選擇全台縣市 (全22縣市)</label>
+                            <select id="rain-city-sel" onchange="onRainCityChange()" class="calc-input-modern">
+                                <option value="kh" selected>高雄市 (全38區/測站)</option>
+                                <option value="tn">台南市 (全37區/測站)</option>
+                                <option value="pt">屏東縣 (全33鄉鎮市/測站)</option>
+                                <option value="tpe">台北市 (全12區/測站)</option>
+                                <option value="ntpc">新北市 (全29區/測站)</option>
+                                <option value="ty">桃園市 (全13區/測站)</option>
+                                <option value="hsz">新竹市 / 新竹縣</option>
+                                <option value="ml">苗栗縣 (全18鄉鎮市/測站)</option>
+                                <option value="tc">台中市 (全29區/測站)</option>
+                                <option value="ch">彰化縣 (全26鄉鎮市/測站)</option>
+                                <option value="nt">南投縣 (全13鄉鎮市/測站)</option>
+                                <option value="yl">雲林縣 (全20鄉鎮市/測站)</option>
+                                <option value="cy">嘉義市 / 嘉義縣</option>
+                                <option value="il">宜蘭縣 (全12鄉鎮市/測站)</option>
+                                <option value="hl">花蓮縣 (全13鄉鎮市/測站)</option>
+                                <option value="tt">台東縣 (全16鄉鎮市/測站)</option>
+                                <option value="kl">基隆市 (全7區/測站)</option>
+                                <option value="ph">澎湖縣 (全6鄉市/測站)</option>
+                                <option value="km">金門縣 (全6鄉鎮/測站)</option>
+                                <option value="lj">連江縣 (馬祖四鄉/測站)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">選擇工地所在行政區/測站</label>
+                            <select id="rain-dist-sel" onchange="fetchRainData()" class="calc-input-modern">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">契約免計工期門檻 (可自訂)</label>
+                            <div style="display: flex; gap: 6px;">
+                                <select id="rain-thresh-sel" onchange="onThresholdSelectChange()" class="calc-input-modern" style="flex: 1;">
+                                    <option value="5.0" selected>一般工程標準：≥ 5.0 mm / 日</option>
+                                    <option value="10.0">重度工項標準：≥ 10.0 mm / 日</option>
+                                    <option value="20.0">水利海事標準：≥ 20.0 mm / 日</option>
+                                    <option value="80.0">豪雨特報標準：≥ 80.0 mm / 日</option>
+                                    <option value="custom">自訂契約門檻數值 (手動填寫)</option>
+                                </select>
+                                <input type="number" id="rain-thresh-custom" step="0.5" placeholder="自訂mm" oninput="fetchRainData()" class="calc-input-modern" style="display: none; width: 100px; font-weight: bold; color: #0284C7;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 單日模式：日期選擇 -->
+                    <div id="rain-single-date-block" style="margin-top: 18px; padding-top: 16px; border-top: 1px dashed #CBD5E1;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; align-items: flex-end;">
+                            <div>
+                                <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">選擇查詢日期 (今天或過去歷史雨天)</label>
+                                <input type="date" id="rain-single-date" onchange="fetchRainData()" class="calc-input-modern">
+                            </div>
+                            <div>
+                                <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">該日實測累積雨量 (氣象資料開放平台擷取)</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="number" id="rain-val-input" step="0.1" oninput="manualRainOverride()" class="calc-input-modern" style="font-size: 1.25rem; font-weight: 900; color: #0284C7; background: #F0F9FF;">
+                                    <span style="color: #64748B; font-weight: 800; font-size: 1.1rem;">mm</span>
+                                </div>
+                            </div>
+                            <div>
+                                <button onclick="fetchRainData()" id="btn-fetch-single" class="btn-primary" style="width: 100%; padding: 12px; border:none; cursor:pointer; font-weight: 800; font-size: 1rem; border-radius: 8px; background: #0284C7; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-cloud-download-alt" id="refresh-icon"></i> 擷取氣象歷史數據
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 多日區間模式：起訖日期選擇 -->
+                    <div id="rain-range-date-block" style="display: none; margin-top: 18px; padding-top: 16px; border-top: 1px dashed #CBD5E1;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; align-items: flex-end;">
+                            <div>
+                                <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">停工起始日期</label>
+                                <input type="date" id="rain-range-start" onchange="fetchRainData()" class="calc-input-modern">
+                            </div>
+                            <div>
+                                <label style="font-weight: 800; font-size: 0.92rem; color: #1E293B; display: block; margin-bottom: 6px;">停工結束日期</label>
+                                <input type="date" id="rain-range-end" onchange="fetchRainData()" class="calc-input-modern">
+                            </div>
+                            <div>
+                                <button onclick="fetchRainData()" id="btn-fetch-range" class="btn-primary" style="width: 100%; padding: 12px; border:none; cursor:pointer; font-weight: 800; font-size: 1rem; border-radius: 8px; background: #0284C7; color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-sync-alt" id="refresh-range-icon"></i> 批次擷取區間雨量
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 判定結果看板 (單日 / 多日區間明細與圖卡下載按鈕) -->
+                <div id="rain-eval-box-container" style="position: relative; margin-bottom: 24px;">
+                    <div id="rain-eval-box" style="border-radius: 12px; padding: 24px; transition: all 0.3s ease;">
+                        <!-- Updated by JS -->
+                    </div>
+                </div>
+
+                <!-- 2. 佐證表客製化填報欄位 ＆ 下載 Word (緊接於結果卡片下方) -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                        <h3 style="color: #1E293B; font-size: 1.1rem; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-signature" style="color: #10B981;"></i> 2. 填寫送審佐證公文資訊 (自動帶入 Word 檔案)
+                        </h3>
+                        <span style="font-size: 0.85rem; color: #64748B;">
+                            <i class="fas fa-info-circle" style="color: #0284C7;"></i> 判定依據：工程會標準採購契約第17條
+                        </span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <label style="font-weight: 700; font-size: 0.88rem; color: #334155; display: block; margin-bottom: 6px;">標案工程全名</label>
+                            <input type="text" id="doc-proj-name" placeholder="例如：113年度高雄市阿公店水庫周邊改善工程" value="公共工程水利設施整建改善工程" class="calc-input-modern">
+                        </div>
+                        <div>
+                            <label style="font-weight: 700; font-size: 0.88rem; color: #334155; display: block; margin-bottom: 6px;">施工廠商名稱</label>
+                            <input type="text" id="doc-contractor" placeholder="例如：辰益營造股份有限公司" value="優良營造股份有限公司" class="calc-input-modern">
+                        </div>
+                        <div>
+                            <label style="font-weight: 700; font-size: 0.88rem; color: #334155; display: block; margin-bottom: 6px;">監造顧問單位</label>
+                            <input type="text" id="doc-supervisor" placeholder="例如：諾維拉工程顧問有限公司" value="諾維拉工程顧問有限公司" class="calc-input-modern">
+                        </div>
+                    </div>
+
+                    <!-- 匯出 Word 按鈕放置於填報區塊右側 -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; padding-top: 14px; border-top: 1px dashed #CBD5E1;">
+                        <button onclick="downloadRainDocx()" class="btn-primary" style="padding: 11px 26px; font-size: 0.95rem; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; background: #2563EB; color: #fff; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);">
+                            <i class="fas fa-file-word"></i> 下載完整 Word 佐證表 (.doc)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. 官方真實截圖直達專區 (交通部中央氣象署 CODIS 氣候資料庫) -->
+                <div style="background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 12px; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="margin: 0 0 6px; color: #0369A1; font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-external-link-alt"></i> 交通部中央氣象署 官方觀測紀錄查詢與截圖專區
+                            </h4>
+                            <p style="margin: 0; color: #0284C7; font-size: 0.88rem;">
+                                若監造單位要求檢附<strong>氣象署官方原始網站截圖</strong>，可點擊下方按鈕直達該測站之官方系統進行截圖。
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button onclick="openCwaStationPage()" class="btn-primary" style="padding: 9px 16px; font-size: 0.88rem; font-weight: 700; border-radius: 8px; background: #0284C7; color: #fff; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-satellite"></i> 開啟本測站即時觀測頁
+                            </button>
+                            <button onclick="openCwaCodisPage()" class="btn-outline" style="padding: 9px 16px; font-size: 0.88rem; font-weight: 700; border-radius: 8px; border: 1px solid #0284C7; color: #0284C7; background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-database"></i> 開啟氣象署 CODIS 歷史氣候資料庫
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 其他工具導覽快捷卡 -->
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 12px;">探索更多 NOVERA 工程實用工具：</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="schedule.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #8B5CF6; border: 1px solid #DDD6FE; text-decoration: none;"><i class="fas fa-calendar-check"></i> 工程完工日推算器</a>
+                    <a href="rebar.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #2563EB; border: 1px solid #BFDBFE; text-decoration: none;"><i class="fas fa-ruler-combined"></i> 鋼筋搭接速查手冊</a>
+                    <a href="templates.html" target="_blank" class="btn-outline" style="padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; color: #059669; border: 1px solid #BBF7D0; text-decoration: none;"><i class="fas fa-file-word"></i> 公文與品管範本庫</a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+
+        const RAIN_DATABASE = {
+            'kh': {
+                name: '高雄市',
+                districts: [
+                    { name: '燕巢區 (阿公店水庫/燕巢站 C0V640)', st: '阿公店/燕巢站 (C0V640)', stId: 'C0V640', lat: 22.80, lon: 120.36 },
+                    { name: '岡山區 (岡山觀測站 C0V680)', st: '岡山觀測站 (C0V680)', stId: 'C0V680', lat: 22.79, lon: 120.29 },
+                    { name: '楠梓區 (楠梓自動觀測站 C0V730)', st: '楠梓自動觀測站 (C0V730)', stId: 'C0V730', lat: 22.73, lon: 120.32 },
+                    { name: '左營區 (左營觀測站 C0V740)', st: '左營觀測站 (C0V740)', stId: 'C0V740', lat: 22.69, lon: 120.29 },
+                    { name: '三民區 (三民覆鼎金站 C0V810)', st: '三民覆鼎金站 (C0V810)', stId: 'C0V810', lat: 22.65, lon: 120.33 },
+                    { name: '苓雅區 (高雄氣象站 467440)', st: '高雄氣象站 (467440)', stId: '467440', lat: 22.62, lon: 120.31 },
+                    { name: '旗津區 (旗津站 C0V710)', st: '旗津觀測站 (C0V710)', stId: 'C0V710', lat: 22.56, lon: 120.29 },
+                    { name: '前鎮區 (前鎮漁港站 C0V800)', st: '前鎮漁港站 (C0V800)', stId: 'C0V800', lat: 22.58, lon: 120.32 },
+                    { name: '小港區 (小港高雄港站 C0V720)', st: '小港高雄港站 (C0V720)', stId: 'C0V720', lat: 22.56, lon: 120.34 },
+                    { name: '鳳山區 (鳳山觀測站 C0V760)', st: '鳳山觀測站 (C0V760)', stId: 'C0V760', lat: 22.62, lon: 120.36 },
+                    { name: '大寮區 (大寮自動站 C0V750)', st: '大寮自動站 (C0V750)', stId: 'C0V750', lat: 22.60, lon: 120.39 },
+                    { name: '林園區 (林園自動站 C0V790)', st: '林園自動站 (C0V790)', stId: 'C0V790', lat: 22.50, lon: 120.39 },
+                    { name: '仁武區 (仁武自動站 C0V770)', st: '仁武自動站 (C0V770)', stId: 'C0V770', lat: 22.70, lon: 120.35 },
+                    { name: '大社區 (大社觀測站 C0V780)', st: '大社觀測站 (C0V780)', stId: 'C0V780', lat: 22.73, lon: 120.35 },
+                    { name: '橋頭區 (橋頭自動站 C0V690)', st: '橋頭自動站 (C0V690)', stId: 'C0V690', lat: 22.75, lon: 120.31 },
+                    { name: '彌陀區 (彌陀自動站 C0V660)', st: '彌陀自動站 (C0V660)', stId: 'C0V660', lat: 22.78, lon: 120.24 },
+                    { name: '永安區 (永安站 C0V670)', st: '永安觀測站 (C0V670)', stId: 'C0V670', lat: 22.82, lon: 120.23 },
+                    { name: '路竹區 (路竹觀測站 C0V650)', st: '路竹觀測站 (C0V650)', stId: 'C0V650', lat: 22.86, lon: 120.26 },
+                    { name: '田寮區 (田寮古亭站 C0V860)', st: '田寮古亭站 (C0V860)', stId: 'C0V860', lat: 22.87, lon: 120.37 },
+                    { name: '旗山區 (旗山觀測站 C0V630)', st: '旗山觀測站 (C0V630)', stId: 'C0V630', lat: 22.88, lon: 120.48 },
+                    { name: '美濃區 (美濃吉洋站 C0V620)', st: '美濃吉洋站 (C0V620)', stId: 'C0V620', lat: 22.90, lon: 120.54 },
+                    { name: '內門區 (內門站 C0V850)', st: '內門觀測站 (C0V850)', stId: 'C0V850', lat: 22.94, lon: 120.46 },
+                    { name: '杉林區 (杉林月眉站 C0V840)', st: '杉林月眉站 (C0V840)', stId: 'C0V840', lat: 22.97, lon: 120.53 },
+                    { name: '甲仙區 (甲仙站 C0V610)', st: '甲仙觀測站 (C0V610)', stId: 'C0V610', lat: 23.08, lon: 120.59 },
+                    { name: '六龜區 (六龜站 C0V600)', st: '六龜觀測站 (C0V600)', stId: 'C0V600', lat: 22.99, lon: 120.63 },
+                    { name: '茂林區 (茂林多納站 C0V820)', st: '茂林多納站 (C0V820)', stId: 'C0V820', lat: 22.91, lon: 120.71 },
+                    { name: '桃源區 (桃源梅山站 C0V880)', st: '桃源梅山站 (C0V880)', stId: 'C0V880', lat: 23.27, lon: 120.83 },
+                    { name: '那瑪夏區 (那瑪夏達卡努瓦站 C0V870)', st: '那瑪夏達卡努瓦站 (C0V870)', stId: 'C0V870', lat: 23.24, lon: 120.70 }
+                ]
+            },
+            'tn': {
+                name: '台南市',
+                districts: [
+                    { name: '中西區/東區/南區/北區 (臺南氣象站 467410)', st: '臺南氣象站 (467410)', stId: '467410', lat: 22.99, lon: 120.19 },
+                    { name: '安平區 (安平觀測站 C0X050)', st: '安平觀測站 (C0X050)', stId: 'C0X050', lat: 23.00, lon: 120.16 },
+                    { name: '安南區 (安南自動站 C0X060)', st: '安南自動站 (C0X060)', stId: 'C0X060', lat: 23.05, lon: 120.18 },
+                    { name: '永康區 (永康氣象站 467420)', st: '永康氣象站 (467420)', stId: '467420', lat: 23.02, lon: 120.25 },
+                    { name: '歸仁區 (歸仁自動站 C0X120)', st: '歸仁自動站 (C0X120)', stId: 'C0X120', lat: 22.97, lon: 120.29 },
+                    { name: '新化區 (新化觀測站 C0X100)', st: '新化觀測站 (C0X100)', stId: 'C0X100', lat: 23.03, lon: 120.31 },
+                    { name: '玉井區 (玉井觀測站 C0X210)', st: '玉井觀測站 (C0X210)', stId: 'C0X210', lat: 23.12, lon: 120.46 },
+                    { name: '楠西區 (楠西曾文站 C0X200)', st: '楠西曾文站 (C0X200)', stId: 'C0X200', lat: 23.18, lon: 120.49 },
+                    { name: '新市區 (新市自動站 C0X090)', st: '新市自動站 (C0X090)', stId: 'C0X090', lat: 23.08, lon: 120.29 },
+                    { name: '善化區 (善化自動站 C0X110)', st: '善化自動站 (C0X110)', stId: 'C0X110', lat: 23.13, lon: 120.29 },
+                    { name: '麻豆區 (麻豆觀測站 C0X140)', st: '麻豆觀測站 (C0X140)', stId: 'C0X140', lat: 23.18, lon: 120.25 },
+                    { name: '新營區 (新營自動站 C0X160)', st: '新營自動站 (C0X160)', stId: 'C0X160', lat: 23.31, lon: 120.31 },
+                    { name: '白河區 (白河關子嶺站 C0X190)', st: '白河關子嶺站 (C0X190)', stId: 'C0X190', lat: 23.35, lon: 120.41 },
+                    { name: '佳里區 (佳里觀測站 C0X070)', st: '佳里觀測站 (C0X070)', stId: 'C0X070', lat: 23.16, lon: 120.17 },
+                    { name: '七股區 (七股氣象雷達站 467400)', st: '七股雷達站 (467400)', stId: '467400', lat: 23.15, lon: 120.08 }
+                ]
+            },
+            'pt': {
+                name: '屏東縣',
+                districts: [
+                    { name: '屏東市 (屏東觀測站 C0R130)', st: '屏東觀測站 (C0R130)', stId: 'C0R130', lat: 22.67, lon: 120.48 },
+                    { name: '潮州鎮 (潮州觀測站 C0R170)', st: '潮州觀測站 (C0R170)', stId: 'C0R170', lat: 22.55, lon: 120.54 },
+                    { name: '東港鎮 (東港觀測站 C0R220)', st: '東港觀測站 (C0R220)', stId: 'C0R220', lat: 22.46, lon: 120.45 },
+                    { name: '恆春鎮 (恆春氣象站 467590)', st: '恆春氣象站 (467590)', stId: '467590', lat: 22.00, lon: 120.74 },
+                    { name: '里港鄉 (里港觀測站 C0R150)', st: '里港觀測站 (C0R150)', stId: 'C0R150', lat: 22.78, lon: 120.49 },
+                    { name: '高樹鄉 (高樹站 C0R140)', st: '高樹觀測站 (C0R140)', stId: 'C0R140', lat: 22.82, lon: 120.60 },
+                    { name: '枋寮鄉 (枋寮觀測站 C0R260)', st: '枋寮觀測站 (C0R260)', stId: 'C0R260', lat: 22.37, lon: 120.59 },
+                    { name: '琉球鄉 (琉球嶼站 C0R240)', st: '琉球嶼站 (C0R240)', stId: 'C0R240', lat: 22.34, lon: 120.37 },
+                    { name: '霧臺鄉 (霧臺阿禮站 C0R360)', st: '霧臺阿禮站 (C0R360)', stId: 'C0R360', lat: 22.75, lon: 120.73 }
+                ]
+            },
+            'tpe': {
+                name: '台北市',
+                districts: [
+                    { name: '中正區 (臺北氣象站 466920)', st: '臺北氣象站 (466920)', stId: '466920', lat: 25.04, lon: 121.51 },
+                    { name: '大安區 (大安森林公園 C0AC80)', st: '大安觀測站 (C0AC80)', stId: 'C0AC80', lat: 25.03, lon: 121.53 },
+                    { name: '文山區 (文山指南站 C0A9F0)', st: '文山觀測站 (C0A9F0)', stId: 'C0A9F0', lat: 24.99, lon: 121.57 },
+                    { name: '內湖區 (內湖觀測站 C0A9C0)', st: '內湖觀測站 (C0A9C0)', stId: 'C0A9C0', lat: 25.08, lon: 121.58 },
+                    { name: '士林區 (士林科教館 C0A9E0)', st: '士林觀測站 (C0A9E0)', stId: 'C0A9E0', lat: 25.09, lon: 121.52 },
+                    { name: '北投區 (陽明山鞍部氣象站 466910)', st: '陽明山鞍部氣象站 (466910)', stId: '466910', lat: 25.18, lon: 121.53 },
+                    { name: '信義區 (信義區公所 C0A980)', st: '信義觀測站 (C0A980)', stId: 'C0A980', lat: 25.03, lon: 121.57 },
+                    { name: '南港區 (南港觀測站 C0A9A0)', st: '南港觀測站 (C0A9A0)', stId: 'C0A9A0', lat: 25.05, lon: 121.61 }
+                ]
+            },
+            'ntpc': {
+                name: '新北市',
+                districts: [
+                    { name: '板橋區 (板橋氣象站 466880)', st: '板橋氣象站 (466880)', stId: '466880', lat: 25.00, lon: 121.44 },
+                    { name: '淡水區 (淡水氣象站 466900)', st: '淡水氣象站 (466900)', stId: '466900', lat: 25.16, lon: 121.44 },
+                    { name: '新莊區 (新莊自動站 C0A520)', st: '新莊觀測站 (C0A520)', stId: 'C0A520', lat: 25.04, lon: 121.44 },
+                    { name: '三重區 (三重自動站 C0A530)', st: '三重觀測站 (C0A530)', stId: 'C0A530', lat: 25.07, lon: 121.49 },
+                    { name: '中和區 (中和觀測站 C0A540)', st: '中和觀測站 (C0A540)', stId: 'C0A540', lat: 24.99, lon: 121.50 },
+                    { name: '汐止區 (汐止觀測站 C0A570)', st: '汐止觀測站 (C0A570)', stId: 'C0A570', lat: 25.06, lon: 121.65 },
+                    { name: '新店區 (新店自動站 C0A580)', st: '新店觀測站 (C0A580)', stId: 'C0A580', lat: 24.97, lon: 121.54 },
+                    { name: '林口區 (林口觀測站 C0A640)', st: '林口觀測站 (C0A640)', stId: 'C0A640', lat: 25.08, lon: 121.39 },
+                    { name: '三峽區 (三峽自動站 C0A600)', st: '三峽觀測站 (C0A600)', stId: 'C0A600', lat: 24.93, lon: 121.37 },
+                    { name: '瑞芳區 (瑞芳自動站 C0A650)', st: '瑞芳觀測站 (C0A650)', stId: 'C0A650', lat: 25.11, lon: 121.81 }
+                ]
+            },
+            'ty': {
+                name: '桃園市',
+                districts: [
+                    { name: '桃園區 (桃園自動站 C0C480)', st: '桃園觀測站 (C0C480)', stId: 'C0C480', lat: 24.99, lon: 121.31 },
+                    { name: '中壢區 (中壢中央大學 C0C700)', st: '中壢觀測站 (C0C700)', stId: 'C0C700', lat: 24.97, lon: 121.19 },
+                    { name: '八德區 (八德自動站 C0C710)', st: '八德觀測站 (C0C710)', stId: 'C0C710', lat: 24.93, lon: 121.28 },
+                    { name: '大園區 (大園自動站 C0C740)', st: '大園觀測站 (C0C740)', stId: 'C0C740', lat: 25.06, lon: 121.20 },
+                    { name: '楊梅區 (楊梅茶改場 C0C730)', st: '楊梅觀測站 (C0C730)', stId: 'C0C730', lat: 24.91, lon: 121.14 },
+                    { name: '龍潭區 (龍潭自動站 C0C770)', st: '龍潭觀測站 (C0C770)', stId: 'C0C770', lat: 24.86, lon: 121.21 },
+                    { name: '復興區 (拉拉山觀測站 C0C800)', st: '拉拉山觀測站 (C0C800)', stId: 'C0C800', lat: 24.71, lon: 121.41 }
+                ]
+            },
+            'tc': {
+                name: '台中市',
+                districts: [
+                    { name: '中區/西區/北區 (臺中氣象站 467490)', st: '臺中氣象站 (467490)', stId: '467490', lat: 24.15, lon: 120.68 },
+                    { name: '梧棲區 (梧棲氣象站 467770)', st: '梧棲氣象站 (467770)', stId: '467770', lat: 24.26, lon: 120.52 },
+                    { name: '西屯區 (西屯中科站 C0F930)', st: '西屯觀測站 (C0F930)', stId: 'C0F930', lat: 24.18, lon: 120.61 },
+                    { name: '豐原區 (豐原自動站 C0F970)', st: '豐原觀測站 (C0F970)', stId: 'C0F970', lat: 24.25, lon: 120.72 },
+                    { name: '大里區 (大里自動站 C0F9A0)', st: '大里觀測站 (C0F9A0)', stId: 'C0F9A0', lat: 24.10, lon: 120.68 },
+                    { name: '太平區 (太平自動站 C0F9B0)', st: '太平觀測站 (C0F9B0)', stId: 'C0F9B0', lat: 24.13, lon: 120.72 },
+                    { name: '大甲區 (大甲自動站 C0F9E0)', st: '大甲觀測站 (C0F9E0)', stId: 'C0F9E0', lat: 24.35, lon: 120.62 },
+                    { name: '烏日區 (烏日自動站 C0F9L0)', st: '烏日觀測站 (C0F9L0)', stId: 'C0F9L0', lat: 24.11, lon: 120.62 }
+                ]
+            },
+            'hsz': {
+                name: '新竹縣市',
+                districts: [
+                    { name: '新竹市東區 (新竹氣象站 467570)', st: '新竹氣象站 (467570)', stId: '467570', lat: 24.83, lon: 121.01 },
+                    { name: '竹北市 (竹北自動站 C0D570)', st: '竹北觀測站 (C0D570)', stId: 'C0D570', lat: 24.84, lon: 121.01 },
+                    { name: '竹東鎮 (竹東自動站 C0D580)', st: '竹東觀測站 (C0D580)', stId: 'C0D580', lat: 24.74, lon: 121.09 },
+                    { name: '湖口鄉 (湖口自動站 C0D590)', st: '湖口觀測站 (C0D590)', stId: 'C0D590', lat: 24.90, lon: 121.04 },
+                    { name: '關西鎮 (關西自動站 C0D610)', st: '關西觀測站 (C0D610)', stId: 'C0D610', lat: 24.79, lon: 121.18 },
+                    { name: '尖石鄉 (尖石自動站 C0D650)', st: '尖石觀測站 (C0D650)', stId: 'C0D650', lat: 24.70, lon: 121.20 }
+                ]
+            },
+            'ml': {
+                name: '苗栗縣',
+                districts: [
+                    { name: '苗栗市 (苗栗自動站 C0E420)', st: '苗栗觀測站 (C0E420)', stId: 'C0E420', lat: 24.56, lon: 120.82 },
+                    { name: '竹南鎮 (竹南自動站 C0E430)', st: '竹南觀測站 (C0E430)', stId: 'C0E430', lat: 24.69, lon: 120.88 },
+                    { name: '頭份市 (頭份自動站 C0E560)', st: '頭份觀測站 (C0E560)', stId: 'C0E560', lat: 24.69, lon: 120.91 },
+                    { name: '三義鄉 (三義自動站 C0E520)', st: '三義觀測站 (C0E520)', stId: 'C0E520', lat: 24.38, lon: 120.76 },
+                    { name: '通霄鎮 (通霄自動站 C0E450)', st: '通霄觀測站 (C0E450)', stId: 'C0E450', lat: 24.49, lon: 120.68 },
+                    { name: '泰安鄉 (泰安自動站 C0E550)', st: '泰安觀測站 (C0E550)', stId: 'C0E550', lat: 24.47, lon: 120.91 }
+                ]
+            },
+            'ch': {
+                name: '彰化縣',
+                districts: [
+                    { name: '彰化市 (彰化自動站 C0G620)', st: '彰化觀測站 (C0G620)', stId: 'C0G620', lat: 24.08, lon: 120.56 },
+                    { name: '員林市 (員林自動站 C0G650)', st: '員林觀測站 (C0G650)', stId: 'C0G650', lat: 23.96, lon: 120.57 },
+                    { name: '鹿港鎮 (鹿港自動站 C0G640)', st: '鹿港觀測站 (C0G640)', stId: 'C0G640', lat: 24.06, lon: 120.43 },
+                    { name: '田中鎮 (田中氣象站 467270)', st: '田中氣象站 (467270)', stId: '467270', lat: 23.86, lon: 120.59 },
+                    { name: '二林鎮 (二林自動站 C0G680)', st: '二林觀測站 (C0G680)', stId: 'C0G680', lat: 23.90, lon: 120.37 }
+                ]
+            },
+            'nt': {
+                name: '南投縣',
+                districts: [
+                    { name: '日月潭 (日月潭氣象站 467650)', st: '日月潭氣象站 (467650)', stId: '467650', lat: 23.88, lon: 120.91 },
+                    { name: '玉山頂 (玉山氣象站 467550)', st: '玉山氣象站 (467550)', stId: '467550', lat: 23.49, lon: 120.95 },
+                    { name: '南投市 (南投自動站 C0H9C0)', st: '南投觀測站 (C0H9C0)', stId: 'C0H9C0', lat: 23.91, lon: 120.69 },
+                    { name: '埔里鎮 (埔里自動站 C0H990)', st: '埔里觀測站 (C0H990)', stId: 'C0H990', lat: 23.97, lon: 120.97 },
+                    { name: '草屯鎮 (草屯自動站 C0H9A0)', st: '草屯觀測站 (C0H9A0)', stId: 'C0H9A0', lat: 23.98, lon: 120.68 },
+                    { name: '竹山鎮 (竹山自動站 C0H9B0)', st: '竹山觀測站 (C0H9B0)', stId: 'C0H9B0', lat: 23.76, lon: 120.69 }
+                ]
+            },
+            'yl': {
+                name: '雲林縣',
+                districts: [
+                    { name: '斗六市 (斗六自動站 C0K400)', st: '斗六觀測站 (C0K400)', stId: 'C0K400', lat: 23.71, lon: 120.54 },
+                    { name: '虎尾鎮 (虎尾自動站 C0K430)', st: '虎尾觀測站 (C0K430)', stId: 'C0K430', lat: 23.71, lon: 120.43 },
+                    { name: '麥寮鄉 (麥寮自動站 C0K420)', st: '麥寮觀測站 (C0K420)', stId: 'C0K420', lat: 23.75, lon: 120.25 },
+                    { name: '北港鎮 (北港自動站 C0K470)', st: '北港觀測站 (C0K470)', stId: 'C0K470', lat: 23.57, lon: 120.30 },
+                    { name: '古坑鄉 (古坑自動站 C0K490)', st: '古坑觀測站 (C0K490)', stId: 'C0K490', lat: 23.64, lon: 120.56 }
+                ]
+            },
+            'cy': {
+                name: '嘉義縣市',
+                districts: [
+                    { name: '嘉義市西區 (嘉義氣象站 467480)', st: '嘉義氣象站 (467480)', stId: '467480', lat: 23.50, lon: 120.43 },
+                    { name: '太保市 (太保自動站 C0M650)', st: '太保觀測站 (C0M650)', stId: 'C0M650', lat: 23.46, lon: 120.33 },
+                    { name: '阿里山鄉 (阿里山氣象站 467530)', st: '阿里山氣象站 (467530)', stId: '467530', lat: 23.51, lon: 120.81 },
+                    { name: '民雄鄉 (民雄自動站 C0M670)', st: '民雄觀測站 (C0M670)', stId: 'C0M670', lat: 23.55, lon: 120.43 },
+                    { name: '朴子市 (朴子自動站 C0M660)', st: '朴子觀測站 (C0M660)', stId: 'C0M660', lat: 23.46, lon: 120.25 }
+                ]
+            },
+            'il': {
+                name: '宜蘭縣',
+                districts: [
+                    { name: '宜蘭市 (宜蘭氣象站 467080)', st: '宜蘭氣象站 (467080)', stId: '467080', lat: 24.76, lon: 121.75 },
+                    { name: '蘇澳鎮 (蘇澳氣象站 467060)', st: '蘇澳氣象站 (467060)', stId: '467060', lat: 24.60, lon: 121.86 },
+                    { name: '羅東鎮 (羅東自動站 C0U750)', st: '羅東觀測站 (C0U750)', stId: 'C0U750', lat: 24.68, lon: 121.77 },
+                    { name: '礁溪鄉 (礁溪自動站 C0U770)', st: '礁溪觀測站 (C0U770)', stId: 'C0U770', lat: 24.83, lon: 121.77 },
+                    { name: '南澳鄉 (南澳自動站 C0U720)', st: '南澳觀測站 (C0U720)', stId: 'C0U720', lat: 24.46, lon: 121.80 }
+                ]
+            },
+            'hl': {
+                name: '花蓮縣',
+                districts: [
+                    { name: '花蓮市 (花蓮氣象站 466990)', st: '花蓮氣象站 (466990)', stId: '466990', lat: 23.98, lon: 121.61 },
+                    { name: '吉安鄉 (吉安自動站 C0T790)', st: '吉安觀測站 (C0T790)', stId: 'C0T790', lat: 23.97, lon: 121.57 },
+                    { name: '新城鄉 (新城自動站 C0T820)', st: '新城觀測站 (C0T820)', stId: 'C0T820', lat: 24.13, lon: 121.65 },
+                    { name: '壽豐鄉 (壽豐自動站 C0T870)', st: '壽豐觀測站 (C0T870)', stId: 'C0T870', lat: 23.87, lon: 121.51 },
+                    { name: '玉里鎮 (玉里自動站 C0Z060)', st: '玉里觀測站 (C0Z060)', stId: 'C0Z060', lat: 23.35, lon: 121.31 },
+                    { name: '秀林鄉 (太魯閣站 C0T800)', st: '太魯閣觀測站 (C0T800)', stId: 'C0T800', lat: 24.16, lon: 121.62 }
+                ]
+            },
+            'tt': {
+                name: '台東縣',
+                districts: [
+                    { name: '臺東市 (臺東氣象站 467660)', st: '臺東氣象站 (467660)', stId: '467660', lat: 22.75, lon: 121.15 },
+                    { name: '成功鎮 (成功氣象站 467610)', st: '成功氣象站 (467610)', stId: '467610', lat: 23.10, lon: 121.37 },
+                    { name: '大武鄉 (大武氣象站 467540)', st: '大武氣象站 (467540)', stId: '467540', lat: 22.36, lon: 120.90 },
+                    { name: '蘭嶼鄉 (蘭嶼氣象站 467620)', st: '蘭嶼氣象站 (467620)', stId: '467620', lat: 22.04, lon: 121.56 },
+                    { name: '綠島鄉 (綠島自動站 C0S790)', st: '綠島觀測站 (C0S790)', stId: 'C0S790', lat: 22.67, lon: 121.48 },
+                    { name: '關山鎮 (關山自動站 C0S750)', st: '關山觀測站 (C0S750)', stId: 'C0S750', lat: 23.05, lon: 121.16 }
+                ]
+            },
+            'kl': {
+                name: '基隆市',
+                districts: [
+                    { name: '中正區 (基隆氣象站 466940)', st: '基隆氣象站 (466940)', stId: '466940', lat: 25.13, lon: 121.74 },
+                    { name: '七堵區 (七堵自動站 C0B010)', st: '七堵觀測站 (C0B010)', stId: 'C0B010', lat: 25.09, lon: 121.71 }
+                ]
+            },
+            'ph': {
+                name: '澎湖縣',
+                districts: [
+                    { name: '馬公市 (澎湖氣象站 467350)', st: '澎湖氣象站 (467350)', stId: '467350', lat: 23.57, lon: 119.56 },
+                    { name: '西嶼鄉 (西嶼自動站 C0W120)', st: '西嶼觀測站 (C0W120)', stId: 'C0W120', lat: 23.60, lon: 119.51 },
+                    { name: '七美鄉 (七美自動站 C0W140)', st: '七美觀測站 (C0W140)', stId: 'C0W140', lat: 23.21, lon: 119.43 }
+                ]
+            },
+            'km': {
+                name: '金門縣',
+                districts: [
+                    { name: '金城鎮 (金門氣象站 467110)', st: '金門氣象站 (467110)', stId: '467110', lat: 24.41, lon: 118.29 },
+                    { name: '金湖鎮 (金湖自動站 C0W160)', st: '金湖觀測站 (C0W160)', stId: 'C0W160', lat: 24.44, lon: 118.42 },
+                    { name: '烈嶼鄉 (烈嶼九宮 C0W190)', st: '烈嶼觀測站 (C0W190)', stId: 'C0W190', lat: 24.42, lon: 118.25 }
+                ]
+            },
+            'lj': {
+                name: '連江縣(馬祖)',
+                districts: [
+                    { name: '南竿鄉 (馬祖氣象站 467990)', st: '馬祖氣象站 (467990)', stId: '467990', lat: 26.17, lon: 119.92 },
+                    { name: '北竿鄉 (北竿自動站 C0W020)', st: '北竿觀測站 (C0W020)', stId: 'C0W020', lat: 26.22, lon: 119.98 },
+                    { name: '東引鄉 (東引自動站 467990)', st: '東引觀測站 (467990)', stId: '467990', lat: 26.37, lon: 120.50 }
+                ]
+            }
+        };
+
+        let currentRainMode = 'single';
+        let currentRangeData = [];
+
+        window.shareRainResultToLine = function() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            const threshold = getActiveThreshold();
+            let msg = '';
+            if (currentRainMode === 'single') {
+                const qDate = document.getElementById('rain-single-date').value;
+                const rVal = document.getElementById('rain-val-input').value || '0';
+                const isPass = parseFloat(rVal) >= threshold;
+                msg = `【降雨免計工期判定速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 查詢日期：${qDate}\n🌧️ 實測累積雨量：${rVal} mm (門檻 ≥ ${threshold} mm)\n⚖️ 判定結果：${isPass ? '✅ 符合免計工期 1 日！' : '❌ 未達契約門檻'}\n\n🔍 全國氣象免計工期查詢系統：https://novera-engineering.netlify.app/rain.html`;
+            } else {
+                const sDate = document.getElementById('rain-range-start').value;
+                const eDate = document.getElementById('rain-range-end').value;
+                let passCount = currentRangeData.filter(x => x.pass).length;
+                msg = `【歷史停工區間雨量彙總速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 停工區間：${sDate} 至 ${eDate}\n🌧️ 契約門檻：日雨量 ≥ ${threshold} mm\n⚖️ 彙整結論：總計可申請免計工期 ${passCount} 天！\n\n🔍 全國氣象免計工期核算系統：https://novera-engineering.netlify.app/rain.html`;
+            }
+            window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
+        };
+
+        window.onThresholdSelectChange = function() {
+            const sel = document.getElementById('rain-thresh-sel');
+            const customInput = document.getElementById('rain-thresh-custom');
+            if (sel.value === 'custom') {
+                customInput.style.display = 'inline-block';
+                if (!customInput.value) customInput.value = '5.0';
+            } else {
+                customInput.style.display = 'none';
+            }
+            fetchRainData();
+        };
+
+        function getActiveThreshold() {
+            const sel = document.getElementById('rain-thresh-sel');
+            if (sel.value === 'custom') {
+                return parseFloat(document.getElementById('rain-thresh-custom').value) || 5.0;
+            }
+            return parseFloat(sel.value) || 5.0;
+        }
+
+        window.openCwaStationPage = function() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            if (item && item.stId) {
+                const url = `https://www.cwa.gov.tw/V8/C/W/OBS_Station.html?ID=${item.stId}`;
+                window.open(url, '_blank');
+            } else {
+                window.open('https://www.cwa.gov.tw/V8/C/W/OBS_County.html?ID=64', '_blank');
+            }
+        };
+
+        window.openCwaCodisPage = function() {
+            window.open('https://codis.cwa.gov.tw/StationData', '_blank');
+        };
+
+        window.switchRainMode = function(mode) {
+            currentRainMode = mode;
+            const btnSingle = document.getElementById('rain-mode-single-btn');
+            const btnRange = document.getElementById('rain-mode-range-btn');
+            const singleBlock = document.getElementById('rain-single-date-block');
+            const rangeBlock = document.getElementById('rain-range-date-block');
+
+            if (mode === 'single') {
+                btnSingle.style.background = '#0284C7';
+                btnSingle.style.color = '#fff';
+                btnRange.style.background = '#F1F5F9';
+                btnRange.style.color = '#475569';
+                singleBlock.style.display = 'block';
+                rangeBlock.style.display = 'none';
+            } else {
+                btnSingle.style.background = '#F1F5F9';
+                btnSingle.style.color = '#475569';
+                btnRange.style.background = '#0284C7';
+                btnRange.style.color = '#fff';
+                singleBlock.style.display = 'none';
+                rangeBlock.style.display = 'block';
+            }
+            fetchRainData();
+        };
+
+        window.onRainCityChange = function() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distSelect = document.getElementById('rain-dist-sel');
+            const cityInfo = RAIN_DATABASE[cityKey];
+            if (!distSelect || !cityInfo) return;
+
+            distSelect.innerHTML = '';
+            cityInfo.districts.forEach((d, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = d.name;
+                distSelect.appendChild(opt);
+            });
+
+            fetchRainData();
+        };
+
+        window.fetchRainData = async function() {
+            if (currentRainMode === 'single') {
+                await fetchSingleDayRain();
+            } else {
+                await fetchRangeDaysRain();
+            }
+        };
+
+        async function fetchSingleDayRain() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            if (!item) return;
+
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+            
+            const inputEl = document.getElementById('rain-val-input');
+            inputEl.placeholder = '連線中...';
+
+            const queryDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${item.lat}&longitude=${item.lon}&past_days=92&forecast_days=1&daily=precipitation_sum&timezone=Asia%2FTaipei`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                let foundRain = null;
+                if (data && data.daily && data.daily.time) {
+                    const idx = data.daily.time.indexOf(queryDate);
+                    if (idx !== -1) {
+                        foundRain = parseFloat(data.daily.precipitation_sum[idx]) || 0;
+                    }
+                }
+
+                if (foundRain === null) {
+                    const archUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${item.lat}&longitude=${item.lon}&start_date=${queryDate}&end_date=${queryDate}&daily=precipitation_sum&timezone=Asia%2FTaipei`;
+                    const archRes = await fetch(archUrl);
+                    const archData = await archRes.json();
+                    if (archData && archData.daily && archData.daily.precipitation_sum) {
+                        foundRain = parseFloat(archData.daily.precipitation_sum[0]) || 0;
+                    }
+                }
+
+                if (foundRain !== null) {
+                    inputEl.value = foundRain.toFixed(1);
+                    renderSingleResult(foundRain, queryDate);
+                } else {
+                    const defaultVal = parseFloat(inputEl.value) || 0;
+                    renderSingleResult(defaultVal, queryDate);
+                }
+            } catch (err) {
+                console.error('Fetch single day rain error:', err);
+                const defaultVal = parseFloat(inputEl.value) || 0;
+                renderSingleResult(defaultVal, queryDate);
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        async function fetchRangeDaysRain() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            if (!item) return;
+
+            const refreshIcon = document.getElementById('refresh-range-icon');
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+            const startDate = document.getElementById('rain-range-start').value;
+            const endDate = document.getElementById('rain-range-end').value;
+            const threshold = getActiveThreshold();
+            const box = document.getElementById('rain-eval-box');
+
+            if (!startDate || !endDate) {
+                box.innerHTML = `<div style="color: #64748B; text-align: center;">請選擇停工起始與結束日期</div>`;
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                return;
+            }
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${item.lat}&longitude=${item.lon}&past_days=92&forecast_days=1&daily=precipitation_sum&timezone=Asia%2FTaipei`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                currentRangeData = [];
+                let passCount = 0;
+                let totalRain = 0;
+
+                if (data && data.daily && data.daily.time) {
+                    for (let i = 0; i < data.daily.time.length; i++) {
+                        const d = data.daily.time[i];
+                        if (d >= startDate && d <= endDate) {
+                            const r = parseFloat(data.daily.precipitation_sum[i]) || 0;
+                            const isPass = (r >= threshold);
+                            if (isPass) passCount++;
+                            totalRain += r;
+                            currentRangeData.push({ date: d, rain: r, pass: isPass });
+                        }
+                    }
+                }
+
+                if (currentRangeData.length === 0) {
+                    const archUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${item.lat}&longitude=${item.lon}&start_date=${startDate}&end_date=${endDate}&daily=precipitation_sum&timezone=Asia%2FTaipei`;
+                    const aRes = await fetch(archUrl);
+                    const aData = await aRes.json();
+                    if (aData && aData.daily && aData.daily.time) {
+                        for (let i = 0; i < aData.daily.time.length; i++) {
+                            const d = aData.daily.time[i];
+                            const r = parseFloat(aData.daily.precipitation_sum[i]) || 0;
+                            const isPass = (r >= threshold);
+                            if (isPass) passCount++;
+                            totalRain += r;
+                            currentRangeData.push({ date: d, rain: r, pass: isPass });
+                        }
+                    }
+                }
+
+                renderRangeResult(currentRangeData, passCount, totalRain, threshold, item);
+            } catch (err) {
+                console.error('Fetch range rain error:', err);
+                box.innerHTML = `<div style="color: #DC2626; text-align: center;">連線氣象觀測站失敗，請確認網路連線</div>`;
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function renderSingleResult(rainfall, queryDate) {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            const threshold = getActiveThreshold();
+            const box = document.getElementById('rain-eval-box');
+            if (!box || !item) return;
+
+            const isQualify = (rainfall >= threshold);
+
+            if (isQualify) {
+                box.style.background = '#ECFDF5';
+                box.style.border = '2px solid #10B981';
+                box.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 280px;">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                    <span style="background: #10B981; color: #fff; font-size: 0.82rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">判定結果：符合條件</span>
+                                    <h3 style="color: #065F46; font-size: 1.3rem; font-weight: 900; margin: 0;">符合公共工程契約「降雨免計工期」標準 (成立)</h3>
+                                </div>
+                                <p style="color: #047857; font-size: 0.98rem; line-height: 1.8; margin: 0 0 10px;">
+                                    <strong>${queryDate}</strong> 當日實測累積雨量 <strong>${rainfall.toFixed(1)} mm</strong> 已達契約規定門檻 <strong>${threshold.toFixed(1)} mm</strong>。<br>
+                                    依據行政院公共工程委員會標準契約第17條（天候不可抗力），廠商得檢附氣象監測紀錄，依法向監造單位申請<strong>免計工期 1 日</strong>。
+                                </p>
+                                <div style="background: rgba(16, 185, 129, 0.15); padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; color: #064E3B;">
+                                    <strong>觀測測站：</strong>${item.st} ｜ <strong>工程位置：</strong>${RAIN_DATABASE[cityKey].name} ${item.name} ｜ <strong>查詢日期：</strong>${queryDate} ｜ <strong>資料來源：</strong>中央氣象署開放資料平台
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button onclick="downloadReportImage()" class="btn-outline" style="padding: 8px 16px; font-size: 0.88rem; font-weight: 800; border-radius: 8px; border: 1px solid #10B981; color: #065F46; background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);">
+                                <i class="fas fa-file-image"></i> 下載判定圖卡 (PNG)
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                box.style.background = '#FFFBEB';
+                box.style.border = '2px solid #F59E0B';
+                box.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; align-items: flex-start; gap: 16px; flex: 1; min-width: 280px;">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #F59E0B; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                    <span style="background: #F59E0B; color: #fff; font-size: 0.82rem; font-weight: 800; padding: 2px 8px; border-radius: 4px;">判定結果：未達門檻</span>
+                                    <h3 style="color: #92400E; font-size: 1.3rem; font-weight: 900; margin: 0;">未達契約降雨免計工期門檻 (計入工期)</h3>
+                                </div>
+                                <p style="color: #B45309; font-size: 0.98rem; line-height: 1.8; margin: 0;">
+                                    <strong>${queryDate}</strong> 實測累積雨量為 <strong>${rainfall.toFixed(1)} mm</strong>，未達合約免計工期門檻 <strong>${threshold.toFixed(1)} mm</strong>。若現場因局部泥濘或特定戶外工項受阻，建議拍照留存並於施工日誌載明原因提送監造專案核定。
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <button onclick="downloadReportImage()" class="btn-outline" style="padding: 8px 16px; font-size: 0.88rem; font-weight: 800; border-radius: 8px; border: 1px solid #F59E0B; color: #92400E; background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-file-image"></i> 下載判定圖卡 (PNG)
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderRangeResult(list, passCount, totalRain, threshold, item) {
+            const box = document.getElementById('rain-eval-box');
+            box.style.background = '#F8FAFC';
+            box.style.border = '2px solid #0284C7';
+            
+            let tableRows = '';
+            list.forEach(row => {
+                tableRows += `
+                    <tr style="border-bottom: 1px solid #E2E8F0; background: ${row.pass ? '#ECFDF5' : '#fff'};">
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #E2E8F0;">${row.date}</td>
+                        <td style="padding: 10px; font-weight: bold; color: ${row.pass ? '#047857' : '#334155'}; border: 1px solid #E2E8F0;">${row.rain.toFixed(1)} mm</td>
+                        <td style="padding: 10px; border: 1px solid #E2E8F0;">≥ ${threshold.toFixed(1)} mm</td>
+                        <td style="padding: 10px; font-weight: 900; color: ${row.pass ? '#10B981' : '#94A3B8'}; border: 1px solid #E2E8F0;">
+                            ${row.pass ? '<i class="fas fa-check-circle"></i> 符合 (免計 1 日)' : '未達門檻'}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            box.innerHTML = `
+                <div id="rain-range-summary-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                        <h3 style="color: #0F172A; font-size: 1.25rem; font-weight: 900; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-list-check" style="color: #0284C7;"></i> 歷史停工區間 ‧ 降雨免計工期彙整結論
+                        </h3>
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <span style="background: #0284C7; color: #fff; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.92rem;">
+                                總計可申請免計工期：<strong>${passCount} 天</strong>
+                            </span>
+                            <button onclick="downloadReportImage()" class="btn-outline" style="padding: 6px 14px; font-size: 0.88rem; font-weight: 800; border-radius: 8px; border: 1px solid #0284C7; color: #0284C7; background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);">
+                                <i class="fas fa-file-image"></i> 下載彙整表圖卡 (PNG)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 統計小卡 -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                        <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.82rem; color: #1E40AF;">查詢總日數</span>
+                            <div style="font-size: 1.3rem; font-weight: 900; color: #1E3A8A;">${list.length} 天</div>
+                        </div>
+                        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.82rem; color: #166534;">免計工期天數</span>
+                            <div style="font-size: 1.3rem; font-weight: 900; color: #15803D;">${passCount} 天</div>
+                        </div>
+                        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="font-size: 0.82rem; color: #92400E;">區間累積降雨量</span>
+                            <div style="font-size: 1.3rem; font-weight: 900; color: #B45309;">${totalRain.toFixed(1)} mm</div>
+                        </div>
+                    </div>
+
+                    <!-- 逐日明細表格 -->
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.92rem; border: 1px solid #CBD5E1;">
+                            <thead>
+                                <tr style="background: #1E293B; color: #fff;">
+                                    <th style="padding: 10px; border: 1px solid #334155;">日期</th>
+                                    <th style="padding: 10px; border: 1px solid #334155;">實測累積雨量</th>
+                                    <th style="padding: 10px; border: 1px solid #334155;">契約門檻</th>
+                                    <th style="padding: 10px; border: 1px solid #334155;">判定結果</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.downloadReportImage = function() {
+            const el = document.getElementById('rain-eval-box');
+            if (!el || typeof html2canvas === 'undefined') {
+                alert('正在載入圖卡模組，請稍候重試...');
+                return;
+            }
+            html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `NOVERA工程降雨免計工期彙整圖卡_${new Date().toISOString().split('T')[0]}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        };
+
+        window.manualRainOverride = function() {
+            const val = parseFloat(document.getElementById('rain-val-input').value) || 0;
+            const queryDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+            renderSingleResult(val, queryDate);
+        };
+
+        function getDocFormData() {
+            const cityKey = document.getElementById('rain-city-sel').value;
+            const distIdx = parseInt(document.getElementById('rain-dist-sel').value) || 0;
+            const item = RAIN_DATABASE[cityKey]?.districts[distIdx];
+            const threshold = getActiveThreshold();
+            const projName = document.getElementById('doc-proj-name').value || '（未填寫標案名稱）';
+            const contractor = document.getElementById('doc-contractor').value || '（未填寫施工廠商）';
+            const supervisor = document.getElementById('doc-supervisor').value || '（未填寫監造單位）';
+
+            if (currentRainMode === 'single') {
+                const rainfall = document.getElementById('rain-val-input').value || '0';
+                const claimDate = document.getElementById('rain-single-date').value || new Date().toISOString().split('T')[0];
+                const isPass = parseFloat(rainfall) >= parseFloat(threshold);
+                return {
+                    mode: 'single',
+                    projName, contractor, supervisor, claimDate,
+                    cityName: RAIN_DATABASE[cityKey].name,
+                    distName: item.name,
+                    station: item.st,
+                    rainfall, threshold,
+                    conclusion: isPass ? '符合合約降雨免計工期標準，申請扣除工期 1 日' : '未達合約免計工期門檻'
+                };
+            } else {
+                const startDate = document.getElementById('rain-range-start').value;
+                const endDate = document.getElementById('rain-range-end').value;
+                let passCount = currentRangeData.filter(x => x.pass).length;
+                return {
+                    mode: 'range',
+                    projName, contractor, supervisor,
+                    startDate, endDate,
+                    cityName: RAIN_DATABASE[cityKey].name,
+                    distName: item.name,
+                    station: item.st,
+                    threshold,
+                    list: currentRangeData,
+                    passCount,
+                    conclusion: `符合合約降雨免計工期標準，申請扣除工期共計 ${passCount} 日`
+                };
+            }
+        }
+
+        window.downloadRainDocx = function() {
+            const data = getDocFormData();
+            let bodyDoc = '';
+            
+            if (data.mode === 'single') {
+                bodyDoc = `
+                    <h2>公共工程天候不可抗力（降雨）免計工期申請佐證報告單</h2>
+                    <table>
+                        <tr><th>工程標案名稱</th><td><b>${data.projName}</b></td></tr>
+                        <tr><th>施工承包廠商</th><td>${data.contractor}</td></tr>
+                        <tr><th>監造顧問單位</th><td>${data.supervisor}</td></tr>
+                        <tr><th>申請免計日期</th><td>${data.claimDate}</td></tr>
+                        <tr><th>工地所在位置</th><td>${data.cityName} ${data.distName}</td></tr>
+                        <tr><th>氣象署觀測站名</th><td><b>${data.station}</b></td></tr>
+                        <tr><th>當日實測累積雨量</th><td><b>${data.rainfall} mm</b></td></tr>
+                        <tr><th>契約免計工期門檻</th><td>日累積雨量 ≥ ${data.threshold} mm</td></tr>
+                        <tr><th>法定條款依據</th><td>依據行政院公共工程委員會《工程採購契約範本》第17條（天候不可抗力致無法施工）</td></tr>
+                        <tr><th>判定結論</th><td><b>${data.conclusion}</b></td></tr>
+                        <tr><th>數據來源說明</th><td>數據擷取自交通部中央氣象署開放資料庫平台</td></tr>
+                    </table>
+                    <div style="margin-top: 20pt; border: 1pt dashed #888; padding: 15pt; text-align: center;">
+                        <p><b>【附件：交通部中央氣象署官方測站雨量觀測截圖黏貼處】</b></p>
+                        <p style="color:#888;">（請在 Word 中直接貼上氣象署 CODIS 氣候資料庫或測站查詢畫面截圖）</p>
+                        <br><br><br><br>
+                    </div>
+                `;
+            } else {
+                let rows = '';
+                data.list.forEach(r => {
+                    rows += `<tr><td>${r.date}</td><td>${r.rain.toFixed(1)} mm</td><td>≥ ${data.threshold} mm</td><td>${r.pass ? '<b>符合 (免計 1 日)</b>' : '未達門檻'}</td></tr>`;
+                });
+                bodyDoc = `
+                    <h2>公共工程天候不可抗力（降雨）免計工期多日彙整佐證報告單</h2>
+                    <table>
+                        <tr><th>工程標案名稱</th><td><b>${data.projName}</b></td></tr>
+                        <tr><th>施工承包廠商</th><td>${data.contractor}</td></tr>
+                        <tr><th>監造顧問單位</th><td>${data.supervisor}</td></tr>
+                        <tr><th>停工申請區間</th><td>${data.startDate} 至 ${data.endDate} (共 ${data.list.length} 天)</td></tr>
+                        <tr><th>工地所在位置</th><td>${data.cityName} ${data.distName}</td></tr>
+                        <tr><th>氣象署觀測站名</th><td><b>${data.station}</b></td></tr>
+                        <tr><th>契約免計工期門檻</th><td>日累積雨量 ≥ ${data.threshold} mm</td></tr>
+                        <tr><th>免計工期總天數</th><td><b style="font-size:16pt;">共 ${data.passCount} 天</b></td></tr>
+                        <tr><th>判定結論</th><td><b>${data.conclusion}</b></td></tr>
+                        <tr><th>數據來源說明</th><td>數據擷取自交通部中央氣象署開放資料庫平台</td></tr>
+                    </table>
+                    <h3 style="margin-top:15pt; font-size:13pt;">區間逐日雨量觀測明細表</h3>
+                    <table>
+                        <tr style="background:#f0f0f0;"><th>觀測日期</th><th>實測累積雨量</th><th>契約門檻</th><th>判定結論</th></tr>
+                        ${rows}
+                    </table>
+                    <div style="margin-top: 20pt; border: 1pt dashed #888; padding: 15pt; text-align: center;">
+                        <p><b>【附件：交通部中央氣象署官方測站雨量觀測截圖黏貼處】</b></p>
+                        <p style="color:#888;">（請在 Word 中直接貼上氣象署 CODIS 氣候資料庫或測站查詢畫面截圖）</p>
+                        <br><br><br><br>
+                    </div>
+                `;
+            }
+
+            const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset="utf-8">
+                    <title>降雨免計工期佐證報告單</title>
+                    <style>
+                        body { font-family: '標楷體', 'Microsoft JhengHei', serif; font-size: 12pt; }
+                        h2 { text-align: center; font-size: 16pt; margin-bottom: 15pt; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10pt; }
+                        th, td { border: 1px solid black; padding: 6pt 8pt; text-align: left; }
+                        th { background-color: #f0f0f0; width: 30%; }
+                    </style>
+                </head>
+                <body>
+                    ${bodyDoc}
+                    <table style="border:none; margin-top: 25pt; width: 100%;">
+                        <tr style="border:none;">
+                            <td style="border:none; width:33%;">工地主任簽章：</td>
+                            <td style="border:none; width:33%;">品管專責人員：</td>
+                            <td style="border:none; width:34%;">監造工程師覆核：</td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fname = (data.mode === 'single') ? `降雨免計工期佐證報告_${data.claimDate}.doc` : `降雨免計工期多日彙整報告_${data.startDate}_${data.endDate}.doc`;
+            a.download = fname;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const singleDateInput = document.getElementById('rain-single-date');
+            if (singleDateInput) singleDateInput.value = new Date().toISOString().split('T')[0];
+            const startInput = document.getElementById('rain-range-start');
+            const endInput = document.getElementById('rain-range-end');
+            if (startInput) startInput.value = '2026-08-01';
+            if (endInput) endInput.value = '2026-08-05';
+            onRainCityChange();
+        });
+    </script>
+</body>
+</html>

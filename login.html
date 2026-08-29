@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員登入與專屬工程武器庫 ｜ NOVERA 諾維拉</title>
+    <meta name="description" content="登入 NOVERA 會員專區，解鎖專屬工程計算機、下載招標規範範本與管理員專用後台通道。">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        .auth-container {
+            background: var(--glass-bg, rgba(255, 255, 255, 0.9));
+            backdrop-filter: var(--glass-backdrop, blur(16px));
+            -webkit-backdrop-filter: var(--glass-backdrop, blur(16px));
+            width: 100%;
+            max-width: 460px;
+            padding: 40px 36px;
+            border-radius: var(--radius-modern, 16px);
+            border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.5));
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            border-top: 4px solid var(--accent-color);
+        }
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .auth-logo .logo-text {
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+            display: block;
+            line-height: 1.1;
+        }
+        .auth-logo .logo-sub {
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        /* Google 一鍵登入按鈕 */
+        .google-auth-section {
+            margin-bottom: 20px;
+        }
+        .btn-google {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #FFFFFF;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+            padding: 13px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .btn-google:hover {
+            background: #F9FAFB;
+            border-color: #9CA3AF;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+        .google-icon {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 分隔線 */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 22px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .auth-divider span {
+            padding: 0 14px;
+        }
+
+        .form-switch {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .form-switch button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+        .form-switch button.active {
+            color: var(--primary-color);
+        }
+        .form-switch button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-color);
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        .auth-form .form-group {
+            margin-bottom: 16px;
+        }
+        .auth-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-strict);
+            font-size: 0.95rem;
+            background-color: var(--bg-base);
+            transition: var(--transition);
+        }
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+            background-color: #fff;
+        }
+        .btn-auth {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: var(--radius-strict);
+            cursor: pointer;
+            margin-top: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+        }
+
+        /* 管理員快速通道卡片 */
+        .admin-fastpass-card {
+            margin-top: 28px;
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.7) 0%, rgba(253, 230, 138, 0.4) 100%);
+            border: 1.5px solid #FCD34D;
+            border-radius: 12px;
+            padding: 16px 18px;
+            text-align: left;
+            position: relative;
+        }
+        .admin-fastpass-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .admin-fastpass-desc {
+            font-size: 0.82rem;
+            color: #78350F;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .btn-admin-quick {
+            width: 100%;
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+        .btn-admin-quick:hover {
+            background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(245, 158, 11, 0.45);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+    </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0F172A">
+    <link rel="canonical" href="https://novera-engineering.netlify.app/login.html">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://novera-engineering.netlify.app/login.html">
+    <meta property="og:title" content="會員登入與專屬工程武器庫 ｜ NOVERA 諾維拉">
+    <meta property="og:description" content="登入 NOVERA 會員專區，解鎖專屬工程計算機、下載招標規範範本與管理員專用後台通道。">
+    <meta property="og:image" content="https://novera-engineering.netlify.app/assets/lin_engineer_real.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "會員登入與專屬工程武器庫",
+      "publisher": {
+        "@type": "Organization",
+        "name": "NOVERA 諾維拉工程顧問"
+      }
+    }
+    </script>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-logo">
+            <span class="logo-text">NOVERA</span>
+            <span class="logo-sub">ADMIN PORTAL</span>
+        </div>
+
+        <h3 style="text-align: center; color: var(--primary-color); font-size: 1.25rem; font-weight: 800; margin-bottom: 8px;">諾維拉總管理員登入</h3>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px;">登入以存取系統總控台、標案爬蟲數據與廠商審核</p>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label>管理員信箱</label>
+                <input type="email" id="login-email" required value="aa0927353222@gmail.com" placeholder="aa0927353222@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>管理員密碼</label>
+                <input type="password" id="login-password" required placeholder="請輸入管理員密碼">
+            </div>
+            <button type="submit" class="btn-auth"><i class="fas fa-key"></i> 登入總管理員後台</button>
+        </form>
+
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> 返回網站首頁</a>
+    </div>
+
+    <!-- Admin Auth Logic -->
+    <script type="module">
+        import { loginUser } from './js/auth.js';
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            loginUser(email, password);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政府採購法規與工程快訊 ｜ 最新工程會函釋與招標規範 ｜ NOVERA</title>
+    <meta name="description" content="即時追蹤公共工程委員會最新採購法規修正、爭議審議裁判要旨、物價調整機制與施工查核重點解析。">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .news-item {
+            display: flex;
+            background: #ffffff;
+            border-radius: var(--radius-md, 12px);
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            transition: all 0.25s ease;
+            border-left: 5px solid var(--primary-color);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-left-width: 5px;
+        }
+        .news-item.alert {
+            border-left-color: #EF4444;
+        }
+        .news-item.policy {
+            border-left-color: #0EA5E9;
+        }
+        .news-item.legal {
+            border-left-color: #8B5CF6;
+        }
+        .news-item.quality {
+            border-left-color: #10B981;
+        }
+        .news-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+        }
+        .news-date {
+            background: #F8FAFC;
+            padding: 24px 20px;
+            min-width: 130px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border-color);
+        }
+        .news-date .day {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .news-date .year-month {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 600;
+        }
+        .news-content {
+            padding: 24px;
+            flex: 1;
+        }
+        .news-tag {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: white;
+            background: var(--primary-color);
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .news-tag.alert-tag { background: #EF4444; }
+        .news-tag.policy-tag { background: #0EA5E9; }
+        .news-tag.legal-tag { background: #8B5CF6; }
+        .news-tag.quality-tag { background: #10B981; }
+        
+        .news-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 800;
+            line-height: 1.4;
+        }
+        .news-desc {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .read-more-btn {
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .news-item:hover .read-more-btn {
+            color: var(--accent-hover);
+            transform: translateX(4px);
+        }
+
+        /* 專文閱讀 Modal 彈窗樣式 */
+        .article-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .article-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .article-modal-card {
+            background: #FFFFFF;
+            width: 100%;
+            max-width: 860px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            border-top: 5px solid var(--accent-color);
+            position: relative;
+            animation: slideUpModal 0.3s ease;
+        }
+        @keyframes slideUpModal {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header-bar {
+            position: sticky;
+            top: 0;
+            background: #FFFFFF;
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .modal-close-btn {
+            background: #F1F5F9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .modal-close-btn:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+        .article-body {
+            padding: 36px 36px 48px 36px;
+            color: var(--text-main);
+            line-height: 1.85;
+            font-size: 1.02rem;
+        }
+        .article-body h2 {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            line-height: 1.35;
+        }
+        .article-meta-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+        .article-body h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 28px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+        .article-body p {
+            margin-bottom: 16px;
+            text-align: justify;
+        }
+        .article-body ul, .article-body ol {
+            margin: 12px 0 20px 24px;
+        }
+        .article-body li {
+            margin-bottom: 8px;
+        }
+        .callout-box {
+            background: #F8FAFC;
+            border-left: 4px solid #3B82F6;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin: 22px 0;
+            font-size: 0.95rem;
+        }
+        .callout-box.danger {
+            background: #FEF2F2;
+            border-left-color: #EF4444;
+            color: #991B1B;
+        }
+        .callout-box.success {
+            background: #F0FDF4;
+            border-left-color: #10B981;
+            color: #166534;
+        }
+        .consult-cta-box {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: #FFFFFF;
+            margin-top: 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    <link rel="canonical" href="https://novera-engineering.netlify.app/news.html">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://novera-engineering.netlify.app/news.html">
+    <meta property="og:title" content="政府採購法規與工程快訊 ｜ 最新工程會函釋與招標規範 ｜ NOVERA">
+    <meta property="og:description" content="即時追蹤公共工程委員會最新採購法規修正、爭議審議裁判要旨、物價調整機制與施工查核重點解析。">
+    <meta property="og:image" content="https://novera-engineering.netlify.app/assets/lin_engineer_real.png">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:site_name" content="NOVERA 諾維拉工程顧問">
+    <meta name="geo.region" content="TW-KHH;TW-TNN;TW-PIF">
+    <meta name="geo.placename" content="高雄市, 臺南市, 屏東縣">
+    <meta name="keywords" content="政府採購法, 工程會函釋, 施工查核缺失, 物價調整條款, 採購法規快訊">
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NOVERA</span>
+                <span class="logo-sub">諾維拉工程顧問</span>
+            </div>
+            <nav class="nav-menu">
+                <ul class="nav-links">
+                    <li><a href="index.html">首頁</a></li>
+                    <li><a href="about.html">關於我們</a></li>
+                                        <li class="nav-dropdown">
+                        <a href="tools.html" style="color: #C27803; font-weight: 800; letter-spacing: 0.5px;">實用工程工具 <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="radar.html" target="_blank">全國標案即時情報雷達</a></li>
+                            <li><a href="progress.html" target="_blank">專案進度核算 ＆ S曲線系統</a></li>
+                            <li><a href="finance.html" target="_blank">專案財務 ＆ 案件收益分析系統</a></li>
+                            <li><a href="novera-calculator.html" target="_blank">結構數量核算系統 v3.2</a></li>
+                            <li><a href="schedule.html" target="_blank">工程工作天/日曆天推算</a></li>
+                            <li><a href="rain.html" target="_blank">全國降雨免計工期判定</a></li>
+                            <li><a href="rebar.html" target="_blank">鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                            <li><a href="templates.html" target="_blank">公共工程標準公文與品管庫</a></li>
+                            <li style="border-top: 1px solid #E2E8F0; margin-top: 4px; padding-top: 4px;"><a href="tools.html" style="font-weight: 700; color: #1E3A8A;">工程工具箱總覽 ＆ 9大現場小算盤</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-dropdown">
+                        <a href="vendors.html" class="active">工程情報 <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="vendors.html"><i class="fas fa-handshake"></i> 優良工程協力廠商</a></li>
+                            <li><a href="news.html"><i class="fas fa-newspaper"></i> 採購法規快訊</a></li>
+                            <li><a href="links.html"><i class="fas fa-link"></i> 公共工程常用連結</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="index.html#contact" class="btn-primary" style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #FFFFFF; font-weight: 700; border-radius: 20px; padding: 8px 18px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);"><i class="fab fa-line" style="font-size: 1.1rem;"></i> 專案委託洽詢</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-layout-wrapper">
+        <div class="page-hero" data-aos="fade-down">
+            <h1>法規與工程快訊</h1>
+            <p>NEWS & SAFETY - 掌握最新法規異動、工程會函釋與實務營造策略</p>
+        </div>
+
+        <div class="page-layout-container container">
+            <div class="page-main-content">
+                
+                <div class="news-list">
+                    <!-- News Item 1 -->
+                    <div class="news-item alert" data-aos="fade-up" onclick="openArticle(1)">
+                        <div class="news-date">
+                            <span class="day">12</span>
+                            <span class="year-month">2025 / 12</span>
+                        </div>
+                        <div class="news-content">
+                            <span class="news-tag alert-tag"><i class="fas fa-hard-hat"></i> 重大職安修法</span>
+                            <h3 class="news-title">2025-2026《職安法》大修：平行承攬「統合管理」與刑責大幅提高之營造因應對策</h3>
+                            <p class="news-desc">立法院三讀通過職安法重大修正案。針對多個承包商同時進場的公共工程與民營廠房，強制要求業主指定廠商負起「統括安全衛生管理」全責，並加重致勞工死傷之刑事罰金至 150 萬元，勞檢即日起全面嚴查！</p>
+                            <span class="read-more-btn">閱讀完整專文與自保SOP <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+
+                    <!-- News Item 2 -->
+                    <div class="news-item policy" data-aos="fade-up" data-aos-delay="100" onclick="openArticle(2)">
+                        <div class="news-date">
+                            <span class="day">05</span>
+                            <span class="year-month">2025 / 11</span>
+                        </div>
+                        <div class="news-content">
+                            <span class="news-tag policy-tag"><i class="fas fa-landmark"></i> 補助政策</span>
+                            <h3 class="news-title">內政部「老宅延壽機能復新計畫」全方位申請指南：30年老屋翻新最高補助 960 萬與耐震評估實務</h3>
+                            <p class="news-desc">針對全台屋齡 30 年以上透天厝與集合住宅，外牆修繕拉皮、電梯增設與管線更新，公設公共空間最高補助 960 萬，私人室內安全優化最高補助 20~30 萬。本文詳解申請流程、技師耐震初評與代辦送件要點。</p>
+                            <span class="read-more-btn">閱讀完整申請攻略與代辦流程 <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+
+                    <!-- News Item 3 -->
+                    <div class="news-item legal" data-aos="fade-up" data-aos-delay="200" onclick="openArticle(3)">
+                        <div class="news-date">
+                            <span class="day">18</span>
+                            <span class="year-month">2026 / 01</span>
+                        </div>
+                        <div class="news-content">
+                            <span class="news-tag legal-tag"><i class="fas fa-balance-scale"></i> 採購法規</span>
+                            <h3 class="news-title">工程會 2026 最新公共工程「物價調整款 (物調)」計算機制與營造爭議審議裁判實務</h3>
+                            <p class="news-desc">受碳費開徵與鋼筋、預拌混凝土市場波動影響，營造廠如何依契約總指數、中分類與個別項目指數精準計算物調追加款？剖析機關拒付時之工程會申訴審議調解關鍵策略。</p>
+                            <span class="read-more-btn">閱讀完整計算法則與判決解析 <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+
+                    <!-- News Item 4 -->
+                    <div class="news-item quality" data-aos="fade-up" data-aos-delay="300" onclick="openArticle(4)">
+                        <div class="news-date">
+                            <span class="day">10</span>
+                            <span class="year-month">2026 / 02</span>
+                        </div>
+                        <div class="news-content">
+                            <span class="news-tag quality-tag"><i class="fas fa-clipboard-check"></i> 工程品管</span>
+                            <h3 class="news-title">公共工程施工查核甲等攻略：常見 50 大缺失防範與品質計畫書「檢驗停留點 (Hold Point)」建置精要</h3>
+                            <p class="news-desc">彙整工程會與各縣市政府查核小組最常扣分之鋼筋保護層不足、試體取樣不實等致命缺失。教您如何透過標準化自主檢查表與停留點報驗，輕鬆爭取查核 85 分以上甲等佳績！</p>
+                            <span class="read-more-btn">閱讀完整查核防錯手冊 <i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar Ads -->
+            <aside class="page-sidebar" data-aos="fade-left" data-aos-delay="200">
+                <div class="ad-banner ad-banner-rent glass-panel">
+                    <div class="ad-content">
+                        <span class="ad-tag">VIP 招租</span>
+                        <h4>工安與材料設備推薦</h4>
+                        <p>精準觸及全台營造採購人員<br>推廣您的專業品牌</p>
+                        <i class="fas fa-bullseye ad-icon"></i>
+                    </div>
+                </div>
+
+                <div class="ad-banner ad-banner-premium glass-panel" style="background: linear-gradient(135deg, #0F172A 0%, #B48600 100%);">
+                    <div class="ad-content">
+                        <span class="ad-tag" style="background: rgba(255,255,255,0.2);">技師諮詢</span>
+                        <h4 style="color: #fff;">法規與工程爭議評估</h4>
+                        <p style="color: #F4F7F9; font-size: 0.95rem;">由國家合格土木技師親自為您把關<br>合約爭議・物調求償・鑑定報告</p>
+                        <a href="index.html#contact" style="display: inline-block; margin-top: 10px; color: #FFF; font-weight: 700; font-size: 0.85rem; text-decoration: underline;">立即線上諮詢 →</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- 專文閱讀 Modal 彈窗 -->
+    <div class="article-modal-overlay" id="articleModal">
+        <div class="article-modal-card">
+            <div class="modal-header-bar">
+                <span id="modalArticleBadge" class="news-tag alert-tag">法規快訊</span>
+                <button class="modal-close-btn" onclick="closeArticle()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="article-body" id="articleModalBody">
+                <!-- 動態注入文章內容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+        <!-- ========================================================================= -->
+    <!-- 4 欄式正統工程顧問權威 Footer ＆ 著作權保護專區 -->
+    <!-- ========================================================================= -->
+    <footer class="footer-eng">
+        <div class="container">
+            <div class="footer-grid-eng">
+                <!-- 欄位 1：品牌著作權與顧問陣容 -->
+                <div class="footer-col-eng">
+                    <div style="margin-bottom: 14px;">
+                        <h2 style="color: #FFFFFF; font-size: 1.45rem; font-weight: 900; margin: 0 0 4px; letter-spacing: 0.5px;">
+                            NOVERA <span style="font-size: 0.95rem; color: #C27803; font-weight: 700;">諾維拉工程顧問</span>
+                        </h2>
+                        <p style="color: #94A3B8; font-size: 0.84rem; margin: 0;">南台灣頂級土木水利技術團隊 ‧ 公共工程全方位技術顧問</p>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #94A3B8; line-height: 1.65;">
+                        專注於公共工程投標評選、施工計畫書送審、結構安全數量複核、S-Curve 進度管控與爭議工期求償。團隊演算法與工具庫全面自主研發，為營造同業提供最紮實的工程後盾。
+                    </p>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+                        <span style="background: rgba(194, 120, 3, 0.15); color: #FCD34D; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(194, 120, 3, 0.3);">
+                            <i class="fas fa-certificate"></i> 技師專業團隊
+                        </span>
+                        <span style="background: rgba(37, 99, 235, 0.15); color: #93C5FD; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3);">
+                            <i class="fas fa-shield-alt"></i> 著作權智財保護
+                        </span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #6EE7B7; font-size: 0.76rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-lock"></i> 本地沙盒零傳輸
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 欄位 2：8 大旗艦工程工具索引 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-toolbox" style="color: #C27803;"></i> 旗艦工程工具</h3>
+                    <ul class="footer-links-eng">
+                        <li><a href="radar.html"><i class="fas fa-satellite-dish" style="color: #10B981; font-size: 0.8rem;"></i> 全國標案即時情報雷達</a></li>
+                        <li><a href="progress.html"><i class="fas fa-chart-line" style="color: #3B82F6; font-size: 0.8rem;"></i> 專案進度核算 ＆ S曲線系統</a></li>
+                        <li><a href="finance.html"><i class="fas fa-calculator" style="color: #F59E0B; font-size: 0.8rem;"></i> 專案財務 ＆ 收益利潤分析</a></li>
+                        <li><a href="novera-calculator.html"><i class="fas fa-cubes" style="color: #EC4899; font-size: 0.8rem;"></i> 結構數量核算系統 v3.2</a></li>
+                        <li><a href="schedule.html"><i class="fas fa-calendar-check" style="color: #8B5CF6; font-size: 0.8rem;"></i> 工程工作天/日曆天推算器</a></li>
+                        <li><a href="rain.html"><i class="fas fa-cloud-showers-heavy" style="color: #0284C7; font-size: 0.8rem;"></i> 全國降雨免計工期判定</a></li>
+                        <li><a href="rebar.html"><i class="fas fa-ruler-combined" style="color: #F97316; font-size: 0.8rem;"></i> 鋼筋規範 ＆ 伸展搭接手冊</a></li>
+                        <li><a href="templates.html"><i class="fas fa-file-word" style="color: #059669; font-size: 0.8rem;"></i> 公共工程公文品管範本庫</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 3：法律保護與合約免責聲明 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-balance-scale" style="color: #C27803;"></i> 法律聲明與條款</h3>
+                    <ul class="footer-links-eng">
+                        <li><button type="button" onclick="openLegalModal('copyright')"><i class="fas fa-copyright" style="color: #94A3B8; font-size: 0.8rem;"></i> 智慧財產權與著作權保護宣告</button></li>
+                        <li><button type="button" onclick="openLegalModal('disclaimer')"><i class="fas fa-gavel" style="color: #94A3B8; font-size: 0.8rem;"></i> 工程計算與工期免責條款</button></li>
+                        <li><button type="button" onclick="openLegalModal('privacy')"><i class="fas fa-user-shield" style="color: #94A3B8; font-size: 0.8rem;"></i> 商業機密與本地隱私保證</button></li>
+                        <li><button type="button" onclick="openLegalModal('sponsor')"><i class="fas fa-coffee" style="color: #94A3B8; font-size: 0.8rem;"></i> 同業交流贊助與維運須知</button></li>
+                        <li><a href="links.html"><i class="fas fa-link" style="color: #94A3B8; font-size: 0.8rem;"></i> 全國土木水利常用公務連結</a></li>
+                        <li><a href="vendors.html"><i class="fas fa-hard-hat" style="color: #94A3B8; font-size: 0.8rem;"></i> 優良營造夥伴與協力廠商</a></li>
+                    </ul>
+                </div>
+
+                <!-- 欄位 4：顧問諮詢與同業贊助帳號 -->
+                <div class="footer-col-eng">
+                    <h3><i class="fas fa-headset" style="color: #C27803;"></i> 業務諮詢 ＆ 贊助支持</h3>
+                    <p style="font-size: 0.84rem; margin-bottom: 8px;">
+                        標案服務建議書代編 ‧ 施工計畫書審查 ‧ 土木結構計算：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; font-size: 0.85rem;">
+                        <div><strong style="color: #FFFFFF;">業務信箱：</strong><a href="mailto:gardenai0222@gmail.com" style="color: #CBD5E1; text-decoration: underline;">gardenai0222@gmail.com</a></div>
+                        <div><strong style="color: #FFFFFF;">線上諮詢：</strong><a href="index.html#contact" style="color: #34D399; font-weight: 700; text-decoration: none;"><i class="fab fa-line"></i> 填寫表單 / 掃描 LINE QR Code</a></div>
+                        <div><strong style="color: #FFFFFF;">服務範圍：</strong><span style="color: #CBD5E1;">台南、高雄、屏東等南部地區</span></div>
+                        <div><strong style="color: #FFFFFF;">服務時間：</strong><span style="color: #CBD5E1;">週一至週五 08:30 - 17:30</span></div>
+                    </div>
+                    
+                    <!-- 贊助銀行帳號 -->
+                    <div class="footer-sponsor-box">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span style="color: #FCD34D; font-size: 0.78rem; font-weight: 800;"><i class="fas fa-heart"></i> 營造同業小額贊助</span>
+                            <span style="color: #94A3B8; font-size: 0.74rem;">國泰世華 (013)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <span style="font-family: 'JetBrains Mono', monospace; color: #FFFFFF; font-weight: 900; font-size: 0.95rem; letter-spacing: 0.5px;">007506098097</span>
+                            <button type="button" onclick="copyText('007506098097', '國泰世華銀行帳號 007506098097 已成功複製！感謝您的贊助支持！')" style="background: #C27803; color: #FFFFFF; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.76rem; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-copy"></i> 複製
+                            </button>
+                        </div>
+                        <div style="color: #94A3B8; font-size: 0.72rem; margin-top: 4px;">戶名：胡女士 ｜ 100% 投入工具伺服器與持續維護</div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底層版權保護宣告列 -->
+            <div class="footer-legal-bar">
+                <div>
+                    <strong>&copy; <span id="footer-year">2026</span> NOVERA Engineering Consultant. All Rights Reserved.</strong>
+                    <span style="margin: 0 8px; color: #334155;">|</span>
+                    <span>中華民國《著作權法》保護登記 ‧ 諾維拉工程顧問有限公司</span>
+                </div>
+                <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
+                    免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================================= -->
+    <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
+    <!-- ========================================================================= -->
+    <div id="globalLegalModal" class="legal-modal-overlay">
+        <div class="legal-modal-card">
+            <!-- Modal 頂部 Header -->
+            <div class="legal-modal-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 32px; height: 32px; border-radius: 6px; background: #C27803; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #FFFFFF; font-size: 1.15rem; font-weight: 900; margin: 0;">NOVERA 諾維拉工程顧問 ‧ 法律與智慧財產權宣告</h3>
+                        <span style="color: #94A3B8; font-size: 0.78rem;">LEGAL NOTICE, INTELLECTUAL PROPERTY & DISCLAIMER</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLegalModal()" style="background: none; border: none; color: #94A3B8; font-size: 1.4rem; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s ease;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal 分頁導覽 Tab -->
+            <div class="legal-modal-nav">
+                <button type="button" class="legal-nav-btn active" data-tab="copyright" onclick="switchLegalTab('copyright')">
+                    <i class="fas fa-copyright"></i> 1. 智慧財產權宣告
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="disclaimer" onclick="switchLegalTab('disclaimer')">
+                    <i class="fas fa-gavel"></i> 2. 工程計算免責條款
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="privacy" onclick="switchLegalTab('privacy')">
+                    <i class="fas fa-shield-alt"></i> 3. 商業機密與本地隱私
+                </button>
+                <button type="button" class="legal-nav-btn" data-tab="sponsor" onclick="switchLegalTab('sponsor')">
+                    <i class="fas fa-coffee"></i> 4. 同業贊助與交流條款
+                </button>
+            </div>
+
+            <!-- Modal 內容主體 -->
+            <div class="legal-modal-body">
+                <!-- 條款 1：智慧財產權宣告 -->
+                <div id="legal-pane-copyright" class="legal-tab-pane active">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第一條：智慧財產權與著作權歸屬宣告
+                    </h4>
+                    <p>
+                        1.1 本網站「NOVERA 諾維拉工程顧問」（包含但不限於網域、全站架構、原始程式碼、前端演算法邏輯、結構數量核算模組、S-Curve 累積進度排程引擎、工程財務管考模型、降雨免計工期判定機制、28 套公共工程公文與自主檢查表範本庫、UI 介面設計排版、文字撰述與商標標識）之所有智慧財產權、著作權、商標權及專利申請權，均屬<strong>「諾維拉工程顧問有限公司」（NOVERA Engineering Consultant）</strong>及其技術團隊合法所有，受中華民國《著作權法》、《商標法》、《專利法》及國際智慧財產權公約之嚴格保護。
+                    </p>
+                    <p>
+                        1.2 <strong>合法使用範疇：</strong>本站授權台灣營造同業先進、執業技師、建築師、監造單位、工地主任、估算工程師及公共工程相關從業人員，於日常標案投標、工地現場施工管理、進度排程、算料複核之合法合理業務範圍內<strong>免費線上使用、產出成果並下載 Excel/Word/PNG 報表</strong>。
+                    </p>
+                    <p>
+                        1.3 <strong>禁止侵害行為：</strong>非經本公司正式書面授權，任何個人、法人或商業機構不得以任何形式對本站之演算法程式碼、小算盤工具核心或後端資料進行全部或部分之複製、反向工程（Reverse Engineering）、反編譯、鏡像部署（Mirror Site）、打包轉售、改作為收費商業軟體或作為任何營利性軟體包裝之行為。違者本公司將依法保全證據並追究民事侵權損害賠償與刑事責任。
+                    </p>
+                </div>
+
+                <!-- 條款 2：工程計算與工期免責條款 -->
+                <div id="legal-pane-disclaimer" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第二條：工程計算、結構算料與工期免責條款
+                    </h4>
+                    <p>
+                        2.1 <strong>輔助參考性質：</strong>本站所提供之各項工程線上工具（包含但不限於：梁柱板牆結構數量核算、鋼筋伸展與搭接長度計算、工作天/日曆天推算、降雨免計工期判定、S-Curve 進度曲線、工程收支毛利預估等），係依據行政院公共工程委員會現行標準契約範本、CNS 國家標準、ACI 318 結構混凝土設計規範及中央氣象署公開觀測資料庫編撰而成，旨在提供工程人員於前期規劃、投標初估、現場施工快速查對之<strong>輔助參考用途</strong>。
+                    </p>
+                    <p>
+                        2.2 <strong>以正式圖說與技師簽證為準：</strong>各項工程之實際施工、鋼筋撿料尺寸、模板支撐應力、混凝土澆置順序、工期計算及計價請款，必須依據各工程主管機關核定之<strong>「契約施工圖說」、「工程特訂條款」、「施工規範」</strong>及<strong>「承攬契約條款」</strong>，並經各標案之<strong>執業註冊技師、建築師或監造工程師現場正式核定簽章</strong>為唯一法律與履約準據。
+                    </p>
+                    <p>
+                        2.3 <strong>免責範圍：</strong>使用者於使用本系統計算結果並據以進行商業投標、材料採購下單、工期展延申報或工程訴訟時，應本於專業知識自行複核各項輸入參數與工程邊界條件。對於使用者因人為參數輸入錯誤、未核對現場實際狀況或對法規之個別認知差異所衍生之任何直接、間接、附隨性或懲罰性工程損害或履約罰款，本公司不負擔連帶法律賠償責任。
+                    </p>
+                </div>
+
+                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <div id="legal-pane-privacy" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                    </h4>
+                    <p>
+                        3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
+                    </p>
+                    <p>
+                        3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
+                    </p>
+                    <p>
+                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                    </p>
+                </div>
+
+                <!-- 條款 4：同業贊助與交流條款 -->
+                <div id="legal-pane-sponsor" class="legal-tab-pane">
+                    <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
+                        第四條：營造同業交流贊助與維運須知
+                    </h4>
+                    <p>
+                        4.1 <strong>免費開放營運初衷：</strong>NOVERA 諾維拉工程顧問致力於推動台灣土木營造數位化轉型，本站 8 大旗艦工具與 9 大現場小算盤目前免費向全體工程業界開放使用。本站保留未來依據營運成本調整服務模式之權利。
+                    </p>
+                    <p>
+                        4.2 <strong>同業贊助性質：</strong>網站所列之國泰世華銀行贊助帳戶（代碼 013 ｜ 帳號 007506098097 ｜ 戶名：胡女士），係供認同本站研發理念之工程業界先進進行自願性、無償性質之同業交流小額贊助（請工程師喝杯咖啡）。該贊助款項將全數用於支付本站高效能伺服器頻寬、氣象資料庫串接與工具持續維護開發，非屬特定勞務給付或商業服務買賣對價。
+                    </p>
+                    <p>
+                        4.3 <strong>正式委託顧問服務：</strong>若營造同業或公私立機關需辦理「公共工程評選服務建議書代編」、「施工計畫書與品質計畫書送審專案指導」、「結構安全獨立第三方複核」或「重大工期延展與爭議索賠專家報告」，請透過官方信箱（gardenai0222@gmail.com）或首頁線上諮詢表單（掃描專屬 LINE QR Code）洽詢專案委託服務。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal 底部 Footer -->
+            <div class="legal-modal-footer">
+                <span style="font-size: 0.82rem; color: #64748B;">
+                    <i class="fas fa-info-circle" style="color: #C27803;"></i> 最後修訂日期：2026 年 8 月 ｜ 適用於 NOVERA 全站所有服務
+                </span>
+                <button type="button" onclick="closeLegalModal()" class="btn-primary" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 800; font-size: 0.88rem; cursor: pointer;">
+                    關閉並返回網站
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文章資料庫與互動腳本 -->
+    <script>
+        const ARTICLES_DATA = {
+            1: {
+                badge: '<i class="fas fa-hard-hat"></i> 重大職安修法',
+                badgeClass: 'alert-tag',
+                title: '2025-2026《職業安全衛生法》大修：平行承攬「統合管理」與刑責大幅提高之營造因應對策',
+                date: '2025 年 12 月 12 日 ｜ 作者：NOVERA 諾維拉',
+                content: `
+                    <h2>2025-2026《職業安全衛生法》大修深度解析：平行承攬「統合管理」與刑責大幅提高之營造因應對策</h2>
+                    <div class="article-meta-info">
+                        <span><i class="fas fa-calendar-alt"></i> 2025-12-12</span>
+                        <span><i class="fas fa-user-tie"></i> NOVERA 諾維拉</span>
+                        <span><i class="fas fa-tag"></i> 職業安全衛生法第27條</span>
+                    </div>
+
+                    <h3>一、修法核心背景：終結「平行承攬」互推責任的法律漏洞</h3>
+                    <p>在過去的公共工程與民間大型廠房新建案中，業主為了節省統包管理費，常將土建、水電、消防、空調、機電等多個專業標包分別「平行發包」。然而一旦現場發生勞工墜落、感電或被夾等重大工安事故，各承攬廠商往往以「非我方直接管轄之作業區域」、「不知他廠進場動線」等理由互推法律責任。</p>
+                    <p>本次立法院三讀通過之《職業安全衛生法》修正條文，<strong>正式確立「統括管理義務」</strong>。明定在同一工作場所若有二個以上承攬人共同作業時，業主必須指定一家主要承攬廠商負起統合安全衛生之連帶管理責任；若業主未指定，則由進場規模最大或主要工程承攬人擔任統括管理者。</p>
+
+                    <div class="callout-box danger">
+                        <strong>⚠️ 罰則全面加重與負責人刑事責任：</strong><br>
+                        修正案大幅提高雇主致勞工發生死亡職災之刑事處罰，刑度由三年以下有期徒刑提高，並得併科<strong>新臺幣 150 萬元以下罰金</strong>；勞動檢查機構對於有立即發生危險之虞之作業（如 2 公尺以上高處作業未設護欄、未繫安全帶），將直接採取<strong>「立即停工處分」並按日連續處罰</strong>。
+                    </div>
+
+                    <h3>二、統括安全衛生管理之「五大強制法定作為」</h3>
+                    <p>依法指定之統括管理廠商，必須在工地現場切實執行下列 5 大要項，並建立完整文件紀錄備查：</p>
+                    <ol>
+                        <li><strong>設置安全衛生協議組織</strong>：定期（至少每週一次）召開全工地承攬商協議會議，針對進場動線、機具交會、吊掛作業等協調作業順序並作成正式會議紀錄。</li>
+                        <li><strong>工作場所每日巡視與指導</strong>：每日至少指派合格職安主管巡視作業場所一次，發現缺失必須立即開立「改善通知單」並拍照追蹤結案。</li>
+                        <li><strong>承攬商進場安全教育訓練與通報</strong>：所有協力廠商之勞工進入工地前，必須完成至少 6 小時之一般安全衛生教育訓練，並查驗勞保投保明細。</li>
+                        <li><strong>出入人員、車輛與機具之嚴格管制</strong>：落實每日上午及午後之進場人員「酒精濃度吹氣檢測」與反光背心、安全帽配戴查驗。</li>
+                        <li><strong>危險性機械操作指揮協調</strong>：塔吊、移動式起重機、高空作業車同時作業時，必須劃設專屬迴轉半徑管制區，並指定專職指揮人員。</li>
+                    </ol>
+
+                    <h3>三、營造廠自保與落實管理 SOP（諾維拉實務建議）</h3>
+                    <p>面對勞檢密度的大幅提升，諾維拉建議營造同業採取以下 3 大防禦策略：</p>
+                    <ul>
+                        <li><strong>合約層面</strong>：與所有下游協力廠商簽訂工程合約時，務必檢附《承攬商安全衛生管理手冊》及《違反職安扣款罰則條款》，並取得負責人簽署之「危害因素告知同意書」。</li>
+                        <li><strong>執行層面</strong>：推行每日上工前 5 分鐘的「工具箱會議 (TBM-KY)」，針對當日作業危險點進行口頭宣導並由全員簽名拍照存證。</li>
+                        <li><strong>數位化存證</strong>：使用施工日誌管理系統或通訊群組，將每日巡檢、改善前後照片即時留存雲端，以便遭遇突發勞檢時能在 10 分鐘內出示完整防護證據。</li>
+                    </ul>
+
+                    <div class="consult-cta-box">
+                        <div>
+                            <h4 style="margin-bottom: 6px; font-size: 1.15rem;">需要編修整體職安計畫書或輔導工地工安體系？</h4>
+                            <p style="font-size: 0.9rem; opacity: 0.9;">NOVERA 提供甲等職安顧問與施工計畫書代辦服務，協助您順利通過各級勞檢。</p>
+                        </div>
+                        <a href="index.html#contact" class="btn-primary" style="background: var(--accent-color); color: #FFF; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; white-space: nowrap;">諮詢諾維拉專業團隊</a>
+                    </div>
+                `
+            },
+            2: {
+                badge: '<i class="fas fa-landmark"></i> 補助政策',
+                badgeClass: 'policy-tag',
+                title: '內政部「老宅延壽機能復新計畫」全方位申請指南：30年老屋翻新最高補助 960 萬與耐震評估實務',
+                date: '2025 年 11 月 05 日 ｜ 作者：NOVERA 諾維拉',
+                content: `
+                    <h2>內政部「老宅延壽機能復新計畫」全方位申請指南：30年老屋翻新最高補助 960 萬與耐震評估實務</h2>
+                    <div class="article-meta-info">
+                        <span><i class="fas fa-calendar-alt"></i> 2025-11-05</span>
+                        <span><i class="fas fa-user-tie"></i> NOVERA 諾維拉</span>
+                        <span><i class="fas fa-tag"></i> 內政部國土署補助方案</span>
+                    </div>
+
+                    <h3>一、政策宗旨：提升老舊建築結構安全與居住機能</h3>
+                    <p>台灣位處環太平洋地震帶，全台屋齡超過 30 年之既有建築物已突破 480 萬戶，其中許多早期興建之公寓或透天住宅不僅缺乏電梯等無障礙設施，且混凝土碳化、鋼筋鏽蝕膨脹導致外牆磁磚剝落之公共危險頻傳。為此，內政部正式拍板推動 114-116 年「老宅延壽機能復新計畫」，編列百億預算全額補貼老宅翻新與結構補強。</p>
+
+                    <h3>二、補助項目、額度與資格對照表</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.95rem;">
+                        <thead>
+                            <tr style="background: #F1F5F9; text-align: left;">
+                                <th style="padding: 12px; border: 1px solid #E2E8F0;">補助類別</th>
+                                <th style="padding: 12px; border: 1px solid #E2E8F0;">適用對象</th>
+                                <th style="padding: 12px; border: 1px solid #E2E8F0;">主要補助項目</th>
+                                <th style="padding: 12px; border: 1px solid #E2E8F0;">最高補助上限</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; font-weight: 700;">公設公共空間更新<br>(集合住宅/公寓)</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">屋齡 30 年以上<br>6層樓以下公寓或大樓</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">外牆防水拉皮修繕、增設無障礙昇降電梯、公共給排水管線更新、結構局部耐震補強</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; color: #D97706; font-weight: 700;">總工程款 45%<br>最高 960 萬元</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; font-weight: 700;">私人室內安全優化<br>(一般住戶)</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">屋齡 30 年以上<br>合法私有住宅</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">老舊用電線路重拉更換、浴室無障礙防滑扶手增設、室內危險隔間改善</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; color: #10B981; font-weight: 700;">最高 20 萬元</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; font-weight: 700;">弱勢族群室內修繕<br>(中低收/高齡戶)</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">符合政府列冊之<br>低收、中低收或高齡獨居</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0;">居家無障礙環境改造、結構安全強化、給排水設備更新</td>
+                                <td style="padding: 12px; border: 1px solid #E2E8F0; color: #EF4444; font-weight: 700;">最高 30 萬元<br>(全額補貼)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>三、申請必備文件與技師簽證核心要件</h3>
+                    <p>申請本項補助計畫，地方政府主管機關（如高雄市工務局、台南市都發局）審查最關鍵的文件如下：</p>
+                    <ul>
+                        <li><strong>建物產權證明</strong>：合法房屋證明文件、使用執照影本及全體所有權人同意書（或區分所有權人會議紀錄）。</li>
+                        <li><strong>土木技師/結構技師簽證之「耐震能力初步評估報告」</strong>：必須經合格技師親赴現地勘查，評估建築物 $R$ 值（耐震能力指標）是否小於規範標準。</li>
+                        <li><strong>建築物修繕工程圖說與預算書</strong>：包含詳細之工項單價分析表、設計平面圖、結構補強配筋圖。</li>
+                    </ul>
+
+                    <h3>四、NOVERA 諾維拉「老宅延壽代辦一條龍」服務</h3>
+                    <p>NOVERA 整合<strong>國家土木技師、室內設計師與甲級營造團隊</strong>，為台南、高雄、屏東地區的業主提供責任單一的完整服務：從前期的「免費現地現況勘查」、出具「技師耐震初評報告書」、代辦「政府補助公文送件審查」，到中後期的「實體拉皮與水電裝修統包施工」及「竣工驗收請領補助款」，免除業主在政府機關與工班間來回奔波之苦。</p>
+
+                    <div class="consult-cta-box">
+                        <div>
+                            <h4 style="margin-bottom: 6px; font-size: 1.15rem;">想了解您的房屋是否符合 960 萬補助資格？</h4>
+                            <p style="font-size: 0.9rem; opacity: 0.9;">歡迎提供建物地址與屋齡，由諾維拉為您進行初步資格試算與流程規劃。</p>
+                        </div>
+                        <a href="index.html#contact" class="btn-primary" style="background: var(--accent-color); color: #FFF; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; white-space: nowrap;">預約免費現場會勘</a>
+                    </div>
+                `
+            },
+            3: {
+                badge: '<i class="fas fa-balance-scale"></i> 採購法規',
+                badgeClass: 'legal-tag',
+                title: '工程會 2026 最新公共工程「物價調整款 (物調)」計算機制與營造爭議審議裁判實務',
+                date: '2026 年 01 月 18 日 ｜ 作者：NOVERA 諾維拉',
+                content: `
+                    <h2>工程會 2026 最新公共工程「物價調整款 (物調)」計算機制與營造爭議審議裁判實務</h2>
+                    <div class="article-meta-info">
+                        <span><i class="fas fa-calendar-alt"></i> 2026-01-18</span>
+                        <span><i class="fas fa-user-tie"></i> NOVERA 諾維拉</span>
+                        <span><i class="fas fa-tag"></i> 政府採購契約範本第5條</span>
+                    </div>
+
+                    <h3>一、營造原物料價格震盪下的契約救濟</h3>
+                    <p>公共工程工期往往長達數百日曆天甚至數年。在履約期間，預拌混凝土、鋼筋、型鋼、瀝青混凝土及砂石級配常受國際原物料行情、航運運費及最新開徵之「碳費」影響而大幅飆漲。若全由得標營造廠自行承擔，將造成嚴重虧損甚至棄標。依據行政院公共工程委員會發布之《公共工程採購契約範本》及相關函釋，工程契約中均應載明「物價指數調整規定」。</p>
+
+                    <h3>二、三大物調門檻與計算方式深度剖析</h3>
+                    <ol>
+                        <li><strong>總指數調整法（門檻通常為 2.5% 或 5%）</strong>：
+                            <p>以行政院主計總處發布之「營造工程物價總指數」為基準。當開標月份與估驗月份之總指數漲跌幅超過規定門檻（例如 2.5%）時，僅針對「超過 2.5% 部分」之工程估驗款進行調整增加或扣減。</p>
+                        </li>
+                        <li><strong>中分類指數調整法（門檻通常為 5%）</strong>：
+                            <p>針對契約中佔比重大的個別大項類別（如金屬製品類、水泥及其製品類、砂石及級配類、瀝青及其製品類）。個別中分類指數漲跌幅超過 5% 時，針對該中分類之估驗金額計算物調。</p>
+                        </li>
+                        <li><strong>個別項目指數調整法（門檻通常為 10%）</strong>：
+                            <p>針對特定核心大宗材料（例如鋼筋、預拌混凝土、瀝青混凝土面層），當個別項目指數漲跌幅超過 10% 時，就該單項材料工項進行單獨精算調整。</p>
+                        </li>
+                    </ol>
+
+                    <div class="callout-box success">
+                        <strong>📌 物調請款公式範例（以漲幅超過 2.5% 為例）：</strong><br>
+                        $$\\text{物調增加金額} = A \\times (1 - E) \\times \\left( \\frac{I_1}{I_0} - 1 - 0.025 \\right)$$
+                        其中 $A$ 為當期估驗款金額、$E$ 為不予調整項目比例（如預付款扣回、規費等）、$I_1$ 為估驗當月指數、$I_0$ 為開標當月指數。
+                    </div>
+
+                    <h3>三、營造廠在實務請款常遇到的 3 大爭議陷阱</h3>
+                    <ul>
+                        <li><strong>「估驗當期未提出，結算時才一併申請」是否有效？</strong><br>
+                        依據工程會最新審議裁判要旨，只要在「工程全案驗收合格結算前」提出物調申請，原則上均屬有效；但若已簽署結算驗收證明書且未為「保留聲明」，事後再行求償恐遭機關駁回。</li>
+                        <li><strong>機關以「年度預算不足」為由拒絕編列物調款：</strong><br>
+                        物價調整款為契約明定之給付義務，機關預算不足不得作為免責事由。營造廠商得檢具完整之物調計算書，向行政院公共工程委員會採購申訴審議委員會申請「履約爭議調解」。</li>
+                    </ul>
+
+                    <div class="consult-cta-box">
+                        <div>
+                            <h4 style="margin-bottom: 6px; font-size: 1.15rem;">正在辦理工程估驗或結算物調爭議？</h4>
+                            <p style="font-size: 0.9rem; opacity: 0.9;">NOVERA 具備豐富的工程會爭議調解與物調試算實績，提供專業試算書撰寫與顧問諮詢。</p>
+                        </div>
+                        <a href="index.html#contact" class="btn-primary" style="background: var(--accent-color); color: #FFF; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; white-space: nowrap;">預約專業案件諮詢</a>
+                    </div>
+                `
+            },
+            4: {
+                badge: '<i class="fas fa-clipboard-check"></i> 工程品管',
+                badgeClass: 'quality-tag',
+                title: '公共工程施工查核甲等攻略：常見 50 大缺失防範與品質計畫書「檢驗停留點 (Hold Point)」建置精要',
+                date: '2026 年 02 月 10 日 ｜ 作者：NOVERA 諾維拉',
+                content: `
+                    <h2>公共工程施工查核甲等攻略：常見 50 大缺失防範與品質計畫書「檢驗停留點 (Hold Point)」建置精要</h2>
+                    <div class="article-meta-info">
+                        <span><i class="fas fa-calendar-alt"></i> 2026-02-10</span>
+                        <span><i class="fas fa-user-tie"></i> NOVERA 諾維拉</span>
+                        <span><i class="fas fa-tag"></i> 公共工程品質計畫書標準作業要點</span>
+                    </div>
+
+                    <h3>一、施工查核成績對營造廠投標資格的深遠影響</h3>
+                    <p>依據工程會《工程施工查核小組作業辦法》，公共工程查核成績達 85 分以上為「優等/甲等」，不僅能獲得主辦機關公開表揚，在後續最有利標評選簡報中更是關鍵加分項目；反之，若被評為「丙等 (未達 70 分)」，得標廠商將被處以暫停投標資格 1 年、扣罰懲罰性違約金，並撤換品管人員與工地主任。因此，建立標準化的品管防錯機制是營造團隊的重中之重。</p>
+
+                    <h3>二、查核委員最常扣分的 5 大現場致命缺失</h3>
+                    <ol>
+                        <li><strong>鋼筋工程缺失（扣分佔比高達 30%）</strong>：
+                            <p>鋼筋搭接長度不足（未達 $40d$ 或設計圖說要求）、搭接位置集中在最大應力斷面；主筋保護層厚度不足，未使用水泥砂漿墊塊或墊塊間距過疏導致露筋；柱樑接頭區梁柱箍筋未確實綁紮。</p>
+                        </li>
+                        <li><strong>混凝土工程缺失</strong>：
+                            <p>試體取樣未經監造會同簽認、拆模試體強度不足即提早拆模；灌漿搗實不良導致蜂窩、麻面或孔洞；新舊混凝土接縫處未確實打毛清潔。</p>
+                        </li>
+                        <li><strong>品管文件與施工日誌記載不實</strong>：
+                            <p>品管自主檢查表「只有打勾沒有實測數據」；材料出廠證明與無輻射證明未依進場批次即時歸檔；檢驗停留點未經監造工程師現場抽查簽認即逕行隱蔽。</p>
+                        </li>
+                        <li><strong>施工照片未符規範要求</strong>：
+                            <p>隱蔽部分照片未附「工程名稱標示板、比例尺、取樣樁號與日期」，無法佐證施工實況。</p>
+                        </li>
+                        <li><strong>職業安全衛生設施缺失</strong>：
+                            <p>開口未設 110 公分以上防墜護欄、施工架未設置繫牆桿及交叉拉桿、臨時配電箱未裝設漏電斷路器。</p>
+                        </li>
+                    </ol>
+
+                    <h3>三、品質計畫書「檢驗停留點 (Hold Point)」建置精要</h3>
+                    <p>檢驗停留點是三級品管制度的核心。營造廠在編製整體品質計畫書時，必須明確標定「不可逆或即將被隱蔽之工序」，例如：</p>
+                    <ul>
+                        <li><strong>基礎開挖完成面標高與地盤承載力檢驗</strong></li>
+                        <li><strong>基礎/各樓層鋼筋綁紮完成，混凝土澆置前檢驗</strong></li>
+                        <li><strong>連續壁鋼筋籠吊放及特密管澆置前檢驗</strong></li>
+                        <li><strong>防水層塗布完成之 24 小時蓄水試驗</strong></li>
+                        <li><strong>隱蔽配管完成之管線水壓/氣壓試驗</strong></li>
+                    </ul>
+                    <p>以上停留點未經監造單位現場抽查合格並簽署報驗單前，<strong>現場一律嚴禁進入下一工序</strong>。只要落實停留點管理並完備前中後照片，查核成績必然穩居 80~85 分以上甲等！</p>
+
+                    <div class="consult-cta-box">
+                        <div>
+                            <h4 style="margin-bottom: 6px; font-size: 1.15rem;">即將面臨工程查核或需要代編整體品質計畫書？</h4>
+                            <p style="font-size: 0.9rem; opacity: 0.9;">NOVERA 諾維拉專業團隊提供急速文件健檢與查核模擬輔導，確保查核一次通過。</p>
+                        </div>
+                        <a href="index.html#contact" class="btn-primary" style="background: var(--accent-color); color: #FFF; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; white-space: nowrap;">諮詢品質計畫書代辦</a>
+                    </div>
+                `
+            }
+        };
+
+        function openArticle(id) {
+            const article = ARTICLES_DATA[id];
+            if (!article) return;
+
+            document.getElementById('modalArticleBadge').innerHTML = article.badge;
+            document.getElementById('modalArticleBadge').className = 'news-tag ' + article.badgeClass;
+            document.getElementById('articleModalBody').innerHTML = article.content;
+            
+            const modal = document.getElementById('articleModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            window.location.hash = 'article-' + id;
+        }
+
+        function closeArticle() {
+            const modal = document.getElementById('articleModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+
+        // 點擊背景關閉
+        document.getElementById('articleModal').addEventListener('click', (e) => {
+            if (e.target.id === 'articleModal') {
+                closeArticle();
+            }
+        });
+
+        // ESC 鍵關閉
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeArticle();
+            }
+        });
+
+        // 檢查網址 Hash
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#article-')) {
+                const id = parseInt(hash.replace('#article-', ''), 10);
+                if (ARTICLES_DATA[id]) {
+                    openArticle(id);
+                }
+            }
+        });
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100 });
+    </script>
+    
+</body>
+</html>
