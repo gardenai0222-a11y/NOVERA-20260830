@@ -306,7 +306,7 @@
                             </p>
                         </div>
                         <div>
-                            <a href="今日政府電子採購網.xlsx" download="今日政府電子採購網.xlsx" onclick="downloadTenderExcel(event)" class="btn-twin-action btn-download-excel">
+                            <a href="tenders_today.xlsx" download="tenders_today.xlsx" onclick="downloadTenderExcel(event)" class="btn-twin-action btn-download-excel">
                                 <i class="fas fa-download"></i> 免費下載標案總表 Excel
                             </a>
                             <div class="twin-sub-note">
@@ -651,13 +651,36 @@
     <script>
         if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true });
 
-        function downloadTenderExcel(e) {
-            // 直接由瀏覽器原生以最佳相容性下載 tenders_today.xlsx
+        async function downloadTenderExcel(e) {
+            if (e) e.preventDefault();
             const btn = document.querySelector('.btn-download-excel');
-            if (btn) {
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> 已開始下載標案總表...';
-                setTimeout(() => { btn.innerHTML = originalHTML; }, 2500);
+            const originalHTML = btn ? btn.innerHTML : '';
+            if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在安全下載...';
+            
+            try {
+                const res = await fetch('tenders_today.xlsx?t=' + Date.now());
+                if (!res.ok) throw new Error('下載失敗');
+                const buffer = await res.arrayBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = '今日政府電子採購網_標案情報總表.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(blobUrl);
+                }, 1500);
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> 下載成功！';
+                    setTimeout(() => { btn.innerHTML = originalHTML; }, 2500);
+                }
+            } catch(err) {
+                // 如果 fetch 被擋，自動走原生直接下載通道
+                window.location.href = 'tenders_today.xlsx';
+                if (btn) setTimeout(() => { btn.innerHTML = originalHTML; }, 2500);
             }
         }
 

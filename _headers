@@ -1,13 +1,21 @@
 # Netlify Custom Headers for Official MIME Types & Download Integrity
 /*.xlsx
   Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment; filename="tenders_today.xlsx"
+  Cache-Control: public, max-age=0, must-revalidate
+
+/tenders_today.xlsx
+  Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+  Content-Disposition: attachment; filename="tenders_today.xlsx"
   Cache-Control: public, max-age=0, must-revalidate
 
 /*.doc
   Content-Type: application/msword
+  Content-Disposition: attachment; filename="document.doc"
   Cache-Control: public, max-age=0, must-revalidate
 
 /*.png
   Cache-Control: public, max-age=86400
+
 
 
