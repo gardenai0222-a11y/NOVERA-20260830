@@ -1519,15 +1519,23 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
-/* --- Ad Banners --- */
-.ad-banners-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 30px 20px;
-    background: var(--bg-light);
+/* --- Ad Banners (上線初期暫時停用隱藏，保持版面純淨，待 Google AdSense 審查通過後再行啟用) --- */
+.ad-banners-container,
+.page-sidebar,
+.ad-banner,
+.banner-group {
+    display: none !important;
 }
-.ad-banner {
+.page-main-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+}
+.page-layout-container {
+    display: block !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+}
     background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-strict);
