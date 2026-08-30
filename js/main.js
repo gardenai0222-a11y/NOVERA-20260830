@@ -746,6 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const allowedHosts = [
         'novera-tw.netlify.app',
         'novera-engineering.netlify.app',
+        'github.io',
+        'gardenai0222-a11y.github.io',
         'localhost',
         '127.0.0.1'
     ];
