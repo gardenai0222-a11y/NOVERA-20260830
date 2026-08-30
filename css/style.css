@@ -284,7 +284,7 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 2px solid #FBBF24;
 }
 
-/* 導覽列下拉選單 (Dropdown Menu) 全域與電腦版設定 */
+/* --- 導覽列下拉選單 (Dropdown Menu) 全域與電腦版設定 --- */
 .nav-dropdown {
     position: relative;
     display: inline-block;
@@ -297,53 +297,54 @@ h1, h2, h3, h4, h5, h6 {
     gap: 5px;
 }
 
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 280px;
-    background: #0E1B2E !important;
-    border: 1px solid rgba(194, 120, 3, 0.4) !important;
-    border-top: 3px solid #C27803 !important;
-    border-radius: 8px;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7) !important;
-    padding: 8px 0;
-    list-style: none;
-    margin: 8px 0 0 0;
-    z-index: 999999;
-}
-
+/* 電腦版專屬懸停下拉 (1101px 以上) */
 @media (min-width: 1101px) {
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 280px;
+        background: #0E1B2E !important;
+        border: 1px solid rgba(194, 120, 3, 0.4) !important;
+        border-top: 3px solid #C27803 !important;
+        border-radius: 8px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7) !important;
+        padding: 8px 0;
+        list-style: none;
+        margin: 8px 0 0 0;
+        z-index: 999999;
+    }
+
     .nav-dropdown:hover .dropdown-menu {
         display: block !important;
     }
-}
 
-.dropdown-menu li {
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100%;
-    display: block;
-    background: transparent !important;
-}
+    .dropdown-menu li {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100%;
+        display: block;
+        background: transparent !important;
+    }
 
-.dropdown-menu li a {
-    display: block !important;
-    padding: 10px 18px !important;
-    color: #F1F5F9 !important;
-    font-size: 0.92rem !important;
-    font-weight: 600 !important;
-    text-align: left !important;
-    transition: all 0.2s ease !important;
-    border-bottom: none !important;
-    background: transparent !important;
-}
+    .dropdown-menu li a {
+        display: block !important;
+        padding: 10px 18px !important;
+        color: #F1F5F9 !important;
+        font-size: 0.92rem !important;
+        font-weight: 600 !important;
+        text-align: left !important;
+        transition: all 0.2s ease !important;
+        border-bottom: none !important;
+        background: transparent !important;
+    }
 
-.dropdown-menu li a:hover {
-    background: #1A2B42 !important;
-    color: #FBBF24 !important;
-    padding-left: 22px !important;
+    .dropdown-menu li a:hover {
+        background: #1A2B42 !important;
+        color: #FBBF24 !important;
+        padding-left: 22px !important;
+    }
 }
 
 .hamburger {
