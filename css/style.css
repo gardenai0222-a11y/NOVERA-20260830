@@ -2066,3 +2066,99 @@ h1, h2, h3, h4, h5, h6 {
     color: #065F46 !important;
     border-color: #A7F3D0 !important;
 }
+
+/* ==========================================================================
+   NOVERA 全站 Google AdSense Cookie 告知條 ＆ 隱私權政策彈窗
+   ========================================================================== */
+.novera-cookie-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 960px;
+    background: rgba(14, 27, 46, 0.96);
+    border: 1px solid #C27803;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    padding: 16px 24px;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    animation: slideUpCookie 0.35s ease-out;
+}
+
+@keyframes slideUpCookie {
+    from { opacity: 0; transform: translate(-50%, 30px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.novera-cookie-text {
+    font-size: 0.86rem;
+    color: #CBD5E1;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.novera-cookie-text strong {
+    color: #FBBF24;
+}
+
+.novera-cookie-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.btn-novera-cookie-accept {
+    background: linear-gradient(135deg, #C27803 0%, #D97706 100%);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 0.84rem;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(194, 120, 3, 0.35);
+}
+
+.btn-novera-cookie-accept:hover {
+    background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+    transform: translateY(-1px);
+}
+
+.btn-novera-cookie-privacy {
+    background: transparent;
+    color: #94A3B8;
+    font-size: 0.82rem;
+    border: 1px solid #334155;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-novera-cookie-privacy:hover {
+    color: #FFFFFF;
+    border-color: #CBD5E1;
+}
+
+@media (max-width: 768px) {
+    .novera-cookie-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        bottom: 12px;
+        padding: 14px 18px;
+    }
+    .novera-cookie-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+

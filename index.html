@@ -594,6 +594,7 @@
     <!-- ========================================================================= -->
     <!-- 全域正統工程顧問權威 法律條款 / 智財權保護 / 免責聲明 Modal 彈窗 -->
     <!-- ========================================================================= -->
+
     <div id="globalLegalModal" class="legal-modal-overlay">
         <div class="legal-modal-card">
             <!-- Modal 頂部 Header -->
@@ -662,7 +663,7 @@
                     </p>
                 </div>
 
-                <!-- 條款 3：商業機密與本地隱私保證 + Google AdSense Cookie 宣告 -->
+                <!-- 條款 3：商業機密與本地隱私保證 ＆ Google Cookie 宣告 -->
                 <div id="legal-pane-privacy" class="legal-tab-pane">
                     <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
                         第三條：商業機密安全、本地隱私保證 ＆ Google Cookie 宣告
@@ -707,15 +708,15 @@
         </div>
     </div>
 
-    <!-- 全站 Google AdSense Cookie 告知橫條 (實體 HTML 標籤) -->
-    <div id="noveraCookieBanner" class="novera-cookie-banner" style="display: none;">
-        <div class="novera-cookie-text">
+    <!-- 全站 Google AdSense Cookie 告知橫條 (獨立內嵌完整樣式，保證免依賴即刻正常顯示) -->
+    <div id="noveraCookieBanner" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 960px; background: rgba(14, 27, 46, 0.98); border: 1px solid #C27803; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7); border-radius: 12px; padding: 16px 24px; z-index: 9999999; align-items: center; justify-content: space-between; gap: 20px;">
+        <div style="font-size: 0.86rem; color: #CBD5E1; line-height: 1.5; flex: 1;">
             <i class="fas fa-cookie-bite" style="color: #F59E0B; margin-right: 6px;"></i>
-            <strong>Cookie 與第三方廣告服務告知：</strong>本網站使用 Cookie 與 Google AdSense 技術以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
+            <strong style="color: #FBBF24;">Cookie 與第三方廣告服務告知：</strong>本網站使用 Cookie 與 Google AdSense 技術以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
         </div>
-        <div class="novera-cookie-actions">
-            <button type="button" class="btn-novera-cookie-privacy" onclick="openLegalModal('privacy')">隱私權條款</button>
-            <button type="button" class="btn-novera-cookie-accept" onclick="acceptNoveraCookieConsent()">同意並接受</button>
+        <div style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+            <button type="button" onclick="openLegalModal('privacy')" style="background: transparent; color: #94A3B8; font-size: 0.82rem; border: 1px solid #334155; padding: 7px 14px; border-radius: 6px; cursor: pointer;">隱私權條款</button>
+            <button type="button" onclick="acceptNoveraCookieConsent()" style="background: linear-gradient(135deg, #C27803 0%, #D97706 100%); color: #FFFFFF; font-weight: 800; font-size: 0.84rem; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(194, 120, 3, 0.35);">同意並接受</button>
         </div>
     </div>
 
@@ -727,7 +728,6 @@
             once: true,
             offset: 100,
         });
-        // 動態更新 Footer 版權年份
         const footerYear = document.getElementById('footer-year');
         if (footerYear) footerYear.textContent = new Date().getFullYear();
 
@@ -742,8 +742,11 @@
                 if (banner) banner.style.display = 'flex';
             }
         }
-        document.addEventListener('DOMContentLoaded', checkNoveraCookie);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkNoveraCookie);
+        } else {
+            checkNoveraCookie();
+        }
     </script>
-    
 </body>
 </html>

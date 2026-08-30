@@ -773,3 +773,100 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
+
+/* ==========================================================================
+   NOVERA 全站 Google AdSense Cookie 告知條 ＆ 隱私權政策控制器
+   ========================================================================== */
+(function() {
+    function initNoveraCookieSystem() {
+        // 若已有 Banner 則不重複建立
+        if (document.getElementById('noveraCookieBanner')) return;
+
+        // 1. 建立 Cookie 告知條 HTML
+        const banner = document.createElement('div');
+        banner.id = 'noveraCookieBanner';
+        banner.className = 'novera-cookie-banner';
+        banner.style.display = 'none';
+        banner.innerHTML = `
+            <div class="novera-cookie-text">
+                <i class="fas fa-cookie-bite" style="color: #F59E0B; margin-right: 6px;"></i>
+                <strong>Cookie 與第三方服務告知：</strong>本網站使用 Cookie 與 Google AdSense 廣告技術，以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
+            </div>
+            <div class="novera-cookie-actions">
+                <button type="button" class="btn-novera-cookie-privacy" id="btnNoveraPrivacyOpen">隱私權條款</button>
+                <button type="button" class="btn-novera-cookie-accept" id="btnNoveraCookieAccept">同意並接受</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+
+        // 2. 建立隱私權彈窗 HTML
+        const modal = document.createElement('div');
+        modal.id = 'noveraPrivacyModal';
+        modal.className = 'legal-modal-overlay';
+        modal.innerHTML = `
+            <div class="legal-modal-card">
+                <div class="legal-modal-header">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-shield-halved" style="color: #F59E0B;"></i>
+                        <span style="font-weight:800; font-size:1.1rem;">NOVERA 隱私權政策 ＆ Google Cookie 使用聲明</span>
+                    </div>
+                    <button type="button" id="btnNoveraPrivacyClose" style="background:none; border:none; color:#94A3B8; font-size:1.4rem; cursor:pointer;">&times;</button>
+                </div>
+                <div style="padding: 24px; overflow-y: auto; max-height: 70vh; color: #334155; font-size: 0.9rem; line-height: 1.7;">
+                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">一、個人資料蒐集與保護</h4>
+                    <p style="margin-bottom: 12px;">NOVERA 諾維拉工程顧問（下稱本網站）尊重並全力保護使用者的隱私權。所有工程計算機、鋼筋檢核與標案查詢均以保障使用者資料安全為原則進行運算。</p>
+
+                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">二、Google AdSense 廣告與第三方 Cookie 宣告</h4>
+                    <p style="margin-bottom: 8px;">本網站使用 Google AdSense 廣告服務（發布商 ID：<code>ca-pub-1157627714001948</code>）。Google 作為第三方廣告發布廠商，使用 Cookie（包括 DoubleClick DART Cookie）根據您造訪本網站及網際網路上其他網站的瀏覽歷程投放相關廣告。</p>
+                    <ul style="margin-left: 20px; margin-bottom: 12px;">
+                        <li>使用者得隨時造訪 <a href="https://www.google.com/settings/ads" target="_blank" style="color: #C27803; font-weight: 700;">Google 廣告設定</a> 關閉個人化廣告。</li>
+                        <li>若您不希望第三方供應商透過 Cookie 投放個人化廣告，亦可前往 <a href="https://www.aboutads.info" target="_blank" style="color: #C27803; font-weight: 700;">AboutAds.info</a> 選擇退出。</li>
+                    </ul>
+
+                    <h4 style="color: #0E1B2E; margin-bottom: 6px; font-weight: 800;">三、網站流量統計與效能優化</h4>
+                    <p style="margin-bottom: 12px;">本網站透過匿名化的數據分析工具，統計訪客停留時間、熱門工程工具與標案查詢熱度，以作為系統功能優化依據。</p>
+
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button type="button" id="btnNoveraPrivacyConfirm" style="background: #0E1B2E; color: #FFFFFF; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 700; cursor: pointer;">
+                            我已了解並關閉
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // 3. 事件綁定
+        const consent = localStorage.getItem('novera_cookie_consent');
+        if (!consent) {
+            banner.style.display = 'flex';
+        }
+
+        document.getElementById('btnNoveraCookieAccept').addEventListener('click', () => {
+            localStorage.setItem('novera_cookie_consent', 'accepted');
+            banner.style.display = 'none';
+        });
+
+        const openModal = () => modal.classList.add('active');
+        const closeModal = () => modal.classList.remove('active');
+
+        document.getElementById('btnNoveraPrivacyOpen').addEventListener('click', openModal);
+        document.getElementById('btnNoveraPrivacyClose').addEventListener('click', closeModal);
+        document.getElementById('btnNoveraPrivacyConfirm').addEventListener('click', closeModal);
+
+        // 點擊遮罩關閉
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // 暴露全局開啟函數供頁尾連結呼叫
+        window.openNoveraPrivacyModal = openModal;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNoveraCookieSystem);
+    } else {
+        initNoveraCookieSystem();
+    }
+})();
+
