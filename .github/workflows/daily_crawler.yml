@@ -33,5 +33,7 @@ jobs:
           git commit -m "🤖 [自動排程] 即時更新標案雷達資料庫與防休眠活躍度" || echo "無變更"
           git push
       - name: 🚀 直接推送部署至 Netlify (零消耗 Netlify 額度，終生自動直連)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         run: |
-          npx netlify-cli deploy --prod --dir=. --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }}
+          npx netlify-cli deploy --prod --dir=. --site=novera-tw --auth=${{ secrets.NETLIFY_AUTH_TOKEN }}
