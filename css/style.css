@@ -1772,39 +1772,62 @@ h1, h2, h3, h4, h5, h6 {
         top: 100%;
         left: 0;
         width: 100%;
-        background: rgba(255, 255, 255, 0.98);
+        background: #0E1B2E;
         padding: 20px 0;
-        box-shadow: var(--shadow-md);
-        border-bottom: 3px solid var(--accent-color);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        border-bottom: 3px solid #C27803;
+        z-index: 99999;
     }
     .nav-links.active {
-        display: flex;
+        display: flex !important;
     }
     .nav-links li {
-        margin: 10px 0;
+        margin: 8px 0;
         text-align: center;
         width: 100%;
     }
+    .nav-links a {
+        color: #F8FAFC !important;
+        font-size: 1.05rem;
+        padding: 8px 20px !important;
+        display: inline-block;
+    }
     .nav-dropdown > a {
         justify-content: center;
+        display: inline-flex !important;
+        cursor: pointer;
     }
     .dropdown-menu {
+        display: none;
         position: static;
         transform: none;
         box-shadow: none;
-        background: #F8FAFC;
+        background: #162840;
         border: none;
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
+        border-top: 1px solid rgba(194, 120, 3, 0.3);
+        border-bottom: 1px solid rgba(194, 120, 3, 0.3);
         border-radius: 0;
         margin-top: 8px;
-        padding: 5px 0;
+        padding: 6px 0;
     }
     .dropdown-menu a {
         justify-content: center;
-        padding: 8px 15px !important;
+        padding: 10px 15px !important;
+        color: #E2E8F0 !important;
+        font-size: 0.95rem;
     }
-    .hamburger { display: block; }
+    .dropdown-menu a:hover {
+        color: #FBBF24 !important;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .hamburger { 
+        display: block !important; 
+        font-size: 1.6rem;
+        color: #FFFFFF !important;
+        padding: 5px;
+        cursor: pointer;
+        z-index: 100000;
+    }
     
     .hero h1 { font-size: 2.2rem; }
     .hero .subtitle { font-size: 1.2rem; }

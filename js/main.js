@@ -74,11 +74,102 @@
     window.addEventListener('load', patchSheetJS);
 })();
 
+// ==========================================
+// NOVERA 官方全站 UI 與互動控制邏輯
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+
+    // 1. 漢堡選單 (Hamburger Menu) 開關與手機導航
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+        
+        // 點擊導覽連結後自動收合選單（一般頁面連結）
+        document.querySelectorAll('.nav-links a:not(.dropdown-toggle)').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1100 && !link.closest('.nav-dropdown')) {
+                    navLinks.classList.remove('active');
+                    hamburger.classList.remove('active');
+                }
+            });
+        });
+
+        // 點擊網頁其他空白處自動收合漢堡選單
+        document.addEventListener('click', (e) => {
+            if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+        });
+    }
+
+    // 2. 手機版下拉選單 (實用工程工具) 觸控點擊展開/收合
+    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+        const dropLink = dropdown.querySelector('a');
+        if (dropLink) {
+            dropLink.addEventListener('click', function(e) {
+                if (window.innerWidth <= 1100) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    if (menu) {
+                        menu.style.display = dropdown.classList.contains('active') ? 'block' : 'none';
+                    }
+                }
+            });
+        }
+    });
+
+    // 3. 頂部導覽列滾動陰影特效 (Navbar Scroll Effect)
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    }
+
+    // 4. 平滑錨點滾動 (Smooth Scrolling for Anchors)
+    document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href && (href.startsWith('#') || (window.location.pathname.endsWith('tools.html') && href.includes('tools.html#')))) {
+                const hash = href.includes('#') ? href.substring(href.indexOf('#')) : '';
+                if (hash && hash !== '#') {
+                    const target = document.querySelector(hash);
+                    if (target) {
+                        e.preventDefault();
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        history.pushState(null, null, hash);
+                    }
+                }
+            }
+        });
+    });
+
+    // 5. FAQ 手風琴摺疊元件 (FAQ Accordion)
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        if (question) {
+            question.addEventListener('click', () => {
+                faqItems.forEach(otherItem => {
                     if (otherItem !== item && otherItem.classList.contains('active')) {
                         otherItem.classList.remove('active');
                     }
                 });
-                // Toggle current item
                 item.classList.toggle('active');
             });
         }
