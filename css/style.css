@@ -1827,72 +1827,99 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 1100px) {
+    .nav-container {
+        position: relative !important;
+        padding: 0 16px !important;
+    }
+    .nav-menu {
+        position: static !important;
+    }
     .nav-links { 
         display: none; 
         flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
+        position: fixed !important;
+        top: 76px !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100vw !important;
         background: #0E1B2E !important;
-        padding: 15px 0 25px;
+        padding: 15px 16px 30px !important;
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8) !important;
         border-bottom: 3px solid #C27803 !important;
-        z-index: 99999;
-        max-height: 85vh;
-        overflow-y: auto;
+        z-index: 99999 !important;
+        max-height: calc(100vh - 76px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
     }
     .nav-links.active {
         display: flex !important;
     }
     .nav-links > li {
-        margin: 6px 0;
-        text-align: center;
-        width: 100%;
+        margin: 6px 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
     .nav-links > li > a {
         color: #FFFFFF !important;
         font-size: 1.05rem !important;
-        padding: 10px 20px !important;
-        display: inline-block;
-        font-weight: 700;
+        padding: 10px 16px !important;
+        display: inline-block !important;
+        font-weight: 700 !important;
+        box-sizing: border-box !important;
     }
     .nav-dropdown {
-        width: 100%;
-        display: block;
+        width: 100% !important;
+        display: block !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     .nav-dropdown > a {
-        justify-content: center;
+        justify-content: center !important;
         display: inline-flex !important;
-        cursor: pointer;
-        width: 100%;
+        cursor: pointer !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
-    /* 手機版下拉子選單實心曜石深藍底色與尊榮金邊框 */
+    /* 手機版下拉子選單：100% 精準置中、曜石深藍底色與尊榮金邊框、零溢出 */
     .dropdown-menu {
         display: none;
         position: static !important;
-        width: 90% !important;
-        margin: 10px auto 14px !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 8px 0 16px 0 !important;
         background: #162840 !important;
         border: 1.5px solid #C27803 !important;
         border-radius: 10px !important;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
-        padding: 8px 0 !important;
+        padding: 6px 0 !important;
+        box-sizing: border-box !important;
+        list-style: none !important;
     }
     .dropdown-menu li {
-        margin: 3px 0 !important;
+        margin: 2px 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
         background: transparent !important;
     }
     .dropdown-menu li a {
-        justify-content: center;
+        justify-content: center !important;
         text-align: center !important;
-        padding: 10px 15px !important;
+        padding: 10px 14px !important;
         color: #F8FAFC !important;
         font-size: 0.95rem !important;
         font-weight: 600 !important;
         display: block !important;
         background: transparent !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-sizing: border-box !important;
+        white-space: normal !important;
+        word-break: break-word !important;
     }
     .dropdown-menu li:last-child a {
         border-bottom: none !important;
