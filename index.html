@@ -662,10 +662,10 @@
                     </p>
                 </div>
 
-                <!-- 條款 3：商業機密與本地隱私保證 -->
+                <!-- 條款 3：商業機密與本地隱私保證 + Google AdSense Cookie 宣告 -->
                 <div id="legal-pane-privacy" class="legal-tab-pane">
                     <h4 style="color: #0E1B2E; font-size: 1.1rem; font-weight: 900; margin: 0 0 12px; border-left: 4px solid #C27803; padding-left: 10px;">
-                        第三條：商業機密安全與「零雲端傳輸」本地隱私保證
+                        第三條：商業機密安全、本地隱私保證 ＆ Google Cookie 宣告
                     </h4>
                     <p>
                         3.1 <strong>100% 本地沙盒運算架構：</strong>為徹底保障各營造同業之投標單價、工程利潤、工料成本流水帳、工程進度日誌及各項敏感商業機密，本網站所有核心計算工具（包含「專案進度 S 曲線」與「工程財務 ＆ 案件收益分析系統」）<strong>全面採用 HTML5 LocalStorage 本機儲存架構與純前端 JavaScript 引擎</strong>。
@@ -674,7 +674,7 @@
                         3.2 <strong>絕不回傳任何雲端伺服器：</strong>使用者於本站輸入之所有工程名稱、契約總價、分包成本、各期估驗款、每日施工進度及財務明細，<strong>100% 僅儲存於使用者個人使用之瀏覽器記憶體與本機快取中</strong>，本站伺服器絕不進行任何資料收集、側錄、同步或上傳至任何第三方雲端資料庫。
                     </p>
                     <p>
-                        3.3 <strong>資料備份自律：</strong>因資料均存放於本機，為防止使用者清除瀏覽器暫存或更換電腦導致資料遺失，各系統均提供一鍵「JSON 專案備份與還原」與「Excel 審計級總表匯出」功能，請使用者定期自行下載備份妥善保存。
+                        3.3 <strong>Google AdSense 廣告與第三方 Cookie 宣告：</strong>本網站使用 Google AdSense 廣告發布商服務（發布商 ID：<code>ca-pub-1157627714001948</code>）。Google 作為第三方廣告供應商，會使用 Cookie（包括 DoubleClick DART Cookie）根據您造訪本網站及網際網路上其他網站的歷史紀錄投放相關廣告。使用者得隨時造訪 <a href="https://www.google.com/settings/ads" target="_blank" style="color: #C27803; font-weight: 700;">Google 廣告設定</a> 停用個人化廣告，或前往 <a href="https://www.aboutads.info" target="_blank" style="color: #C27803; font-weight: 700;">AboutAds.info</a> 選擇退出。
                     </p>
                 </div>
 
@@ -707,6 +707,18 @@
         </div>
     </div>
 
+    <!-- 全站 Google AdSense Cookie 告知橫條 (實體 HTML 標籤) -->
+    <div id="noveraCookieBanner" class="novera-cookie-banner" style="display: none;">
+        <div class="novera-cookie-text">
+            <i class="fas fa-cookie-bite" style="color: #F59E0B; margin-right: 6px;"></i>
+            <strong>Cookie 與第三方廣告服務告知：</strong>本網站使用 Cookie 與 Google AdSense 技術以確保系統穩定運作、流量統計與內容推播。繼續瀏覽即代表您同意本站之 Cookie 應用政策。
+        </div>
+        <div class="novera-cookie-actions">
+            <button type="button" class="btn-novera-cookie-privacy" onclick="openLegalModal('privacy')">隱私權條款</button>
+            <button type="button" class="btn-novera-cookie-accept" onclick="acceptNoveraCookieConsent()">同意並接受</button>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
@@ -718,6 +730,19 @@
         // 動態更新 Footer 版權年份
         const footerYear = document.getElementById('footer-year');
         if (footerYear) footerYear.textContent = new Date().getFullYear();
+
+        function acceptNoveraCookieConsent() {
+            localStorage.setItem('novera_cookie_consent', 'accepted');
+            const banner = document.getElementById('noveraCookieBanner');
+            if (banner) banner.style.display = 'none';
+        }
+        function checkNoveraCookie() {
+            if (!localStorage.getItem('novera_cookie_consent')) {
+                const banner = document.getElementById('noveraCookieBanner');
+                if (banner) banner.style.display = 'flex';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkNoveraCookie);
     </script>
     
 </body>
