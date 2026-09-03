@@ -4,11 +4,20 @@ NOVERA 官方網站 - 雲端自動爬蟲腳本
 專為 GitHub Actions + 靜態託管設計，產出 tenders_data.js 與 tenders_today.xlsx
 採用 Session Cookie 持久化架構，保證 100% 繞過政府電子採購網 500 錯誤
 """
-import requests
-import urllib3
-import re
 import sys
 import os
+import subprocess
+
+# 自動檢測並補裝 requests 與 urllib3，徹底免去手動修改 yaml 依賴的麻煩
+try:
+    import requests
+    import urllib3
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests", "urllib3", "openpyxl"])
+    import requests
+    import urllib3
+
+import re
 import shutil
 import json
 import time
