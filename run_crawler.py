@@ -15,6 +15,14 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from datetime import datetime, timezone, timedelta
 
+# 避免 Windows 終端機 (CP950) 輸出 Emoji 報錯
+if sys.platform.startswith('win'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # 強制指定台灣時區 (Asia/Taipei UTC+8)
 TAIWAN_TZ = timezone(timedelta(hours=8))

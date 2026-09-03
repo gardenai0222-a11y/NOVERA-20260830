@@ -332,6 +332,12 @@
                 <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
                     免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
                 </div>
+            
+                <div style="text-align: center; margin-top: 8px; font-size: 0.78rem; color: #94A3B8;">
+                    <a href="privacy.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">隱私權政策</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="terms.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">服務條款</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -536,7 +542,7 @@
             const dur = document.getElementById('sch-duration').value || '180';
             const endText = document.getElementById('sch-out-enddate').innerText.trim();
             const remain = document.getElementById('sch-out-remain').innerText.trim();
-            const msg = `【工區完工排程速報 ‧ NOVERA】\n📅 開工日期：${start}\n⏳ 契約工期：${dur} 天\n🎯 預定完工日：${endText}\n📊 倒數狀態：${remain}\n\n🛠️ 工期與雨量推算工具：https://novera-tw.netlify.app/schedule.html`;
+            const msg = `【工區完工排程速報 ‧ NOVERA】\n📅 開工日期：${start}\n⏳ 契約工期：${dur} 天\n🎯 預定完工日：${endText}\n📊 倒數狀態：${remain}\n\n🛠️ 工期與雨量推算工具：https://gardenai0222-a11y.github.io/schedule.html`;
             window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
         };
 

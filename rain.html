@@ -419,6 +419,12 @@
                 <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
                     免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
                 </div>
+            
+                <div style="text-align: center; margin-top: 8px; font-size: 0.78rem; color: #94A3B8;">
+                    <a href="privacy.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">隱私權政策</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="terms.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">服務條款</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -806,12 +812,12 @@
                 const qDate = document.getElementById('rain-single-date').value;
                 const rVal = document.getElementById('rain-val-input').value || '0';
                 const isPass = parseFloat(rVal) >= threshold;
-                msg = `【降雨免計工期判定速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 查詢日期：${qDate}\n🌧️ 實測累積雨量：${rVal} mm (門檻 ≥ ${threshold} mm)\n⚖️ 判定結果：${isPass ? '✅ 符合免計工期 1 日！' : '❌ 未達契約門檻'}\n\n🔍 全國氣象免計工期查詢系統：https://novera-tw.netlify.app/rain.html`;
+                msg = `【降雨免計工期判定速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 查詢日期：${qDate}\n🌧️ 實測累積雨量：${rVal} mm (門檻 ≥ ${threshold} mm)\n⚖️ 判定結果：${isPass ? '✅ 符合免計工期 1 日！' : '❌ 未達契約門檻'}\n\n🔍 全國氣象免計工期查詢系統：https://gardenai0222-a11y.github.io/rain.html`;
             } else {
                 const sDate = document.getElementById('rain-range-start').value;
                 const eDate = document.getElementById('rain-range-end').value;
                 let passCount = currentRangeData.filter(x => x.pass).length;
-                msg = `【歷史停工區間雨量彙總速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 停工區間：${sDate} 至 ${eDate}\n🌧️ 契約門檻：日雨量 ≥ ${threshold} mm\n⚖️ 彙整結論：總計可申請免計工期 ${passCount} 天！\n\n🔍 全國氣象免計工期核算系統：https://novera-tw.netlify.app/rain.html`;
+                msg = `【歷史停工區間雨量彙總速報 ‧ NOVERA】\n📍 工地測站：${item ? item.st : '觀測站'}\n📅 停工區間：${sDate} 至 ${eDate}\n🌧️ 契約門檻：日雨量 ≥ ${threshold} mm\n⚖️ 彙整結論：總計可申請免計工期 ${passCount} 天！\n\n🔍 全國氣象免計工期核算系統：https://gardenai0222-a11y.github.io/rain.html`;
             }
             window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
         };

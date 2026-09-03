@@ -410,6 +410,12 @@
                 <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
                     免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
                 </div>
+            
+                <div style="text-align: center; margin-top: 8px; font-size: 0.78rem; color: #94A3B8;">
+                    <a href="privacy.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">隱私權政策</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="terms.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">服務條款</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -581,7 +587,7 @@
             const lapB = document.getElementById('rb-out-lap-b').innerText.trim();
             const topB = document.getElementById('rb-out-lap-top').innerText.trim();
             const hook90 = document.getElementById('rb-out-hook-90').innerText.trim();
-            const msg = `【鋼筋規範搭接速報 ‧ NOVERA】\n📐 號數：${spec.us} (${currentRebarKey})\n⚙️ 材質/混凝土：${grade} ｜ f'c = ${fc} kgf/cm²\n📏 乙級搭接(一般)：${lapB}\n📏 乙級搭接(頂層筋)：${topB}\n📐 90°標準彎鉤：${hook90}\n\n🔍 鋼筋規範速查手冊：https://novera-tw.netlify.app/rebar.html`;
+            const msg = `【鋼筋規範搭接速報 ‧ NOVERA】\n📐 號數：${spec.us} (${currentRebarKey})\n⚙️ 材質/混凝土：${grade} ｜ f'c = ${fc} kgf/cm²\n📏 乙級搭接(一般)：${lapB}\n📏 乙級搭接(頂層筋)：${topB}\n📐 90°標準彎鉤：${hook90}\n\n🔍 鋼筋規範速查手冊：https://gardenai0222-a11y.github.io/rebar.html`;
             window.open('https://line.me/R/msg/text/?' + encodeURIComponent(msg), '_blank');
         };
 

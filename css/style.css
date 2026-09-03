@@ -1521,6 +1521,7 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 1200px !important;
     margin: 0 auto !important;
 }
+.ad-banner {
     background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-strict);

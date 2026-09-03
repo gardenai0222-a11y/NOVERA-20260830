@@ -314,6 +314,9 @@
                             <div class="twin-sub-note">
                                 <i class="fas fa-check-circle" style="color: #34D399;"></i> 官方標準排版 ｜ 100% 免登入即刻下載
                             </div>
+                            <div id="radar-update-status" style="margin-top: 8px; font-size: 0.78rem; color: #6EE7B7; text-align: center; background: rgba(16, 185, 129, 0.12); padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                                <i class="fas fa-clock"></i> <span id="tender-update-time">每日 07:30 / 12:30 雲端自動更新</span>
+                            </div>
                         </div>
                     </div>
 
@@ -527,6 +530,12 @@
                 <div style="text-align: right; font-size: 0.78rem; color: #64748B; max-width: 620px; line-height: 1.5;">
                     免責聲明：本站所有線上結構計算、S曲線、工期及財務試算工具僅供工程實務初估與現場速查輔助，實際工程施作、計價及正式送審簽證，仍須依各標案核定圖說規範及註冊執業技師簽證結論為準。
                 </div>
+            
+                <div style="text-align: center; margin-top: 8px; font-size: 0.78rem; color: #94A3B8;">
+                    <a href="privacy.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">隱私權政策</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="terms.html" style="color: #60A5FA; text-decoration: none; margin: 0 6px;">服務條款</a>
+                </div>
             </div>
         </div>
     </footer>
@@ -691,6 +700,17 @@
                 alert('國泰世華銀行帳號已複製至剪貼簿！感謝您的支持！');
             });
         }
+    </script>
+    <script src="tenders_data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.TENDERS_DATA && window.TENDERS_DATA.updated_at) {
+                var el = document.getElementById('tender-update-time');
+                if (el) {
+                    el.innerHTML = '已更新至 <span style="color:#A7F3D0; font-weight:700;">' + window.TENDERS_DATA.updated_at + '</span> ｜ 今日收錄 <span style="color:#FCD34D; font-weight:800;">' + (window.TENDERS_DATA.total || 0) + '</span> 筆';
+                }
+            }
+        });
     </script>
 </body>
 </html>
