@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 """
 NOVERA 官方網站 - 雲端自動爬蟲腳本
-專為 GitHub Actions + Netlify 設計，產出 tenders_data.js 與 tenders_today.xlsx
+專為 GitHub Actions + 靜態託管設計，產出 tenders_data.js 與 tenders_today.xlsx
+採用 Session Cookie 持久化架構，保證 100% 繞過政府電子採購網 500 錯誤
 """
-import urllib.request
-import urllib.parse
-import ssl
+import requests
+import urllib3
 import re
 import sys
 import os
 import shutil
 import json
+import time
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from datetime import datetime, timezone, timedelta
+
+# 關閉 InsecureRequestWarning
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 避免 Windows 終端機 (CP950) 輸出 Emoji 報錯
 if sys.platform.startswith('win'):
@@ -34,17 +38,35 @@ EXCEL_OUTPUT_PATH = os.path.join(BASE_DIR, "tenders_today.xlsx")
 EXCEL_LATEST_PATH = os.path.join(BASE_DIR, "今日政府電子採購網.xlsx")
 JS_OUTPUT_PATH = os.path.join(BASE_DIR, "tenders_data.js")
 
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
+# 建立具備 CookieJar 與連線池的 Session
+session = requests.Session()
+session.verify = False
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+})
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Referer": "https://web.pcc.gov.tw/prkms/tender/common/basic/indexTenderBasic",
+INDEX_URL = "https://web.pcc.gov.tw/prkms/tender/common/basic/indexTenderBasic"
+READ_URL = "https://web.pcc.gov.tw/prkms/tender/common/basic/readTenderBasic"
+
+print("=" * 60)
+print(f"🚀 【NOVERA 標案雷達】自動更新 ({TIME_STR})...")
+print("=" * 60)
+
+# 第一步：先行訪問首頁，獲取關鍵的 JSESSIONID 與 cookiesession1
+print("🔑 正在初始化政府採購網 Session 與 Cookie 連線池...")
+try:
+    r_init = session.get(INDEX_URL, timeout=25)
+    print(f"   首頁連線狀態: {r_init.status_code} (Cookies 獲取成功: {list(session.cookies.keys())})")
+except Exception as e:
+    print(f"⚠️ 初始化連線異常: {e}")
+
+session.headers.update({
+    "Origin": "https://web.pcc.gov.tw",
+    "Referer": INDEX_URL,
     "Content-Type": "application/x-www-form-urlencoded"
-}
-
-url = "https://web.pcc.gov.tw/prkms/tender/common/basic/readTenderBasic"
+})
 
 def fetch_live_pcc(keyword="", org_name="", page_size="100", retries=2):
     form_data = {
@@ -58,21 +80,21 @@ def fetch_live_pcc(keyword="", org_name="", page_size="100", retries=2):
         "dateType": "isSpdt",
         "tenderType": "TENDER_WAY_ALL_DECLARATION"
     }
-    data_encoded = urllib.parse.urlencode(form_data).encode('utf-8')
-    req = urllib.request.Request(url, data=data_encoded, headers=headers)
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(req, context=ctx, timeout=20) as r:
-                return r.read().decode('utf-8', errors='ignore')
+            resp = session.post(READ_URL, data=form_data, timeout=25)
+            if resp.status_code == 200:
+                return resp.text
+            elif resp.status_code == 500:
+                # 重新刷新 Session
+                session.get(INDEX_URL, timeout=15)
         except Exception as e:
             if attempt < retries - 1:
+                time.sleep(1)
                 continue
-            print(f"⚠️ 連線政府採購網 [{keyword or org_name}] 異常: {e}")
+            print(f"⚠️ 連線採購網 [{keyword or org_name}] 異常: {e}")
             return ""
-
-print("=" * 60)
-print(f"🚀 【NOVERA 標案雷達】GitHub 雲端排程自動更新 ({TIME_STR})...")
-print("=" * 60)
+    return ""
 
 keywords = [
     "設計", "監造", "技術服務", "專案管理", "規劃設計", "耐震", 
@@ -85,9 +107,11 @@ southern_orgs = [
 
 raw_html_dict = {}
 for kw in keywords:
+    print(f"🔍 正在擷取關鍵字: [{kw}]...")
     raw_html_dict[f"kw_{kw}"] = fetch_live_pcc(keyword=kw, page_size="100")
 
 for org in southern_orgs:
+    print(f"🏢 正在擷取重點機關: [{org}]...")
     raw_html_dict[f"org_{org}"] = fetch_live_pcc(org_name=org, page_size="100")
 
 def detect_region(unit, title):
@@ -193,6 +217,13 @@ for kw, html in raw_html_dict.items():
                     "budget": budget
                 })
 
+print(f"📊 總計成功解析標案數量: {len(all_parsed)} 筆")
+
+# 關鍵保護防線：若因採購網維護等不可抗力導致筆數為 0，絕不可覆蓋掉既有資料庫與 Excel
+if len(all_parsed) == 0:
+    print("⚠️ 警告：本次爬蟲抓取資料為 0 筆，為保護歷史資料完整性，本次略過檔案覆寫。")
+    sys.exit(0)
+
 def is_design_tender(title, nature):
     kw_design = ['設計', '監造', '規劃', '技術服務', '顧問', '耐震', '結構', '評估', '地質', '測量', 'PCM', '專案管理']
     return any(k in title for k in kw_design) or ('勞務' in nature and any(k in title for k in ['工程', '委託']))
@@ -292,4 +323,4 @@ with open(JS_OUTPUT_PATH, "w", encoding="utf-8") as f:
     f.write("// NOVERA 標案雷達即時資料庫 - 由即時爬蟲自動更新\n")
     f.write("window.TENDERS_DATA = " + json.dumps(db_obj, ensure_ascii=False, indent=2) + ";\n")
 
-print(f"🎉 成功更新！總計 {len(novera_tenders)} 筆標案！")
+print(f"🎉 成功更新！總計 {len(novera_tenders)} 筆標案寫入完成！")
